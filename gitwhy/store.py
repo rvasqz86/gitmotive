@@ -34,9 +34,33 @@ def repo_root(start: Optional[str] = None) -> Path:
         return Path(cwd)
 
 
+def user_home() -> Path:
+    return Path(os.environ.get("GITWHY_HOME") or Path.home() / ".gitwhy")
+
+
+def user_store_dir(root: Path) -> Path:
+    import hashlib
+    h = hashlib.sha1(str(root.resolve()).encode()).hexdigest()[:16]
+    return user_home() / "repos" / h
+
+
 def events_path(root: Optional[Path] = None) -> Path:
+    """Resolution order:
+      1. GITWHY_STORE=user  -> ~/.gitwhy/repos/<hash>/events.jsonl   (never touches the repo)
+      2. <repo>/.gitwhy/ exists -> use it
+      3. ~/.gitwhy/repos/<hash>/ exists -> use it
+      4. default <repo>/.gitwhy/
+    """
     root = root or repo_root()
-    return root / STORE_DIR / EVENTS_FILE
+    in_repo = root / STORE_DIR / EVENTS_FILE
+    user = user_store_dir(root) / EVENTS_FILE
+    if os.environ.get("GITWHY_STORE") == "user":
+        return user
+    if in_repo.exists():
+        return in_repo
+    if user.exists():
+        return user
+    return in_repo
 
 
 @dataclass

@@ -37,6 +37,17 @@ gitwhy install
 
 Then use your agent normally.
 
+### Client / consulting machines: `--scope user`
+
+```sh
+gitwhy install --agent copilot,claude --scope user
+export GITWHY_STORE=user   # add to your shell rc
+```
+
+Writes nothing into any repository: hook configs go under `~/.copilot/hooks/`, `~/.claude/settings.json`, `~/.cursor/hooks.json`, `~/.omp/agent/settings.json`; events go to `~/.gitwhy/repos/<hash-of-repo-path>/`. No git hook; `why` and `log` attach edits to commits lazily on read (a commit matches when it introduced lines from the edit). `git status` in the client repo stays clean.
+
+Prompts are stored verbatim and may contain client material. They stay on your machine, but check the engagement's tooling policy before enabling, same as you would for any agent transcript.
+
 ## Supported agents
 
 | agent | config written | status |
@@ -55,13 +66,13 @@ All four feed one `Event` schema (`gitwhy/adapters.py`). First session with a ne
 | `gitwhy why <file>:<line>` | prompt + reasoning + sibling files for that line. `--all` lists older candidates |
 | `gitwhy log [file]` | every recorded prompt, with files it touched and commits it landed in |
 | `gitwhy stamp` | tag uncommitted edit events with `HEAD` (post-commit hook runs this) |
-| `gitwhy install` | wire hooks in the current repo |
+| `gitwhy install [--agent …] [--scope repo\|user]` | wire hooks; `user` scope leaves the repo untouched |
 
 ## How it links
 
 - Hooks append to `.gitwhy/events.jsonl`. Append-only, so concurrent hook runs never corrupt it.
 - Each `edit` event links to the latest `prompt` event in the same session, and captures the assistant text block that preceded the tool call (read from `transcript_path`, best-effort).
-- `stamp` matches unstamped edits to `HEAD` by file + time.
+- `stamp` attaches each unstamped edit to the first later commit that introduced one of its lines (`git show sha:file` vs `sha^:file`). Runs from the post-commit hook in repo scope, lazily inside `why`/`log` in user scope.
 - `why` runs `git blame -p -w -C -C` on the line, then scores edit events: same commit (+100), line text appears in the edit's new content (+50), both uncommitted (+10). Top score wins; ties go to most recent.
 
 Deterministic provenance, no LLM in the loop. If the hook did not see the edit, `why` says "none recorded" rather than guessing.
