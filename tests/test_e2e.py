@@ -9,7 +9,7 @@ from pathlib import Path
 PKG = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(PKG))
 
-from gitwhy import capture, resolve, store  # noqa: E402
+from gitmotive import capture, resolve, store  # noqa: E402
 
 
 def git(root, *a):
@@ -72,7 +72,7 @@ def test_flow():
         # 4. commit + stamp
         git(root, "add", ".")
         git(root, "commit", "-qm", "add retry")
-        from gitwhy import cli
+        from gitmotive import cli
         os.chdir(root)
         assert cli.cmd_stamp([]) == 0
         events = store.read_all(root)

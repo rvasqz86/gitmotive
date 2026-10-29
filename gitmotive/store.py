@@ -1,6 +1,6 @@
-"""Append-only event store for gitwhy.
+"""Append-only event store for gitmotive.
 
-Events live in <repo>/.gitwhy/events.jsonl. One JSON object per line.
+Events live in <repo>/.gitmotive/events.jsonl. One JSON object per line.
 Append-only so concurrent hook invocations never corrupt the file.
 
 Event kinds:
@@ -18,7 +18,7 @@ from dataclasses import dataclass, field, asdict
 from pathlib import Path
 from typing import Iterable, Optional
 
-STORE_DIR = ".gitwhy"
+STORE_DIR = ".gitmotive"
 EVENTS_FILE = "events.jsonl"
 
 
@@ -35,7 +35,7 @@ def repo_root(start: Optional[str] = None) -> Path:
 
 
 def user_home() -> Path:
-    return Path(os.environ.get("GITWHY_HOME") or Path.home() / ".gitwhy")
+    return Path(os.environ.get("GITMOTIVE_HOME") or Path.home() / ".gitmotive")
 
 
 def user_store_dir(root: Path) -> Path:
@@ -46,15 +46,15 @@ def user_store_dir(root: Path) -> Path:
 
 def events_path(root: Optional[Path] = None) -> Path:
     """Resolution order:
-      1. GITWHY_STORE=user  -> ~/.gitwhy/repos/<hash>/events.jsonl   (never touches the repo)
-      2. <repo>/.gitwhy/ exists -> use it
-      3. ~/.gitwhy/repos/<hash>/ exists -> use it
-      4. default <repo>/.gitwhy/
+      1. GITMOTIVE_STORE=user  -> ~/.gitmotive/repos/<hash>/events.jsonl   (never touches the repo)
+      2. <repo>/.gitmotive/ exists -> use it
+      3. ~/.gitmotive/repos/<hash>/ exists -> use it
+      4. default <repo>/.gitmotive/
     """
     root = root or repo_root()
     in_repo = root / STORE_DIR / EVENTS_FILE
     user = user_store_dir(root) / EVENTS_FILE
-    if os.environ.get("GITWHY_STORE") == "user":
+    if os.environ.get("GITMOTIVE_STORE") == "user":
         return user
     if in_repo.exists():
         return in_repo

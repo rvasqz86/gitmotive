@@ -2,7 +2,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-from gitwhy.adapters import normalize  # noqa: E402
+from gitmotive.adapters import normalize  # noqa: E402
 
 
 def test_claude_prompt():

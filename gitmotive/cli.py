@@ -1,11 +1,11 @@
-"""gitwhy CLI.
+"""git blame tells you who. git motive tells you why.
 
-  gitwhy why <file>:<line>     why does this line exist
-  gitwhy log [file]            prompts recorded, with files they touched
-  gitwhy stamp                 tag uncommitted edit events with HEAD (run from post-commit)
-  gitwhy install [--agent claude|cursor|copilot|omp|all] [--scope repo|user]
+  git motive <file>:<line>        why does this line exist (also: gitmotive why <file>:<line>)
+  gitmotive log [file]            prompts recorded, with files they touched
+  gitmotive stamp                 tag uncommitted edit events with HEAD (run from post-commit)
+  gitmotive install [--agent claude|cursor|copilot|omp|all] [--scope repo|user]
                                repo: hooks in this repo. user: hooks under ~/, zero repo footprint
-  gitwhy capture               (internal) hook entrypoint, reads payload on stdin
+  gitmotive capture               (internal) hook entrypoint, reads payload on stdin
 """
 from __future__ import annotations
 
@@ -32,7 +32,7 @@ def _wrap(s: str, indent: str = "    ", width: int = 88) -> str:
 
 def cmd_why(args: list[str]) -> int:
     if not args or ":" not in args[0]:
-        print("usage: gitwhy why <file>:<line>", file=sys.stderr)
+        print("usage: gitmotive why <file>:<line>", file=sys.stderr)
         return 2
     file, _, line_s = args[0].rpartition(":")
     try:
@@ -165,7 +165,7 @@ def cmd_stamp(_args: list[str]) -> int:
     return 0
 
 
-HOOK_CMD = f"{sys.executable} -m gitwhy capture"
+HOOK_CMD = f"{sys.executable} -m gitmotive capture"
 AGENTS = ("claude", "cursor", "copilot", "omp")
 
 
@@ -180,7 +180,7 @@ def _claude_style(cfg: dict, cmd: str, prompt_event: str, tool_event: str, match
     def ensure(event: str, m: str | None):
         lst = hooks.setdefault(event, [])
         for entry in lst:
-            if any("gitwhy capture" in h.get("command", "") for h in entry.get("hooks", [])):
+            if any("gitmotive capture" in h.get("command", "") for h in entry.get("hooks", [])):
                 return
         entry = {"hooks": [{"type": "command", "command": cmd, "timeout": 10}]}
         if m:
@@ -220,7 +220,7 @@ def install_cursor(root: Path, cmd: str) -> None:
     for event in ("beforeSubmitPrompt", "afterFileEdit"):
         lst = hooks.setdefault(event, [])
         c = f"{cmd} --agent cursor --event {event}"
-        if not any("gitwhy capture" in h.get("command", "") for h in lst):
+        if not any("gitmotive capture" in h.get("command", "") for h in lst):
             lst.append({"command": c})
     p.write_text(json.dumps(cfg, indent=2) + "\n")
     print(f"wrote {p}")
@@ -228,14 +228,14 @@ def install_cursor(root: Path, cmd: str) -> None:
 
 def install_copilot(root: Path, cmd: str) -> None:
     # PascalCase event keys make Copilot CLI emit Claude-style snake_case payloads and tool names.
-    p = (Path.home() / ".copilot" / "hooks" / "gitwhy.json") if root is None else (root / ".github" / "hooks" / "gitwhy.json")
+    p = (Path.home() / ".copilot" / "hooks" / "gitmotive.json") if root is None else (root / ".github" / "hooks" / "gitmotive.json")
     p.parent.mkdir(parents=True, exist_ok=True)
     cfg = _load_json(p)
     cfg.setdefault("version", 1)
     hooks = cfg.setdefault("hooks", {})
     for event in ("UserPromptSubmit", "PostToolUse"):
         lst = hooks.setdefault(event, [])
-        if not any("gitwhy capture" in h.get("command", "") for h in lst):
+        if not any("gitmotive capture" in h.get("command", "") for h in lst):
             lst.append({"type": "command", "command": f"{cmd} --agent claude", "timeoutSec": 10})
     p.write_text(json.dumps(cfg, indent=2) + "\n")
     print(f"wrote {p}")
@@ -257,12 +257,12 @@ def cmd_install(args: list[str]) -> int:
             return 2
 
     if scope == "user":
-        # Nothing written into any repo. Hook configs under ~/, events under ~/.gitwhy/repos/<hash>/.
-        cmd = f"GITWHY_STORE=user PYTHONPATH={pkg_dir} {HOOK_CMD}"
+        # Nothing written into any repo. Hook configs under ~/, events under ~/.gitmotive/repos/<hash>/.
+        cmd = f"GITMOTIVE_STORE=user PYTHONPATH={pkg_dir} {HOOK_CMD}"
         for a in agents:
             {"claude": install_claude, "cursor": install_cursor,
              "copilot": install_copilot, "omp": install_omp}[a](None, cmd)
-        print("events stored under ~/.gitwhy/repos/  (set GITWHY_STORE=user in your shell so why/log read the same place)")
+        print("events stored under ~/.gitmotive/repos/  (set GITMOTIVE_STORE=user in your shell so why/log read the same place)")
         print("stamping is lazy: why/log attach edits to commits on read, no git hook needed")
         return 0
 
@@ -273,10 +273,10 @@ def cmd_install(args: list[str]) -> int:
          "copilot": install_copilot, "omp": install_omp}[a](root, cmd)
 
     hook = root / ".git" / "hooks" / "post-commit"
-    stamp_line = f"PYTHONPATH={pkg_dir} {sys.executable} -m gitwhy stamp >/dev/null 2>&1 || true\n"
+    stamp_line = f"PYTHONPATH={pkg_dir} {sys.executable} -m gitmotive stamp >/dev/null 2>&1 || true\n"
     if hook.exists():
         body = hook.read_text()
-        if "gitwhy stamp" not in body:
+        if "gitmotive stamp" not in body:
             hook.write_text(body.rstrip("\n") + "\n" + stamp_line)
     else:
         hook.write_text("#!/bin/sh\n" + stamp_line)
@@ -286,9 +286,9 @@ def cmd_install(args: list[str]) -> int:
     exclude = root / ".git" / "info" / "exclude"
     exclude.parent.mkdir(parents=True, exist_ok=True)
     body = exclude.read_text() if exclude.exists() else ""
-    if ".gitwhy/" not in body:
-        exclude.write_text(body.rstrip("\n") + "\n.gitwhy/\n")
-    print("excluded .gitwhy/ from git")
+    if ".gitmotive/" not in body:
+        exclude.write_text(body.rstrip("\n") + "\n.gitmotive/\n")
+    print("excluded .gitmotive/ from git")
     return 0
 
 
@@ -298,6 +298,8 @@ def main(argv: list[str] | None = None) -> int:
         print(__doc__)
         return 2
     cmd, rest = argv[0], argv[1:]
+    if ":" in cmd and cmd.rsplit(":", 1)[1].isdigit():   # git motive file.py:42
+        return cmd_why(argv)
     if cmd == "capture":
         return capture.main(rest)
     if cmd == "why":

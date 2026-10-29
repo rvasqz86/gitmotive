@@ -1,7 +1,7 @@
 [project]
-name = "gitwhy"
+name = "gitmotive"
 version = "0.1.0"
-description = "git blame for intent: link every line to the prompt and reasoning that produced it"
+description = "git blame tells you who. git motive tells you why. Links AI-written lines to the prompt and reasoning that produced them."
 requires-python = ">=3.10"
 license = "MIT"
 license-files = ["LICENSE"]
@@ -9,12 +9,14 @@ authors = [{name = "Raul Vasquez", email = "rvasqz86@gmail.com"}]
 readme = "README.md"
 keywords = ["git", "blame", "provenance", "ai", "claude-code", "copilot", "cursor"]
 
-[project.urls]
-Homepage = "https://github.com/rvasqz86/gitwhy"
 dependencies = []
 
+[project.urls]
+Homepage = "https://github.com/rvasqz86/gitmotive"
+
 [project.scripts]
-gitwhy = "gitwhy.cli:main"
+gitmotive = "gitmotive.cli:main"
+git-motive = "gitmotive.cli:main"
 
 [build-system]
 requires = ["setuptools>=68"]

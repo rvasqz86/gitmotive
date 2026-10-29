@@ -109,7 +109,7 @@ def main(argv: Optional[list[str]] = None) -> int:
     try:
         handle(payload, agent=agent, event=event)
     except Exception as e:  # never block the agent
-        sys.stderr.write(f"gitwhy capture error: {e}\n")
+        sys.stderr.write(f"gitmotive capture error: {e}\n")
     return 0
 
 
