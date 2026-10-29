@@ -1,0 +1,13 @@
+[project]
+name = "gitwhy"
+version = "0.1.0"
+description = "git blame for intent: link every line to the prompt and reasoning that produced it"
+requires-python = ">=3.10"
+dependencies = []
+
+[project.scripts]
+gitwhy = "gitwhy.cli:main"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
