@@ -29,13 +29,24 @@ cd ~/your/project
 gitwhy install
 ```
 
-`gitwhy install` does three things in the current repo:
+`gitwhy install [--agent claude|cursor|copilot|omp|all]` (default `claude`) does three things in the current repo:
 
-1. Adds `UserPromptSubmit` and `PostToolUse` (Edit/Write/MultiEdit) hooks to `.claude/settings.json`
+1. Writes the agent's hook config so prompt and file-edit events reach `gitwhy capture`
 2. Adds a git `post-commit` hook that runs `gitwhy stamp`
 3. Excludes `.gitwhy/` from git via `.git/info/exclude`
 
-Then use Claude Code normally.
+Then use your agent normally.
+
+## Supported agents
+
+| agent | config written | status |
+|---|---|---|
+| Claude Code | `.claude/settings.json` (`UserPromptSubmit`, `PostToolUse` matcher `Edit\|Write\|MultiEdit`) | native, reasoning captured from transcript |
+| Cursor | `.cursor/hooks.json` (`beforeSubmitPrompt`, `afterFileEdit`) | prompt + edits; `conversation_id` is the session; no reasoning yet |
+| GitHub Copilot CLI | `.github/hooks/gitwhy.json` (PascalCase keys, Claude-shaped payloads) | prompt + edits; edit-tool arg names not documented, adapter probes common ones |
+| oh-my-pi | `.omp/settings.json` via the [omp-hooks](https://github.com/ZeR020/omp-hooks) plugin | prompt + edits; matches all tools, ignores non-file ones |
+
+All four feed one `Event` schema (`gitwhy/adapters.py`). First session with a new agent: dump a raw payload (`cat > /tmp/hook.json` as the hook command) and confirm field names; the adapter is tolerant but undocumented shapes exist.
 
 ## Commands
 
@@ -57,7 +68,8 @@ Deterministic provenance, no LLM in the loop. If the hook did not see the edit, 
 
 ## Known gaps (v0.1)
 
-- Claude Code only. Copilot CLI, Cursor, Codex need adapters.
+- Reasoning text (assistant message before the edit) only captured on Claude Code. Cursor/Copilot/omp expose it differently or not at all.
+- Codex and agents without hooks: not supported. Fallback would be transcript polling, lossy.
 - Events are local to the clone. Next step: publish per-commit intent to `git notes` so provenance travels with the repo.
 - Edits by hand after the agent are not recorded; `why` will still return the agent's intent for the parent line via blame `-C`, which is usually what you want.
 - `transcript_path` format is undocumented. Reasoning capture degrades to "last assistant text" if the structure changes; prompt linkage does not depend on it.

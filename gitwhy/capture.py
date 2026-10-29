@@ -1,4 +1,4 @@
-"""Claude Code hook entrypoint. Reads one hook payload JSON from stdin, appends an event.
+"""Hook entrypoint for all agents. Reads one hook payload JSON from stdin, appends an event.
 
 Wired via settings.json:
   UserPromptSubmit -> records the prompt
@@ -16,7 +16,7 @@ import sys
 from pathlib import Path
 from typing import Optional
 
-from . import store
+from . import adapters, store
 
 
 def _rel(path: str, root: Path) -> str:
@@ -67,66 +67,51 @@ def _preceding_assistant_text(transcript_path: Optional[str], tool_use_id: Optio
         return None
 
 
-def handle(payload: dict) -> Optional[store.Event]:
-    event_name = payload.get("hook_event_name", "")
-    session = payload.get("session_id", "unknown")
-    root = store.repo_root(payload.get("cwd"))
+def handle(payload: dict, agent: Optional[str] = None, event: Optional[str] = None) -> Optional[store.Event]:
+    n = adapters.normalize(payload, agent=agent, event=event)
+    if not n["event"]:
+        return None
+    session = n["session"]
+    root = store.repo_root(n["cwd"])
 
-    if event_name == "UserPromptSubmit":
-        prompt = payload.get("prompt")
-        if not prompt:
-            return None
-        ev = store.Event(kind="prompt", session=session, ts=store.now(), prompt=prompt)
+    if n["event"] == "prompt":
+        ev = store.Event(kind="prompt", session=session, ts=store.now(), prompt=n["prompt"])
         store.append(ev, root)
         return ev
 
-    if event_name == "PostToolUse":
-        tool = payload.get("tool_name", "")
-        ti = payload.get("tool_input") or {}
-        file_path = ti.get("file_path")
-        if not file_path:
-            return None
-        events = store.read_all(root)
-        p = store.latest_prompt(events, session)
-        reasoning = _preceding_assistant_text(payload.get("transcript_path"), payload.get("tool_use_id"))
-        rel = _rel(file_path, root)
-
-        if tool == "MultiEdit" and isinstance(ti.get("edits"), list):
-            last = None
-            for e in ti["edits"]:
-                ev = store.Event(
-                    kind="edit", session=session, ts=store.now(), file=rel, tool=tool,
-                    old=e.get("old_string"), new=e.get("new_string"),
-                    reasoning=reasoning, prompt_id=p.id if p else None,
-                )
-                store.append(ev, root)
-                last = ev
-            return last
-
-        ev = store.Event(
-            kind="edit", session=session, ts=store.now(), file=rel, tool=tool,
-            old=ti.get("old_string"),
-            new=ti.get("new_string") if "new_string" in ti else ti.get("content"),
+    events = store.read_all(root)
+    p = store.latest_prompt(events, session)
+    reasoning = _preceding_assistant_text(n["transcript_path"], n["tool_use_id"])
+    rel = _rel(n["file_path"], root)
+    last = None
+    for e in n["edits"] or [{"old": None, "new": None}]:
+        last = store.Event(
+            kind="edit", session=session, ts=store.now(), file=rel, tool=n["tool"],
+            old=e.get("old"), new=e.get("new"),
             reasoning=reasoning, prompt_id=p.id if p else None,
-            raw=None,
         )
-        store.append(ev, root)
-        return ev
-
-    return None
+        store.append(last, root)
+    return last
 
 
-def main() -> int:
+def main(argv: Optional[list[str]] = None) -> int:
+    argv = argv or []
+    agent = event = None
+    for i, a in enumerate(argv):
+        if a == "--agent" and i + 1 < len(argv):
+            agent = argv[i + 1]
+        if a == "--event" and i + 1 < len(argv):
+            event = argv[i + 1]
     try:
         payload = json.load(sys.stdin)
     except (json.JSONDecodeError, OSError):
         return 0
     try:
-        handle(payload)
+        handle(payload, agent=agent, event=event)
     except Exception as e:  # never block the agent
         sys.stderr.write(f"gitwhy capture error: {e}\n")
     return 0
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    sys.exit(main(sys.argv[1:]))
