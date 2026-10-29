@@ -85,3 +85,7 @@ Deterministic provenance, no LLM in the loop. If the hook did not see the edit, 
 - Edits by hand after the agent are not recorded; `why` will still return the agent's intent for the parent line via blame `-C`, which is usually what you want.
 - `transcript_path` format is undocumented. Reasoning capture degrades to "last assistant text" if the structure changes; prompt linkage does not depend on it.
 - Line matching uses exact stripped-text equality. Reformatting (black, prettier) after the edit breaks the +50 signal; the commit signal still holds.
+
+## License
+
+MIT
