@@ -22,12 +22,22 @@ src/fetch.py:42
 
 Deterministic provenance. No LLM in the loop, no cloud, no API key. If the hook did not see the edit, it says "none recorded" rather than guessing.
 
-## Install (dogfood mode)
+## Install
 
 ```sh
-git clone <this repo> ~/src/gitmotive
-cd ~/src/gitmotive && pip install -e .
-cd ~/your/project
+git clone https://github.com/rvasqz86/gitmotive ~/src/gitmotive
+sh ~/src/gitmotive/install.sh
+```
+
+`install.sh` creates a venv at `~/.gitmotive/venv`, installs the package into it, and puts `gitmotive` and `git-motive` wrappers in `~/.local/bin`. No system pip needed; if the venv has no pip either, it links the source tree with a `.pth` file. Pass agent args to run the hook setup in the same step:
+
+```sh
+sh ~/src/gitmotive/install.sh --agent copilot,claude --scope user
+```
+
+Then, in a repo:
+
+```sh
 gitmotive install
 ```
 
