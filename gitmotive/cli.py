@@ -18,7 +18,7 @@ import sys
 import textwrap
 from pathlib import Path
 
-from . import capture, resolve, store
+from . import capture, hq, resolve, store
 
 
 def _fmt_ts(ts: float) -> str:
@@ -65,6 +65,10 @@ def cmd_why(args: list[str]) -> int:
     if p:
         print("  prompt")
         print(_wrap(p.prompt))
+        ref = hq.parse(p.prompt)
+        if ref:
+            for line in hq.describe(hq.resolve(root, ref), _wrap):
+                print(line)
     if e.reasoning:
         print("  reasoning")
         print(_wrap(e.reasoning))
@@ -100,7 +104,15 @@ def cmd_log(args: list[str]) -> int:
             continue
         commits = sorted({e.commit[:8] for e in edits if e.commit})
         print(f"{_fmt_ts(p.ts)}  {p.id}  session {p.session[:8]}  {len(edits)} edit(s)  {' '.join(commits)}")
-        print(_wrap(p.prompt[:300]))
+        ref = hq.parse(p.prompt)
+        if ref and ref.kind != "role":
+            ref = hq.resolve(root, ref)
+            tag = f"[hq {ref.kind}" + (f" r{ref.round}" if ref.round else "") + "]"
+            print(_wrap(f"{tag} {ref.task_title or ref.task or ''}".strip()))
+        elif ref:
+            print(_wrap(f"[hq role {ref.role}]"))
+        else:
+            print(_wrap(p.prompt[:300]))
         for f in files:
             print(f"      {f}")
     return 0

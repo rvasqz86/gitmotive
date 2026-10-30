@@ -71,6 +71,25 @@ Prompts are stored verbatim and may contain client material. They stay on your m
 
 All four feed one `Event` schema (`gitmotive/adapters.py`). First session with a new agent: dump a raw payload (`cat > /tmp/hook.json` as the hook command) and confirm field names; the adapter is tolerant but undocumented shapes exist.
 
+## Orchestrators (hq / herdr)
+
+When an orchestrator drives the agent, the prompt the hook sees is the orchestrator's ("Implement .hq/tasks/03-add-retry.md, round 2 …"), not yours. gitmotive recognises [hq](https://github.com/rvasqz86/herdr-config) prompts and dereferences them at display time: task title and goal from `.hq/tasks/NN-*.md`, the findings a later round is fixing from `.hq/reviews/NN.md`, and your original brief from `.hq/brief.md`. Nothing extra is stored; the files are already in the repo.
+
+```
+  prompt
+    Implement .hq/tasks/03-add-retry.md, round 2. Fix every finding in the latest round
+    of .hq/reviews/03.md. …
+  hq       implement  .hq/tasks/03-add-retry.md  round 2
+  task     Task 03: Add retry to fetch
+    Wrap http.get in bounded retry with exponential backoff, 3 attempts.
+  round 2 fixes findings from round 1:
+    - FIX: backoff is linear, spec says exponential
+  brief
+    Make fetch resilient to the flaky upstream; ops sees 502 bursts nightly.
+```
+
+Capture still has to be installed for whichever tool hq assigns to each role (`kind_impl` etc.); hooks for a tool that is not wired record nothing.
+
 ## Commands
 
 | command | what |
