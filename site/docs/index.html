@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Docs · gitmotive</title>
+<meta name="description" content="Install gitmotive, hook up Claude Code, Cursor, Copilot CLI or oh-my-pi, and ask any line why it exists. CLI reference and data format, generated from the real CLI.">
+<meta name="theme-color" content="#131a24" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#f3f5f8" media="(prefers-color-scheme: light)">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="gitmotive">
+<meta property="og:title" content="gitmotive docs">
+<meta property="og:description" content="Install, quickstart, agent setup, CLI reference and data format for gitmotive.">
+<meta property="og:image" content="https://gitmotive.tech/assets/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The gitmotive tagline above a blame view of a Python file, with the prompt and reasoning for line 42">
+<meta property="og:url" content="https://gitmotive.tech/docs/">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="https://gitmotive.tech/docs/">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon.ico" sizes="32x32">
+<link rel="stylesheet" href="/assets/site.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="top">
+  <nav class="bar" aria-label="Primary">
+    <a class="mark" href="/"><span class="mark-glyph" aria-hidden="true">±</span>gitmotive</a>
+    <ul>
+      <li><a href="/demo/">Demo</a></li>
+      <li><a href="/docs/" aria-current="page">Docs</a></li>
+      <li><a href="https://github.com/rvasqz86/gitmotive">GitHub</a></li>
+    </ul>
+  </nav>
+</header>
+
+<main id="main">
+<div class="block prose">
+<h1 id="docs-h">gitmotive docs</h1>
+<p>git blame tells you who. git motive tells you why. This page is generated from the CLI's own help text and the event schema, so it matches the version it ships with.</p>
+<nav class="toc" aria-labelledby="toc-h">
+<h2 id="toc-h">On this page</h2>
+<ol>
+<li><a href="#install">Install</a>
+<ol>
+<li><a href="#with-pipx">With pipx</a></li>
+<li><a href="#with-the-install-script">With the install script</a></li>
+<li><a href="#from-a-clone">From a clone</a></li>
+</ol></li>
+<li><a href="#quickstart">Quickstart</a></li>
+<li><a href="#agent-setup">Agent setup</a>
+<ol>
+<li><a href="#repo-scope-and-user-scope">Repo scope and user scope</a></li>
+<li><a href="#where-the-hooks-go">Where the hooks go</a></li>
+<li><a href="#hook-commands">Hook commands</a></li>
+<li><a href="#after-a-python-or-pipx-change">After a Python or pipx change</a></li>
+</ol></li>
+<li><a href="#cli-reference">CLI reference</a>
+<ol>
+<li><a href="#cli-why">git motive / gitmotive why</a></li>
+<li><a href="#cli-log">gitmotive log</a></li>
+<li><a href="#cli-stamp">gitmotive stamp</a></li>
+<li><a href="#cli-install">gitmotive install</a></li>
+<li><a href="#cli-capture">gitmotive capture</a></li>
+<li><a href="#cli-help">gitmotive help</a></li>
+<li><a href="#cli-version">gitmotive --version</a></li>
+</ol></li>
+<li><a href="#data-format">Data format</a>
+<ol>
+<li><a href="#store-locations">Store locations</a></li>
+<li><a href="#append-only">Append-only</a></li>
+<li><a href="#the-agent-field">The agent field</a></li>
+<li><a href="#event-fields">Event fields</a></li>
+</ol></li>
+</ol>
+</nav>
+</div>
+
+<section class="block prose">
+<h2 id="install"><span class="hash" aria-hidden="true">#</span>Install</h2>
+<p>gitmotive needs Python 3.10 or newer and git. It is pure standard library, with no runtime dependencies, no network calls and no telemetry.</p>
+<h3 id="with-pipx">With pipx</h3>
+<pre class="diff" tabindex="0" role="region" aria-label="Shell commands"><code>pipx install gitmotive</code></pre>
+<p>pipx puts <code>gitmotive</code> and <code>git-motive</code> on your PATH. Because git runs <code>git-motive</code> for <code>git motive</code>, both spellings work.</p>
+<h3 id="with-the-install-script">With the install script</h3>
+<pre class="diff" tabindex="0" role="region" aria-label="Shell commands"><code>curl -fsSL https://gitmotive.tech/install.sh | sh</code></pre>
+<p>The script checks for Python 3.10 or newer. If pipx is present it runs <code>pipx install gitmotive</code>. Otherwise it creates a venv at <code>~/.gitmotive/venv</code> and writes <code>gitmotive</code> and <code>git-motive</code> wrappers to <code>~/.local/bin</code>. Any arguments after <code>sh -s --</code> are passed to <code>gitmotive install</code>:</p>
+<pre class="diff" tabindex="0" role="region" aria-label="Shell commands"><code>curl -fsSL https://gitmotive.tech/install.sh | sh -s -- --agent claude --scope user</code></pre>
+<h3 id="from-a-clone">From a clone</h3>
+<pre class="diff" tabindex="0" role="region" aria-label="Shell commands"><code>git clone https://github.com/rvasqz86/gitmotive
+cd gitmotive
+sh install.sh</code></pre>
+<p><code>install.sh</code> installs this checkout into <code>~/.gitmotive/venv</code> and writes the same two wrappers to <code>~/.local/bin</code>. Arguments are passed to <code>gitmotive install</code>, for example <code>sh install.sh --agent claude,cursor --scope user</code>.</p>
+<p>Check the install:</p>
+<pre class="diff" tabindex="0" role="region" aria-label="Shell commands"><code>gitmotive --version</code></pre>
+</section>
+
+<section class="block prose">
+<h2 id="quickstart"><span class="hash" aria-hidden="true">#</span>Quickstart</h2>
+<ol><li>Hook up your agent, from the root of a git repository:</li></ol>
+<pre class="diff" tabindex="0" role="region" aria-label="Shell commands"><code>gitmotive install --agent claude</code></pre>
+<p>This writes the capture hooks to <code>.claude/settings.json</code>, adds a <code>post-commit</code> hook that runs <code>stamp</code>, and adds <code>.gitmotive/</code> to <code>.git/info/exclude</code>, so nothing gitmotive records is committed.</p>
+<ol start="2"><li>Use the agent as usual. Every prompt you submit and every file edit it makes is appended to <code>.gitmotive/events.jsonl</code>.</li><li>Commit:</li></ol>
+<pre class="diff" tabindex="0" role="region" aria-label="Shell commands"><code>git commit -am &quot;add retry with backoff&quot;</code></pre>
+<p>The <code>post-commit</code> hook stamps the new edits with the commit they landed in.</p>
+<ol start="4"><li>Ask any line why it exists:</li></ol>
+<pre class="diff" tabindex="0" role="region" aria-label="Shell commands"><code>git motive path/to/file.py:42</code></pre>
+<p><code>gitmotive why path/to/file.py:42</code> is the same command. It prints the line, the commit from <code>git blame</code>, the edit that wrote it, the prompt behind that edit, the agent&#x27;s reasoning and the other files changed for the same prompt. When nothing was recorded for a line it says <code>(none recorded)</code> and exits 1. It never guesses.</p>
+<ol start="5"><li>List what was recorded:</li></ol>
+<pre class="diff" tabindex="0" role="region" aria-label="Shell commands"><code>gitmotive log
+gitmotive log path/to/file.py</code></pre>
+<p>Each prompt is shown with its edit count, the commits its edits landed in and the files it touched.</p>
+</section>
+
+<section class="block prose">
+<h2 id="agent-setup"><span class="hash" aria-hidden="true">#</span>Agent setup</h2>
+<p><code>gitmotive install</code> writes hook entries into each agent&#x27;s own config file. Pick agents with <code>--agent</code>, as a comma-separated list or <code>all</code>. The default is <code>claude</code>.</p>
+<ul><li>Claude Code (<code>--agent claude</code>): supported.</li><li>Cursor (<code>--agent cursor</code>): supported.</li><li>GitHub Copilot CLI (<code>--agent copilot</code>): experimental.</li><li>oh-my-pi (<code>--agent omp</code>): experimental, and needs the omp-hooks plugin (<code>omp install omp-hooks</code>).</li></ul>
+<p>Experimental agents record prompts and edits only, because their hook payloads are not fully documented yet. <code>gitmotive install</code> prints a note for each one.</p>
+<h3 id="repo-scope-and-user-scope">Repo scope and user scope</h3>
+<p><code>--scope repo</code> is the default. Hook configs are written inside the repository, events go to <code>&lt;repo&gt;/.gitmotive/events.jsonl</code>, and a <code>post-commit</code> hook stamps edits with their commit.</p>
+<p><code>--scope user</code> writes nothing into any repository. Hook configs go under your home directory, the hook commands are prefixed with <code>GITMOTIVE_STORE=user</code>, and events go to <code>~/.gitmotive/repos/&lt;hash&gt;/events.jsonl</code>, one directory per repository. Set <code>GITMOTIVE_STORE=user</code> in your shell too, so <code>why</code> and <code>log</code> read the same store. There is no git hook in user scope: <code>why</code> and <code>log</code> attach edits to commits when they read them.</p>
+<h3 id="where-the-hooks-go">Where the hooks go</h3>
+<ul><li>Claude Code: <code>.claude/settings.json</code> (user scope: <code>~/.claude/settings.json</code>), on <code>UserPromptSubmit</code> and on <code>PostToolUse</code> for <code>Edit|Write|MultiEdit</code>.</li><li>Cursor: <code>.cursor/hooks.json</code> (user scope: <code>~/.cursor/hooks.json</code>), on <code>beforeSubmitPrompt</code> and <code>afterFileEdit</code>.</li><li>GitHub Copilot CLI: <code>.github/hooks/gitmotive.json</code> (user scope: <code>~/.copilot/hooks/gitmotive.json</code>), on <code>UserPromptSubmit</code> and <code>PostToolUse</code>.</li><li>oh-my-pi: <code>.omp/settings.json</code> (user scope: <code>~/.omp/agent/settings.json</code>), on <code>UserPromptSubmit</code> and every <code>PostToolUse</code>.</li></ul>
+<h3 id="hook-commands">Hook commands</h3>
+<p>Each hook runs a command of this form, where <code>&lt;run&gt;</code> is how the hook starts gitmotive:</p>
+<pre class="diff" tabindex="0" role="region" aria-label="Code"><code>claude : &lt;run&gt; capture
+cursor : &lt;run&gt; capture --agent cursor --event &lt;beforeSubmitPrompt|afterFileEdit&gt;
+copilot: &lt;run&gt; capture --agent claude --source copilot
+omp    : &lt;run&gt; capture --agent claude --source omp</code></pre>
+<p>When gitmotive is installed into a site-packages directory (pipx, a venv, the install script), <code>&lt;run&gt;</code> is <code>&lt;python&gt; -I -m gitmotive</code>, with the absolute path of that Python. <code>-I</code> keeps a hook whose working directory is inside a gitmotive checkout from importing the checkout instead of the installed copy. When gitmotive runs from a source tree, <code>&lt;run&gt;</code> is <code>PYTHONPATH=&lt;pkg&gt; &lt;python&gt; -m gitmotive</code>. The <code>post-commit</code> stamp line uses the same <code>&lt;run&gt;</code>. In user scope every command starts with <code>GITMOTIVE_STORE=user</code>.</p>
+<p>Copilot and oh-my-pi send Claude-shaped payloads, so they are parsed with <code>--agent claude</code>. <code>--source</code> records which product actually produced the event.</p>
+<h3 id="after-a-python-or-pipx-change">After a Python or pipx change</h3>
+<p>The hook commands contain an absolute Python path. After you upgrade Python, reinstall with pipx, or move the venv, run <code>gitmotive install</code> again with the same <code>--agent</code> and <code>--scope</code>. It upserts: each existing gitmotive hook command and the <code>post-commit</code> stamp line are replaced in place, so stale paths heal and there is still exactly one gitmotive entry per hook event. Your other hooks are left alone.</p>
+</section>
+
+<section class="block prose">
+<h2 id="cli-reference"><span class="hash" aria-hidden="true">#</span>CLI reference</h2>
+<p>Generated from the CLI itself. This is what <code>gitmotive help</code> prints:</p>
+<pre class="diff" tabindex="0" role="region" aria-label="gitmotive help output"><code>git blame tells you who. git motive tells you why.
+
+  git motive &lt;file&gt;:&lt;line&gt;        why does this line exist (also: gitmotive why
+                                  &lt;file&gt;:&lt;line&gt;)
+  gitmotive log [file]            prompts recorded, with files they touched
+  gitmotive stamp                 tag uncommitted edit events with HEAD (run
+                                  from post-commit)
+  gitmotive install [--agent claude|cursor|copilot|omp|all] [--scope repo|user]
+                                  copilot (experimental), omp (experimental).
+                                  repo: hooks in this repo. user: hooks under
+                                  ~/, zero repo footprint
+  gitmotive capture [--agent A] [--event E] [--source S]
+                                  (internal) hook entrypoint, reads payload on
+                                  stdin. --source S labels the product (e.g.
+                                  copilot, omp) over the payload agent
+  gitmotive help [cmd] | -h | --help
+                                  show this help, or one command&#x27;s entry.
+                                  gitmotive --version | -V prints the version</code></pre>
+<p>Experimental agents: <code>copilot</code>, <code>omp</code> <span class="exp">(experimental)</span>. They record prompts and edits only; their hook payloads are not fully documented.</p>
+<h3 id="cli-why"><code>git motive / gitmotive why</code></h3>
+<pre class="diff" tabindex="0" role="region" aria-label="git motive / gitmotive why usage"><code>git motive &lt;file&gt;:&lt;line&gt;</code></pre>
+<p>why does this line exist (also: gitmotive why &lt;file&gt;:&lt;line&gt;)</p>
+<h3 id="cli-log"><code>gitmotive log</code></h3>
+<pre class="diff" tabindex="0" role="region" aria-label="gitmotive log usage"><code>gitmotive log [file]</code></pre>
+<p>prompts recorded, with files they touched</p>
+<h3 id="cli-stamp"><code>gitmotive stamp</code></h3>
+<pre class="diff" tabindex="0" role="region" aria-label="gitmotive stamp usage"><code>gitmotive stamp</code></pre>
+<p>tag uncommitted edit events with HEAD (run from post-commit)</p>
+<h3 id="cli-install"><code>gitmotive install</code></h3>
+<pre class="diff" tabindex="0" role="region" aria-label="gitmotive install usage"><code>gitmotive install [--agent claude|cursor|copilot|omp|all] [--scope repo|user]</code></pre>
+<p>copilot <span class="exp">(experimental)</span>, omp <span class="exp">(experimental)</span>. repo: hooks in this repo. user: hooks under ~/, zero repo footprint</p>
+<h3 id="cli-capture"><code>gitmotive capture</code></h3>
+<pre class="diff" tabindex="0" role="region" aria-label="gitmotive capture usage"><code>gitmotive capture [--agent A] [--event E] [--source S]</code></pre>
+<p>(internal) hook entrypoint, reads payload on stdin. --source S labels the product (e.g. copilot, omp) over the payload agent</p>
+<h3 id="cli-help"><code>gitmotive help</code></h3>
+<pre class="diff" tabindex="0" role="region" aria-label="gitmotive help usage"><code>gitmotive help [cmd] | -h | --help</code></pre>
+<p>show this help, or one command&#x27;s entry. gitmotive --version | -V prints the version</p>
+<h3 id="cli-version"><code>gitmotive --version</code></h3>
+<pre class="diff" tabindex="0" role="region" aria-label="gitmotive --version usage"><code>gitmotive --version | -V</code></pre>
+<p>print the version and exit</p>
+</section>
+
+<section class="block prose">
+<h2 id="data-format"><span class="hash" aria-hidden="true">#</span>Data format</h2>
+<p>Everything gitmotive records is one file, <code>events.jsonl</code>, with one JSON object per line. Each object is an event: a <code>prompt</code> you submitted, or an <code>edit</code> the agent made to a file.</p>
+<h3 id="store-locations">Store locations</h3>
+<p>The store is found in this order:</p>
+<ol><li><code>GITMOTIVE_STORE=user</code> is set: <code>~/.gitmotive/repos/&lt;hash&gt;/events.jsonl</code>, where <code>&lt;hash&gt;</code> is derived from the repository&#x27;s absolute path.</li><li><code>&lt;repo&gt;/.gitmotive/events.jsonl</code> exists: use it.</li><li><code>~/.gitmotive/repos/&lt;hash&gt;/events.jsonl</code> exists: use it.</li><li>Otherwise <code>&lt;repo&gt;/.gitmotive/events.jsonl</code>.</li></ol>
+<p><code>GITMOTIVE_HOME</code> moves <code>~/.gitmotive</code> somewhere else. <code>gitmotive install</code> adds <code>.gitmotive/</code> to <code>.git/info/exclude</code>, so the store is never committed.</p>
+<h3 id="append-only">Append-only</h3>
+<p>Hooks only ever append a line, so concurrent hook runs never corrupt the file. The one exception is stamping: <code>gitmotive stamp</code>, <code>why</code> and <code>log</code> fill in the <code>commit</code> field of edits that have landed in a commit. They write a complete new file and atomically replace the old one. No event is ever removed.</p>
+<h3 id="the-agent-field">The agent field</h3>
+<p><code>agent</code> is the product that produced the event (<code>claude</code>, <code>cursor</code>, <code>copilot</code> or <code>omp</code>), not the payload shape. Copilot CLI and oh-my-pi send Claude-shaped payloads but are recorded as <code>copilot</code> and <code>omp</code>. Events captured by older versions have no <code>agent</code> or <code>model</code>.</p>
+<h3 id="event-fields">Event fields</h3>
+<p>Unknown keys are ignored on read and missing keys take their defaults, so older and newer files stay readable.</p>
+<table class="agents fields">
+<thead><tr><th scope="col">Field</th><th scope="col">Type</th><th scope="col">Meaning</th></tr></thead>
+<tbody>
+<tr><th scope="row"><code>kind</code></th><td><code>str</code></td><td>event type: prompt or edit</td></tr>
+<tr><th scope="row"><code>session</code></th><td><code>str</code></td><td>agent session or conversation id</td></tr>
+<tr><th scope="row"><code>ts</code></th><td><code>float</code></td><td>unix timestamp when the event was captured</td></tr>
+<tr><th scope="row"><code>id</code></th><td><code>str</code></td><td>unique event id</td></tr>
+<tr><th scope="row"><code>prompt</code></th><td><code>Optional[str]</code></td><td>user prompt text (prompt events)</td></tr>
+<tr><th scope="row"><code>file</code></th><td><code>Optional[str]</code></td><td>edited file, relative to the repo root (edit events)</td></tr>
+<tr><th scope="row"><code>tool</code></th><td><code>Optional[str]</code></td><td>tool that performed the edit</td></tr>
+<tr><th scope="row"><code>old</code></th><td><code>Optional[str]</code></td><td>replaced text, if any</td></tr>
+<tr><th scope="row"><code>new</code></th><td><code>Optional[str]</code></td><td>new text, or full content for whole-file writes</td></tr>
+<tr><th scope="row"><code>reasoning</code></th><td><code>Optional[str]</code></td><td>assistant text immediately preceding the edit</td></tr>
+<tr><th scope="row"><code>prompt_id</code></th><td><code>Optional[str]</code></td><td>id of the prompt event this edit belongs to</td></tr>
+<tr><th scope="row"><code>commit</code></th><td><code>Optional[str]</code></td><td>commit the edit landed in, stamped after commit</td></tr>
+<tr><th scope="row"><code>agent</code></th><td><code>Optional[str]</code></td><td>product that produced the event (claude, cursor, copilot, omp)</td></tr>
+<tr><th scope="row"><code>model</code></th><td><code>Optional[str]</code></td><td>model that produced the event, when known</td></tr>
+<tr><th scope="row"><code>raw</code></th><td><code>Optional[dict]</code></td><td>original hook payload, for forward compatibility</td></tr>
+</tbody>
+</table>
+</section>
+</main>
+
+<footer class="foot">
+  <p><span class="mark-glyph" aria-hidden="true">±</span>gitmotive. MIT licensed.</p>
+  <ul>
+    <li><a href="/">Home</a></li>
+    <li><a href="/demo/">Demo</a></li>
+    <li><a href="https://github.com/rvasqz86/gitmotive">GitHub</a></li>
+  </ul>
+</footer>
+</body>
+</html>
