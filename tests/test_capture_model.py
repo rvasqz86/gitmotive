@@ -83,11 +83,70 @@ def test_claude_model_from_transcript_and_payload_wins():
         assert ev.reasoning == "Adding a guard."
         ev = capture.handle(_claude_edit(root, t, model="claude-sonnet-5-5"))
         assert ev.model == "claude-sonnet-5-5"
-        # no matching tool_use: no model
+        # no matching tool_use: most recent assistant model in the transcript
+        ev = capture.handle(_claude_edit(root, t, tuid="toolu_other"))
+        assert ev.model == "claude-opus-5-5"
+        # no model anywhere in the transcript or payload: None
+        _transcript(t, "toolu_1", model=None)
         ev = capture.handle(_claude_edit(root, t, tuid="toolu_other"))
         assert ev.model is None
         stored = store.read_all(root)
-        assert [e.model for e in stored] == ["claude-opus-5-5", "claude-sonnet-5-5", None]
+        assert [e.model for e in stored] == ["claude-opus-5-5", "claude-sonnet-5-5", "claude-opus-5-5", None]
+
+
+def _unflushed_turn_transcript(path):
+    """Real failure shape: Claude Code persists the current turn's per-block assistant records
+    (the ones carrying message.model) together with the first tool_result, which is after
+    PostToolUse fires for the first tool of the turn. At hook time the file holds only earlier
+    turns: per-block assistant records with model, the tool_result, and an `api-request-blob`
+    record whose message has role assistant, the batched content blocks and no model."""
+    rid = "msg_prev"
+    recs = [
+        {"type": "user", "message": {"role": "user", "content": "first ask"}},
+        {"type": "assistant", "message": {"id": rid, "role": "assistant", "model": "claude-opus-5-5",
+                                          "content": [{"type": "thinking", "thinking": ""}]}},
+        {"type": "assistant", "message": {"id": rid, "role": "assistant", "model": "claude-opus-5-5",
+                                          "content": [{"type": "text", "text": "Reading first."}]}},
+        {"type": "assistant", "message": {"id": rid, "role": "assistant", "model": "claude-opus-5-5",
+                                          "content": [{"type": "tool_use", "id": "toolu_prev",
+                                                       "name": "Read", "input": {}}]}},
+        {"type": "user", "message": {"role": "user", "content": [
+            {"type": "tool_result", "tool_use_id": "toolu_prev", "content": "ok"}]}},
+        {"type": "api-request-blob", "hash": "h", "sessionId": "s", "message": {
+            "role": "assistant", "content": [{"type": "thinking", "thinking": ""},
+                                             {"type": "text", "text": "Reading first."},
+                                             {"type": "tool_use", "id": "toolu_prev", "name": "Read",
+                                              "input": {}}]}},
+        {"type": "api-request", "id": "r", "sessionId": "s"},
+        {"type": "file-history-delta", "messageId": "m"},
+        # the current turn's assistant record holding toolu_now is not on disk yet
+    ]
+    Path(path).write_text("\n".join(json.dumps(r) for r in recs) + "\n")
+
+
+def test_model_when_current_tool_use_not_flushed():
+    with tempfile.TemporaryDirectory() as d:
+        t = Path(d) / "t.jsonl"
+        _unflushed_turn_transcript(t)
+        reasoning, model = capture._transcript_context(str(t), "toolu_now")
+        assert model == "claude-opus-5-5"
+        assert reasoning == "Reading first."
+
+
+def test_model_when_matched_record_has_no_model():
+    """tool_use found only in a model-less record (e.g. api-request-blob): fall back to the most
+    recent assistant record that has a model."""
+    with tempfile.TemporaryDirectory() as d:
+        t = Path(d) / "t.jsonl"
+        recs = [
+            {"type": "assistant", "message": {"role": "assistant", "model": "claude-opus-5-5",
+                                              "content": [{"type": "text", "text": "Plan."}]}},
+            {"type": "api-request-blob", "message": {"role": "assistant", "content": [
+                {"type": "text", "text": "Plan."},
+                {"type": "tool_use", "id": "toolu_b", "name": "Edit", "input": {}}]}},
+        ]
+        t.write_text("\n".join(json.dumps(r) for r in recs) + "\n")
+        assert capture._transcript_context(str(t), "toolu_b") == ("Plan.", "claude-opus-5-5")
 
 
 def test_transcript_context_wrapper():

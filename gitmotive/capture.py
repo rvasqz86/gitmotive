@@ -35,11 +35,15 @@ def _transcript_context(transcript_path: Optional[str],
     """Walk the transcript JSONL once. Returns (reasoning, model):
     reasoning is the assistant text block(s) just before the given tool_use, falling back to the last
     assistant text block in the file; model is message.model of the assistant record holding the
-    matching tool_use. Best-effort; (None, None) on any failure."""
+    matching tool_use, else the most recent assistant record with a model (Claude Code persists the
+    current turn's assistant records with the first tool_result, i.e. after PostToolUse fires for
+    the first tool, and `api-request-blob` records repeat tool_use blocks without a model).
+    Best-effort; (None, None) on any failure."""
     if not transcript_path or not os.path.exists(transcript_path):
         return None, None
     try:
         last_text: Optional[str] = None
+        last_model: Optional[str] = None
         with open(transcript_path, encoding="utf-8") as f:
             for line in f:
                 line = line.strip()
@@ -52,6 +56,9 @@ def _transcript_context(transcript_path: Optional[str],
                 msg = rec.get("message") if isinstance(rec, dict) else None
                 if not isinstance(msg, dict) or msg.get("role") != "assistant":
                     continue
+                model = msg.get("model")
+                if isinstance(model, str) and model:
+                    last_model = model
                 content = msg.get("content")
                 if isinstance(content, str):
                     last_text = content.strip() or last_text
@@ -65,13 +72,12 @@ def _transcript_context(transcript_path: Optional[str],
                     if block.get("type") == "text" and block.get("text", "").strip():
                         texts.append(block["text"].strip())
                     if block.get("type") == "tool_use" and tool_use_id and block.get("id") == tool_use_id:
-                        # text in this same message, or carried over from previous assistant message
-                        model = msg.get("model")
-                        return ("\n".join(texts) if texts else last_text,
-                                model if isinstance(model, str) and model else None)
+                        # text in this same message, or carried over from previous assistant message;
+                        # last_model is this record's model when it has one
+                        return ("\n".join(texts) if texts else last_text, last_model)
                 if texts:
                     last_text = "\n".join(texts)
-        return last_text, None
+        return last_text, last_model
     except OSError:
         return None, None
 

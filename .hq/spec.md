@@ -161,7 +161,9 @@ event.
 `model` is filled as follows:
 - **Claude-shaped:** the payload `model` if present, else `message.model` of the assistant transcript
   record that holds the matching `tool_use`. This is read in the same pass as the reasoning, through
-  `capture._transcript_context`.
+  `capture._transcript_context`. If that record isn't on disk yet (Claude Code flushes a turn's records
+  only after the first PostToolUse) or has no model, use the most recent assistant `message.model` in the
+  transcript, else None. (Amended by manager after task 24.)
 - **Cursor:** the payload `model` if present.
 - **Otherwise:** `None`.
 

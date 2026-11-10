@@ -37,3 +37,5 @@
 - 2026-11-10 20:58 [task 13] r1 FIX: untracked/.. files exportable; denylist substring-in-identifier leak. -> r2.
 - 2026-11-10 21:02 [task 13] r2 FIX: substring-denylist excerpt leaks unmasked secret on stderr. Manager reworded example-hostname prose in .hq. -> r3 (last).
 - 2026-11-10 21:04 [task 13] PASS r3. data.json currently 0 matches (dogfood gaps); task 24 next, then task 23 re-exports.
+- 2026-11-10 21:06 [task 24] Root cause: Claude Code flushes turn records after first PostToolUse. Follow-up (not this task): same race makes reasoning for first edit of a turn fall back to previous text (possibly mismatched) -> record in summary/known gaps.
+- 2026-11-10 21:07 [task 24] PASS r1; spec model chain amended. Refreshing ~/.gitmotive/venv via pip only (hooks unchanged).
