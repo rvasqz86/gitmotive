@@ -108,6 +108,7 @@
   font: 0.8125rem/1.5 var(--mono);
   color: var(--fg);
 }
+.meta[hidden] { display: none; }
 .meta .k { color: var(--accent); margin-right: 0.5ch; }
 
 /* ---- loading / empty / error ------------------------------------------------------- */

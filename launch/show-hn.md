@@ -4,7 +4,7 @@ Status: DRAFT — do not post without review
 
 ## Title
 
-Show HN: Gitmotive – git blame for the prompt behind AI-written code
+Show HN: gitmotive – git blame for the prompt behind AI-written code
 
 ## Body
 

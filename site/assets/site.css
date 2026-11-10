@@ -337,6 +337,21 @@ h3 {
 .agents thead th { color: var(--muted); font-weight: 400; }
 .agents tbody th { font-weight: 600; }
 .agents code { border: 0; background: none; padding: 0; }
+table.fields { max-width: 52rem; }
+table.fields td:last-child { font-family: var(--sans); color: var(--muted); }
+
+nav.toc {
+  margin: 1.5rem 0 0;
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--rule);
+  border-left: 3px solid var(--accent);
+  border-radius: 4px;
+  background: var(--panel);
+  max-width: 40rem;
+}
+nav.toc h2 { margin: 0; font: 0.8125rem/1.5 var(--mono); color: var(--muted); }
+nav.toc ol { margin: 0.5rem 0 0; padding-left: 2.5ch; font: 0.9375rem/1.7 var(--mono); }
+nav.toc ol ol { margin: 0; }
 .exp { color: var(--accent); }
 .note { margin: 0.75rem 0 0; color: var(--muted); font-size: 0.9375rem; max-width: 60ch; }
 

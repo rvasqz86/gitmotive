@@ -92,6 +92,14 @@ def test_headings_lists_paragraphs():
     assert [(l, i) for l, i, _ in toc] == [(2, "top"), (3, "sub"), (3, "sub-2")], toc
 
 
+def test_toc_leading_h3_is_well_formed():
+    out = gen_docs.toc_html([(3, "a", "A"), (2, "b", "B"), (3, "c", "C")])
+    assert out.count("<ol>") == out.count("</ol>") == 2, out
+    assert out.count("<li>") == out.count("</li>") == 3, out
+    assert '<ol>\n<li><a href="#a">A</a></li>' in out, out
+    assert '<li><a href="#b">B</a>\n<ol>' in out, out
+
+
 def test_unclosed_fence_runs_to_end():
     out = _render("```\na < b\n\nstill code")
     assert "a &lt; b\n\nstill code" in out, out

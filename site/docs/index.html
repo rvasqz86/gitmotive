@@ -187,13 +187,13 @@ omp    : &lt;run&gt; capture --agent claude --source omp</code></pre>
 <h3 id="store-locations">Store locations</h3>
 <p>The store is found in this order:</p>
 <ol><li><code>GITMOTIVE_STORE=user</code> is set: <code>~/.gitmotive/repos/&lt;hash&gt;/events.jsonl</code>, where <code>&lt;hash&gt;</code> is derived from the repository&#x27;s absolute path.</li><li><code>&lt;repo&gt;/.gitmotive/events.jsonl</code> exists: use it.</li><li><code>~/.gitmotive/repos/&lt;hash&gt;/events.jsonl</code> exists: use it.</li><li>Otherwise <code>&lt;repo&gt;/.gitmotive/events.jsonl</code>.</li></ol>
-<p><code>GITMOTIVE_HOME</code> moves <code>~/.gitmotive</code> somewhere else. <code>gitmotive install</code> adds <code>.gitmotive/</code> to <code>.git/info/exclude</code>, so the store is never committed.</p>
+<p><code>GITMOTIVE_HOME</code> moves <code>~/.gitmotive</code> somewhere else. <code>gitmotive install</code> adds <code>.gitmotive/</code> to <code>.git/info/exclude</code>, so a repo-scope store (<code>&lt;repo&gt;/.gitmotive/</code>) is never committed. The entry applies to repo scope only; the user-scope store lives outside the repository.</p>
 <h3 id="append-only">Append-only</h3>
 <p>Hooks only ever append a line, so concurrent hook runs never corrupt the file. The one exception is stamping: <code>gitmotive stamp</code>, <code>why</code> and <code>log</code> fill in the <code>commit</code> field of edits that have landed in a commit. They write a complete new file and atomically replace the old one. No event is ever removed.</p>
 <h3 id="the-agent-field">The agent field</h3>
 <p><code>agent</code> is the product that produced the event (<code>claude</code>, <code>cursor</code>, <code>copilot</code> or <code>omp</code>), not the payload shape. Copilot CLI and oh-my-pi send Claude-shaped payloads but are recorded as <code>copilot</code> and <code>omp</code>. Events captured by older versions have no <code>agent</code> or <code>model</code>.</p>
 <h3 id="event-fields">Event fields</h3>
-<p>Unknown keys are ignored on read and missing keys take their defaults, so older and newer files stay readable.</p>
+<p>Unknown keys are ignored on read and missing optional keys take their defaults; lines without <code>kind</code>, <code>session</code> or <code>ts</code> are skipped. Older and newer files stay readable.</p>
 <table class="agents fields">
 <thead><tr><th scope="col">Field</th><th scope="col">Type</th><th scope="col">Meaning</th></tr></thead>
 <tbody>

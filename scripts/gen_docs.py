@@ -11,6 +11,11 @@ Sources:
 
 The Markdown renderer is a deliberately small stdlib subset: ATX headings, paragraphs, fenced
 code, unordered and ordered lists, inline code and links. Everything else is plain text.
+
+List-continuation limit: an indented line directly under an item joins that item's text, and
+a blank line followed by another item keeps the list going. A blank line followed by anything
+else (an indented second paragraph, a nested list, a fenced block) ends the list; nested lists
+and multi-paragraph items are not supported.
 """
 from __future__ import annotations
 
@@ -219,7 +224,9 @@ def toc_html(toc: list[tuple[int, str, str]]) -> str:
     for level, hid, text in toc:
         if level > 3:
             continue
-        if level == 3 and not open_sub:
+        if level == 3 and not open_sub and not out[-1].startswith("<li>"):
+            pass   # leading h3 (no h2 item to nest under): list it at the top level
+        elif level == 3 and not open_sub:
             out[-1] = out[-1].removesuffix("</li>")
             out.append("<ol>")
             open_sub = True

@@ -25,7 +25,7 @@ pushed, published, deployed or made public. "You do by hand" is the remaining wo
 - **Site home page**: `site/index.html`, `site/assets/site.css`, `site/assets/og.png`, `site/favicon.svg`,
   `site/404.html`
 - **Demo data exporter** with a per-record sanitisation gate: `scripts/export_demo.py`,
-  `tests/test_export_demo.py`
+  `tests/test_export_demo.py`, `tests/test_export_demo_files.py`
 - **Demo data regenerated** from this branch's dogfood events, every default file with a model match:
   `site/demo/data.json`
 - **Live demo viewer**: `site/demo/index.html`, `site/demo/viewer.js`, `site/demo/viewer-core.mjs`,

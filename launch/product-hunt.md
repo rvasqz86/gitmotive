@@ -18,7 +18,7 @@ Point at a line and see the prompt, reasoning and model behind the AI edit that 
 
 Hi Product Hunt. I built gitmotive because I kept finding lines an agent wrote weeks earlier and had no record of what I had asked for.
 
-`gitmotive install --agent claude` adds hooks to the agent. Every prompt and edit goes to a local JSONL file that git ignores. When you commit, the edits are stamped with the commit. `git motive file.py:42` runs git blame on the line and picks the recorded edit that best matches it: same commit, then line text, then recency.
+`gitmotive install --agent claude` adds hooks to the agent. Every prompt and edit goes to a local JSONL file that git ignores. When you commit, the edits are stamped with the commit. `git motive file.py:42` runs git blame on the line and ranks the recorded edits: it scores same commit, then matching line text; newest wins ties.
 
 What it is not: there is no model in the loop, nothing leaves your machine, and when no edit was recorded it prints "none recorded" rather than guessing.
 
@@ -32,7 +32,7 @@ Feedback on what's missing is very welcome.
 
 ## Gallery captions
 
-1. `git motive src/fetch.py:42` shows the commit, prompt, reasoning and model behind one line.
+1. `git motive site/demo/viewer-core.mjs:19` shows the commit, prompt, reasoning and model behind one line.
 2. `gitmotive log` lists each recorded prompt with the files it touched and the commits it landed in.
 3. The live demo: browse gitmotive's own history, line by line, in the browser.
 

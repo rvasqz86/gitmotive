@@ -62,11 +62,21 @@ EOF
   path_hint "$BIN"
 }
 
+check_path() {
+  # the path is written into a double-quoted heredoc in the wrappers
+  case "$2" in
+    *\"* | *\$* | *\`*) die "$1 must not contain \", \$ or a backtick: $2" ;;
+  esac
+}
+
 main() {
+  [ -n "${HOME:-}" ] || die "HOME is not set"
   SPEC="${GITMOTIVE_PIP_SPEC:-gitmotive}"
   GM_HOME="${GITMOTIVE_HOME:-$HOME/.gitmotive}"
   BIN="${GITMOTIVE_BIN:-$HOME/.local/bin}"
   PY="${PYTHON:-python3}"
+  check_path GITMOTIVE_HOME "$GM_HOME"
+  check_path GITMOTIVE_BIN "$BIN"
 
   check_python
   if command -v pipx >/dev/null 2>&1; then

@@ -166,6 +166,17 @@ class Gate:
         return f"omitted {n} field(s): {parts}"
 
 
+MIN_REASONING_WORDS = 3
+
+
+def reasoning_text(s: str | None) -> str | None:
+    """Drop reasoning under MIN_REASONING_WORDS words. Older events carry the capture fallback
+    (last assistant text, e.g. a bare `READY`) that belongs to another tool call."""
+    if s is None or len(s.split()) < MIN_REASONING_WORDS:
+        return None
+    return s
+
+
 def prose(gate: Gate, s: str | None, where: str, limit: int) -> str | None:
     """Prompt text / reasoning: home → ~, pasted bodies dropped, gate, then truncate.
     The gate runs before truncation so a cut can never leave a partial secret behind."""
@@ -265,7 +276,7 @@ def build(root: Path, files: list[str], denylist, limit: int, err) -> tuple[dict
                     "model": e.model,
                     "session": short_session(e.session),
                     "commit": e.commit[:10] if e.commit else None,
-                    "reasoning": prose(gate, e.reasoning, f"reasoning:{e.id}", limit),
+                    "reasoning": prose(gate, reasoning_text(e.reasoning), f"reasoning:{e.id}", limit),
                 }
             lines.append(row)
         out_files.append({"path": rel, "lines": lines})

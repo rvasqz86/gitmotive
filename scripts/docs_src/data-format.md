@@ -11,7 +11,7 @@ The store is found in this order:
 3. `~/.gitmotive/repos/<hash>/events.jsonl` exists: use it.
 4. Otherwise `<repo>/.gitmotive/events.jsonl`.
 
-`GITMOTIVE_HOME` moves `~/.gitmotive` somewhere else. `gitmotive install` adds `.gitmotive/` to `.git/info/exclude`, so the store is never committed.
+`GITMOTIVE_HOME` moves `~/.gitmotive` somewhere else. `gitmotive install` adds `.gitmotive/` to `.git/info/exclude`, so a repo-scope store (`<repo>/.gitmotive/`) is never committed. The entry applies to repo scope only; the user-scope store lives outside the repository.
 
 ## Append-only
 
@@ -23,4 +23,4 @@ Hooks only ever append a line, so concurrent hook runs never corrupt the file. T
 
 ## Event fields
 
-Unknown keys are ignored on read and missing keys take their defaults, so older and newer files stay readable.
+Unknown keys are ignored on read and missing optional keys take their defaults; lines without `kind`, `session` or `ts` are skipped. Older and newer files stay readable.

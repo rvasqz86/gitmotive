@@ -4,7 +4,6 @@ import datetime as dt
 import json
 import os
 import stat
-import subprocess
 import sys
 import sysconfig
 import textwrap

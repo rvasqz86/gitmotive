@@ -204,6 +204,26 @@ def test_committed_data_matches_schema():
     data = json.loads((DEMO / "data.json").read_text(encoding="utf-8"))
     _shape(data)
     assert data["files"], "data.json lists files"
+    raw = (DEMO / "data.json").read_text(encoding="utf-8")
+    assert "/tmp/" not in raw and "-home-" not in raw
+    for f in data["files"]:
+        for line in f["lines"]:
+            r = (line["match"] or {}).get("reasoning")
+            assert r is None or len(r.split()) >= 3, (f["path"], line["n"], r)
+
+
+def test_state_handling():
+    """Task 25: hidden meta, render-phase catch, gutter never empty, alert on error, 0-line banner."""
+    css = CSS.read_text(encoding="utf-8")
+    assert ".meta[hidden] { display: none; }" in css
+    js = _code(JS)
+    load = js[js.index("async function load()"):js.index("function wire()")]
+    assert re.search(r"try \{\s*S\.data = data;", load), "render phase is wrapped"
+    assert 'showError("unreadable data")' in load
+    assert 'short(m.commit || l.commit) || "·"' in js, "matched line without commit shows ·"
+    assert 'kind === "err" ? "alert" : "status"' in js
+    banner = js[js.index("function summaryBanner"):js.index("function renderMeta")]
+    assert "totalLines === 0" in banner and "no source lines" in banner
 
 
 if __name__ == "__main__":

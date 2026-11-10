@@ -130,7 +130,18 @@ def test_model_when_current_tool_use_not_flushed():
         _unflushed_turn_transcript(t)
         reasoning, model = capture._transcript_context(str(t), "toolu_now")
         assert model == "claude-opus-5-5"
-        assert reasoning == "Reading first."
+        # the only text on disk belongs to toolu_prev: record none rather than guess
+        assert reasoning is None
+
+
+def test_no_matching_tool_use_records_no_reasoning():
+    with scratch_repo() as (root, _):
+        t = root / "t.jsonl"
+        _transcript(t, "toolu_1")
+        ev = capture.handle(_claude_edit(root, t, tuid="toolu_other"))
+        assert ev.reasoning is None and ev.model == "claude-opus-5-5"
+        assert capture._transcript_context(str(t), None) == (None, "claude-opus-5-5")
+        assert store.read_all(root)[-1].reasoning is None
 
 
 def test_model_when_matched_record_has_no_model():

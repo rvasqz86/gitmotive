@@ -1,4 +1,5 @@
 Status: DRAFT — fill placeholders, do not submit without review
+Prerequisites before submitting: site deployed at gitmotive.tech, repo public on GitHub, package published on PyPI.
 
 # .tech No Excuses Fund: application draft
 
@@ -35,7 +36,7 @@ The site is the product, not a page about it. Every path below is served from gi
 
 ## Traction
 
-To fill in before submitting. No figures here are estimates.
+Fill in real figures before submitting; do not estimate.
 
 - GitHub stars: [GitHub stars]
 - pipx installs: [pipx installs]
@@ -45,7 +46,7 @@ To fill in before submitting. No figures here are estimates.
 
 Today intent is recorded per developer, in one local clone. The grant funds three milestones that make it useful to a team, in this order:
 
-1. **Team sync** (about 6 weeks). Deliverable: provenance shared through git notes. Recorded intent is written to a dedicated notes ref and pushed and fetched with the repo, so a teammate who clones it can run `git motive` on lines they did not write. No server, and the same git permissions that already guard the code.
+1. **Team sync** (about 6 weeks). Deliverable: provenance shared through git notes. Recorded intent will be written to a dedicated notes ref. Git does not push or fetch notes refs by default, so gitmotive will configure the refspec for that ref; a teammate who clones the repo will then be able to run `git motive` on lines they did not write. No server, and the same git permissions that already guard the code.
 2. **Hosted index** (about 8 weeks). Deliverable: an opt-in hosted index of provenance across a team's repos, so intent can be searched and browsed without cloning. It stays deterministic: the index stores and serves what was recorded and adds no model-generated guesses. Local use stays the default and works without it.
 3. **PR review integration** (about 6 weeks). Deliverable: intent shown inline on PR diffs. Each AI-written hunk in a pull request shows the prompt and reasoning that produced it, so reviewers read the "why" next to the change instead of asking for it.
 

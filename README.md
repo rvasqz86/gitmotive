@@ -127,7 +127,7 @@ When an orchestrator such as [hq](https://github.com/rvasqz86/herdr-config) driv
 
 ## Known gaps
 
-- **Claude Code: the first edit of a turn may carry the previous message's reasoning.** Claude Code writes a turn's assistant records to the transcript only after the hook for that turn's first edit has run. For that first edit gitmotive cannot see the current reasoning yet, so it falls back to the latest assistant text on disk, which belongs to the previous message. The model falls back the same way, so the first edit after a `/model` switch is attributed to the previous model. Later edits in the same turn are exact.
+- **Claude Code: the first edit of a turn has no reasoning.** Claude Code writes a turn's assistant records to the transcript only after the hook for that turn's first edit has run. For that first edit gitmotive cannot see the current reasoning yet, so it records none rather than reuse text from another tool call. The model still falls back to the latest one on disk, so the first edit after a `/model` switch is attributed to the previous model. Later edits in the same turn are exact.
 - Reasoning is captured on Claude Code only. Cursor, Copilot CLI and oh-my-pi expose it differently or not at all.
 - Agents without hooks (e.g. Codex) are not supported.
 - Events are local to the clone. Publishing intent to `git notes` so it travels with the repo is a possible next step.

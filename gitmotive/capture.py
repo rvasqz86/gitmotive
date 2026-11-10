@@ -33,8 +33,8 @@ def _preceding_assistant_text(transcript_path: Optional[str], tool_use_id: Optio
 def _transcript_context(transcript_path: Optional[str],
                         tool_use_id: Optional[str]) -> tuple[Optional[str], Optional[str]]:
     """Walk the transcript JSONL once. Returns (reasoning, model):
-    reasoning is the assistant text block(s) just before the given tool_use, falling back to the last
-    assistant text block in the file; model is message.model of the assistant record holding the
+    reasoning is the assistant text block(s) just before the given tool_use, or None when the
+    matching tool_use is not in the file (never a guess from another tool call); model is message.model of the assistant record holding the
     matching tool_use, else the most recent assistant record with a model (Claude Code persists the
     current turn's assistant records with the first tool_result, i.e. after PostToolUse fires for
     the first tool, and `api-request-blob` records repeat tool_use blocks without a model).
@@ -77,7 +77,9 @@ def _transcript_context(transcript_path: Optional[str],
                         return ("\n".join(texts) if texts else last_text, last_model)
                 if texts:
                     last_text = "\n".join(texts)
-        return last_text, last_model
+        # no matching tool_use (not flushed yet, or no id): the last text belongs to some other
+        # tool call, so record no reasoning rather than guess
+        return None, last_model
     except OSError:
         return None, None
 

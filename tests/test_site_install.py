@@ -86,6 +86,29 @@ def test_old_python_fails_with_clear_error():
         assert not (d / ".gitmotive").exists() and not (d / ".local").exists()
 
 
+def test_unset_home_fails_clearly():
+    with tempfile.TemporaryDirectory() as d:
+        env = _env(d, _path_without_pipx())
+        del env["HOME"]
+        r = _run(env, cwd=d)
+        assert r.returncode != 0 and "HOME is not set" in r.stderr, r.stderr
+        env["HOME"] = ""
+        r = _run(env, cwd=d)
+        assert r.returncode != 0 and "HOME is not set" in r.stderr, r.stderr
+
+
+def test_rejects_shell_metachars_in_paths():
+    with tempfile.TemporaryDirectory() as d:
+        d = Path(d)
+        for var in ("GITMOTIVE_HOME", "GITMOTIVE_BIN"):
+            for bad in ('x"y', "x$y", "x`id`y"):
+                env = _env(d, _path_without_pipx(), **{var: str(d / bad)})
+                r = _run(env)
+                assert r.returncode != 0, (var, bad)
+                assert var in r.stderr and "backtick" in r.stderr, r.stderr
+        assert not (d / ".gitmotive").exists() and not (d / ".local").exists()
+
+
 def test_pipx_mode_writes_no_wrappers_and_passes_args():
     with tempfile.TemporaryDirectory() as d:
         d = Path(d)

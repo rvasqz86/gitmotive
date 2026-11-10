@@ -86,11 +86,12 @@ def make_repo(d: Path) -> Path:
     edit(root, ts + 1, "ea", "pa", "app.py", lines["a"] + "\n", session=sess_path,
          reasoning="I will add alpha. " + "r" * 200, agent="claude", model="claude-opus-5-5")
     prompt(root, ts + 2, "ph", "Implement .hq/tasks/07-widget.md, round 1.")
-    edit(root, ts + 3, "eh", "ph", "app.py", lines["h"] + "\n")
+    # stale capture fallback from an older event: under 3 words, dropped by the exporter
+    edit(root, ts + 3, "eh", "ph", "app.py", lines["h"] + "\n", reasoning="READY")
     prompt(root, ts + 4, "pp", "fix this <pasted_content id=1>SECRET TRACEBACK BODY</pasted_content> please")
     edit(root, ts + 5, "ep", "pp", "app.py", lines["p"] + "\n")
     prompt(root, ts + 6, "pd", "rename for " + TERM.upper() + " customers")
-    edit(root, ts + 7, "ed", "pd", "app.py", lines["d"] + "\n", reasoning="see " + OTHER_HOME)
+    edit(root, ts + 7, "ed", "pd", "app.py", lines["d"] + "\n", reasoning="notes are in " + OTHER_HOME)
     prompt(root, ts + 8, "ps", "use key " + SECRET + " here")
     edit(root, ts + 9, "es", "ps", "app.py", lines["s"] + "\n")
     prompt(root, ts + 12, "pv", "move it to ~/" + TERM + "_v2/api.py")
@@ -172,6 +173,7 @@ def test_export_schema_sanitisation_and_gate():
         assert a["session"] == "9f8e7d6c", a["session"]
         assert len(a["reasoning"]) == 60 and a["reasoning"].endswith("…")
         assert by["ed"]["reasoning"] == "[omitted: path]"
+        assert by["eh"]["reasoning"] is None, "reasoning under 3 words is dropped"
         assert by["eh"]["session"] == "sess-abc"
 
         P = data["prompts"]
@@ -340,6 +342,14 @@ def test_substring_denylist_excerpt_masks_secrets():
     assert any("<denylist:" in h.excerpt for h in hits if h.check == "denylist")
     hits = export_demo.rescan({"author": line}, "{}", [TERM])
     assert hits and all(SECRET[8:] not in h.excerpt for h in hits), hits
+
+
+def test_short_reasoning_dropped():
+    sys.path.insert(0, str(ROOT / "scripts"))
+    import export_demo
+    for s in (None, "", "READY", "  ok  done \n", "two words"):
+        assert export_demo.reasoning_text(s) is None, s
+    assert export_demo.reasoning_text("Adding a guard.") == "Adding a guard."
 
 
 def test_imports_only_library_modules():

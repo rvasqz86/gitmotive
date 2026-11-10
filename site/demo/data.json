@@ -1,8 +1,8 @@
 {
  "version": 1,
- "generated_at": "2026-11-10T22:39:59Z",
+ "generated_at": "2026-11-10T22:46:20Z",
  "repo": "rvasqz86/gitmotive",
- "rev": "2b83f8281135f2c1305ebf2de2ca6f9f4d6297f6",
+ "rev": "e92279f39c160dc0f973013fe1ea0f8b0c84f404",
  "files": [
   {
    "path": "site/demo/viewer.js",
@@ -7595,7 +7595,7 @@
       "model": "claude-opus-5-5",
       "session": "e52d3908",
       "commit": "1e62655357",
-      "reasoning": "READY"
+      "reasoning": null
      }
     },
     {
@@ -7614,7 +7614,7 @@
       "model": "claude-opus-5-5",
       "session": "e52d3908",
       "commit": "1e62655357",
-      "reasoning": "READY"
+      "reasoning": null
      }
     },
     {
@@ -7633,7 +7633,7 @@
       "model": "claude-opus-5-5",
       "session": "e52d3908",
       "commit": "1e62655357",
-      "reasoning": "READY"
+      "reasoning": null
      }
     },
     {
@@ -7652,7 +7652,7 @@
       "model": "claude-opus-5-5",
       "session": "e52d3908",
       "commit": "1e62655357",
-      "reasoning": "READY"
+      "reasoning": null
      }
     },
     {
@@ -7671,7 +7671,7 @@
       "model": "claude-opus-5-5",
       "session": "e52d3908",
       "commit": "1e62655357",
-      "reasoning": "READY"
+      "reasoning": null
      }
     },
     {
@@ -7690,7 +7690,7 @@
       "model": "claude-opus-5-5",
       "session": "e52d3908",
       "commit": "1e62655357",
-      "reasoning": "READY"
+      "reasoning": null
      }
     },
     {
@@ -7709,7 +7709,7 @@
       "model": "claude-opus-5-5",
       "session": "e52d3908",
       "commit": "1e62655357",
-      "reasoning": "READY"
+      "reasoning": null
      }
     },
     {
@@ -7728,7 +7728,7 @@
       "model": "claude-opus-5-5",
       "session": "e52d3908",
       "commit": "1e62655357",
-      "reasoning": "READY"
+      "reasoning": null
      }
     },
     {
@@ -7747,7 +7747,7 @@
       "model": "claude-opus-5-5",
       "session": "e52d3908",
       "commit": "1e62655357",
-      "reasoning": "READY"
+      "reasoning": null
      }
     },
     {
@@ -7766,7 +7766,7 @@
       "model": "claude-opus-5-5",
       "session": "e52d3908",
       "commit": "1e62655357",
-      "reasoning": "READY"
+      "reasoning": null
      }
     },
     {
@@ -7785,7 +7785,7 @@
       "model": "claude-opus-5-5",
       "session": "e52d3908",
       "commit": "1e62655357",
-      "reasoning": "READY"
+      "reasoning": null
      }
     },
     {
@@ -7804,7 +7804,7 @@
       "model": "claude-opus-5-5",
       "session": "e52d3908",
       "commit": "1e62655357",
-      "reasoning": "READY"
+      "reasoning": null
      }
     },
     {
@@ -7823,7 +7823,7 @@
       "model": "claude-opus-5-5",
       "session": "e52d3908",
       "commit": "1e62655357",
-      "reasoning": "READY"
+      "reasoning": null
      }
     },
     {
@@ -7842,7 +7842,7 @@
       "model": "claude-opus-5-5",
       "session": "e52d3908",
       "commit": "1e62655357",
-      "reasoning": "READY"
+      "reasoning": null
      }
     },
     {
@@ -7861,7 +7861,7 @@
       "model": "claude-opus-5-5",
       "session": "e52d3908",
       "commit": "1e62655357",
-      "reasoning": "READY"
+      "reasoning": null
      }
     },
     {
@@ -7880,7 +7880,7 @@
       "model": "claude-opus-5-5",
       "session": "e52d3908",
       "commit": "1e62655357",
-      "reasoning": "READY"
+      "reasoning": null
      }
     },
     {
@@ -7899,7 +7899,7 @@
       "model": "claude-opus-5-5",
       "session": "e52d3908",
       "commit": "1e62655357",
-      "reasoning": "READY"
+      "reasoning": null
      }
     },
     {
@@ -7918,7 +7918,7 @@
       "model": "claude-opus-5-5",
       "session": "e52d3908",
       "commit": "1e62655357",
-      "reasoning": "READY"
+      "reasoning": null
      }
     },
     {
@@ -7937,7 +7937,7 @@
       "model": "claude-opus-5-5",
       "session": "e52d3908",
       "commit": "1e62655357",
-      "reasoning": "READY"
+      "reasoning": null
      }
     },
     {
@@ -7956,7 +7956,7 @@
       "model": "claude-opus-5-5",
       "session": "e52d3908",
       "commit": "1e62655357",
-      "reasoning": "READY"
+      "reasoning": null
      }
     },
     {
@@ -7975,7 +7975,7 @@
       "model": "claude-opus-5-5",
       "session": "e52d3908",
       "commit": "1e62655357",
-      "reasoning": "READY"
+      "reasoning": null
      }
     },
     {
@@ -7994,7 +7994,7 @@
       "model": "claude-opus-5-5",
       "session": "e52d3908",
       "commit": "1e62655357",
-      "reasoning": "READY"
+      "reasoning": null
      }
     },
     {
@@ -8013,7 +8013,7 @@
       "model": "claude-opus-5-5",
       "session": "e52d3908",
       "commit": "1e62655357",
-      "reasoning": "READY"
+      "reasoning": null
      }
     },
     {
@@ -8032,7 +8032,7 @@
       "model": "claude-opus-5-5",
       "session": "e52d3908",
       "commit": "1e62655357",
-      "reasoning": "READY"
+      "reasoning": null
      }
     },
     {
@@ -8051,7 +8051,7 @@
       "model": "claude-opus-5-5",
       "session": "e52d3908",
       "commit": "1e62655357",
-      "reasoning": "READY"
+      "reasoning": null
      }
     },
     {
@@ -8070,7 +8070,7 @@
       "model": "claude-opus-5-5",
       "session": "e52d3908",
       "commit": "1e62655357",
-      "reasoning": "READY"
+      "reasoning": null
      }
     },
     {
@@ -8089,7 +8089,7 @@
       "model": "claude-opus-5-5",
       "session": "e52d3908",
       "commit": "1e62655357",
-      "reasoning": "READY"
+      "reasoning": null
      }
     },
     {
@@ -8108,7 +8108,7 @@
       "model": "claude-opus-5-5",
       "session": "e52d3908",
       "commit": "1e62655357",
-      "reasoning": "READY"
+      "reasoning": null
      }
     },
     {
@@ -8127,7 +8127,7 @@
       "model": "claude-opus-5-5",
       "session": "e52d3908",
       "commit": "1e62655357",
-      "reasoning": "READY"
+      "reasoning": null
      }
     },
     {
@@ -8146,7 +8146,7 @@
       "model": "claude-opus-5-5",
       "session": "e52d3908",
       "commit": "1e62655357",
-      "reasoning": "READY"
+      "reasoning": null
      }
     },
     {
@@ -8165,7 +8165,7 @@
       "model": "claude-opus-5-5",
       "session": "e52d3908",
       "commit": "1e62655357",
-      "reasoning": "READY"
+      "reasoning": null
      }
     },
     {
@@ -8184,7 +8184,7 @@
       "model": "claude-opus-5-5",
       "session": "e52d3908",
       "commit": "1e62655357",
-      "reasoning": "READY"
+      "reasoning": null
      }
     },
     {
@@ -8203,7 +8203,7 @@
       "model": "claude-opus-5-5",
       "session": "e52d3908",
       "commit": "1e62655357",
-      "reasoning": "READY"
+      "reasoning": null
      }
     },
     {
@@ -8222,7 +8222,7 @@
       "model": "claude-opus-5-5",
       "session": "e52d3908",
       "commit": "1e62655357",
-      "reasoning": "READY"
+      "reasoning": null
      }
     },
     {
@@ -8241,7 +8241,7 @@
       "model": "claude-opus-5-5",
       "session": "e52d3908",
       "commit": "1e62655357",
-      "reasoning": "READY"
+      "reasoning": null
      }
     },
     {
@@ -8260,7 +8260,7 @@
       "model": "claude-opus-5-5",
       "session": "e52d3908",
       "commit": "1e62655357",
-      "reasoning": "READY"
+      "reasoning": null
      }
     },
     {
@@ -8279,7 +8279,7 @@
       "model": "claude-opus-5-5",
       "session": "e52d3908",
       "commit": "1e62655357",
-      "reasoning": "READY"
+      "reasoning": null
      }
     },
     {
@@ -8298,7 +8298,7 @@
       "model": "claude-opus-5-5",
       "session": "e52d3908",
       "commit": "1e62655357",
-      "reasoning": "READY"
+      "reasoning": null
      }
     },
     {
@@ -8317,7 +8317,7 @@
       "model": "claude-opus-5-5",
       "session": "e52d3908",
       "commit": "1e62655357",
-      "reasoning": "READY"
+      "reasoning": null
      }
     },
     {
@@ -8336,7 +8336,7 @@
       "model": "claude-opus-5-5",
       "session": "e52d3908",
       "commit": "1e62655357",
-      "reasoning": "READY"
+      "reasoning": null
      }
     },
     {
@@ -8355,7 +8355,7 @@
       "model": "claude-opus-5-5",
       "session": "e52d3908",
       "commit": "1e62655357",
-      "reasoning": "READY"
+      "reasoning": null
      }
     },
     {
@@ -8374,7 +8374,7 @@
       "model": "claude-opus-5-5",
       "session": "e52d3908",
       "commit": "1e62655357",
-      "reasoning": "READY"
+      "reasoning": null
      }
     },
     {
@@ -8393,7 +8393,7 @@
       "model": "claude-opus-5-5",
       "session": "e52d3908",
       "commit": "1e62655357",
-      "reasoning": "READY"
+      "reasoning": null
      }
     },
     {
@@ -8412,7 +8412,7 @@
       "model": "claude-opus-5-5",
       "session": "e52d3908",
       "commit": "1e62655357",
-      "reasoning": "READY"
+      "reasoning": null
      }
     },
     {
@@ -8431,7 +8431,7 @@
       "model": "claude-opus-5-5",
       "session": "e52d3908",
       "commit": "1e62655357",
-      "reasoning": "READY"
+      "reasoning": null
      }
     },
     {
@@ -8450,7 +8450,7 @@
       "model": "claude-opus-5-5",
       "session": "e52d3908",
       "commit": "1e62655357",
-      "reasoning": "READY"
+      "reasoning": null
      }
     },
     {
@@ -8469,7 +8469,7 @@
       "model": "claude-opus-5-5",
       "session": "e52d3908",
       "commit": "1e62655357",
-      "reasoning": "READY"
+      "reasoning": null
      }
     },
     {
@@ -8488,7 +8488,7 @@
       "model": "claude-opus-5-5",
       "session": "e52d3908",
       "commit": "1e62655357",
-      "reasoning": "READY"
+      "reasoning": null
      }
     },
     {
@@ -8507,7 +8507,7 @@
       "model": "claude-opus-5-5",
       "session": "e52d3908",
       "commit": "1e62655357",
-      "reasoning": "READY"
+      "reasoning": null
      }
     },
     {
@@ -8526,7 +8526,7 @@
       "model": "claude-opus-5-5",
       "session": "e52d3908",
       "commit": "1e62655357",
-      "reasoning": "READY"
+      "reasoning": null
      }
     },
     {
@@ -8545,7 +8545,7 @@
       "model": "claude-opus-5-5",
       "session": "e52d3908",
       "commit": "1e62655357",
-      "reasoning": "READY"
+      "reasoning": null
      }
     },
     {
@@ -8564,7 +8564,7 @@
       "model": "claude-opus-5-5",
       "session": "e52d3908",
       "commit": "1e62655357",
-      "reasoning": "READY"
+      "reasoning": null
      }
     },
     {
@@ -8583,7 +8583,7 @@
       "model": "claude-opus-5-5",
       "session": "e52d3908",
       "commit": "1e62655357",
-      "reasoning": "READY"
+      "reasoning": null
      }
     },
     {
@@ -8602,7 +8602,7 @@
       "model": "claude-opus-5-5",
       "session": "e52d3908",
       "commit": "1e62655357",
-      "reasoning": "READY"
+      "reasoning": null
      }
     },
     {
@@ -8621,7 +8621,7 @@
       "model": "claude-opus-5-5",
       "session": "e52d3908",
       "commit": "1e62655357",
-      "reasoning": "READY"
+      "reasoning": null
      }
     },
     {
@@ -8640,7 +8640,7 @@
       "model": "claude-opus-5-5",
       "session": "e52d3908",
       "commit": "1e62655357",
-      "reasoning": "READY"
+      "reasoning": null
      }
     },
     {
@@ -8659,7 +8659,7 @@
       "model": "claude-opus-5-5",
       "session": "e52d3908",
       "commit": "1e62655357",
-      "reasoning": "READY"
+      "reasoning": null
      }
     },
     {
@@ -8678,7 +8678,7 @@
       "model": "claude-opus-5-5",
       "session": "e52d3908",
       "commit": "1e62655357",
-      "reasoning": "READY"
+      "reasoning": null
      }
     },
     {
@@ -8697,7 +8697,7 @@
       "model": "claude-opus-5-5",
       "session": "e52d3908",
       "commit": "1e62655357",
-      "reasoning": "READY"
+      "reasoning": null
      }
     },
     {
@@ -8716,7 +8716,7 @@
       "model": "claude-opus-5-5",
       "session": "e52d3908",
       "commit": "1e62655357",
-      "reasoning": "READY"
+      "reasoning": null
      }
     },
     {
@@ -8735,7 +8735,7 @@
       "model": "claude-opus-5-5",
       "session": "e52d3908",
       "commit": "1e62655357",
-      "reasoning": "READY"
+      "reasoning": null
      }
     },
     {
@@ -8754,7 +8754,7 @@
       "model": "claude-opus-5-5",
       "session": "e52d3908",
       "commit": "1e62655357",
-      "reasoning": "READY"
+      "reasoning": null
      }
     },
     {
@@ -8773,7 +8773,7 @@
       "model": "claude-opus-5-5",
       "session": "e52d3908",
       "commit": "1e62655357",
-      "reasoning": "READY"
+      "reasoning": null
      }
     },
     {
@@ -8792,7 +8792,7 @@
       "model": "claude-opus-5-5",
       "session": "e52d3908",
       "commit": "1e62655357",
-      "reasoning": "READY"
+      "reasoning": null
      }
     },
     {
@@ -8811,7 +8811,7 @@
       "model": "claude-opus-5-5",
       "session": "e52d3908",
       "commit": "1e62655357",
-      "reasoning": "READY"
+      "reasoning": null
      }
     },
     {
@@ -8830,7 +8830,7 @@
       "model": "claude-opus-5-5",
       "session": "e52d3908",
       "commit": "1e62655357",
-      "reasoning": "READY"
+      "reasoning": null
      }
     },
     {
@@ -8849,7 +8849,7 @@
       "model": "claude-opus-5-5",
       "session": "e52d3908",
       "commit": "1e62655357",
-      "reasoning": "READY"
+      "reasoning": null
      }
     },
     {
@@ -8868,7 +8868,7 @@
       "model": "claude-opus-5-5",
       "session": "e52d3908",
       "commit": "1e62655357",
-      "reasoning": "READY"
+      "reasoning": null
      }
     },
     {
@@ -8887,7 +8887,7 @@
       "model": "claude-opus-5-5",
       "session": "e52d3908",
       "commit": "1e62655357",
-      "reasoning": "READY"
+      "reasoning": null
      }
     },
     {
@@ -8906,7 +8906,7 @@
       "model": "claude-opus-5-5",
       "session": "e52d3908",
       "commit": "1e62655357",
-      "reasoning": "READY"
+      "reasoning": null
      }
     },
     {
@@ -8925,7 +8925,7 @@
       "model": "claude-opus-5-5",
       "session": "e52d3908",
       "commit": "1e62655357",
-      "reasoning": "READY"
+      "reasoning": null
      }
     },
     {
@@ -8944,7 +8944,7 @@
       "model": "claude-opus-5-5",
       "session": "e52d3908",
       "commit": "1e62655357",
-      "reasoning": "READY"
+      "reasoning": null
      }
     },
     {
@@ -8963,7 +8963,7 @@
       "model": "claude-opus-5-5",
       "session": "e52d3908",
       "commit": "1e62655357",
-      "reasoning": "READY"
+      "reasoning": null
      }
     },
     {
@@ -8982,7 +8982,7 @@
       "model": "claude-opus-5-5",
       "session": "e52d3908",
       "commit": "1e62655357",
-      "reasoning": "READY"
+      "reasoning": null
      }
     },
     {
@@ -9001,7 +9001,7 @@
       "model": "claude-opus-5-5",
       "session": "e52d3908",
       "commit": "1e62655357",
-      "reasoning": "READY"
+      "reasoning": null
      }
     },
     {
@@ -9020,7 +9020,7 @@
       "model": "claude-opus-5-5",
       "session": "e52d3908",
       "commit": "1e62655357",
-      "reasoning": "READY"
+      "reasoning": null
      }
     },
     {
@@ -9039,7 +9039,7 @@
       "model": "claude-opus-5-5",
       "session": "e52d3908",
       "commit": "1e62655357",
-      "reasoning": "READY"
+      "reasoning": null
      }
     },
     {
@@ -9058,7 +9058,7 @@
       "model": "claude-opus-5-5",
       "session": "e52d3908",
       "commit": "1e62655357",
-      "reasoning": "READY"
+      "reasoning": null
      }
     },
     {
@@ -9077,7 +9077,7 @@
       "model": "claude-opus-5-5",
       "session": "e52d3908",
       "commit": "1e62655357",
-      "reasoning": "READY"
+      "reasoning": null
      }
     },
     {
@@ -9096,7 +9096,7 @@
       "model": "claude-opus-5-5",
       "session": "e52d3908",
       "commit": "1e62655357",
-      "reasoning": "READY"
+      "reasoning": null
      }
     },
     {
@@ -9115,7 +9115,7 @@
       "model": "claude-opus-5-5",
       "session": "e52d3908",
       "commit": "1e62655357",
-      "reasoning": "READY"
+      "reasoning": null
      }
     },
     {
@@ -9134,7 +9134,7 @@
       "model": "claude-opus-5-5",
       "session": "e52d3908",
       "commit": "1e62655357",
-      "reasoning": "READY"
+      "reasoning": null
      }
     },
     {
@@ -9153,7 +9153,7 @@
       "model": "claude-opus-5-5",
       "session": "e52d3908",
       "commit": "1e62655357",
-      "reasoning": "READY"
+      "reasoning": null
      }
     },
     {
@@ -9172,7 +9172,7 @@
       "model": "claude-opus-5-5",
       "session": "e52d3908",
       "commit": "1e62655357",
-      "reasoning": "READY"
+      "reasoning": null
      }
     },
     {
@@ -9191,7 +9191,7 @@
       "model": "claude-opus-5-5",
       "session": "e52d3908",
       "commit": "1e62655357",
-      "reasoning": "READY"
+      "reasoning": null
      }
     },
     {
@@ -9210,7 +9210,7 @@
       "model": "claude-opus-5-5",
       "session": "e52d3908",
       "commit": "1e62655357",
-      "reasoning": "READY"
+      "reasoning": null
      }
     },
     {
@@ -9229,7 +9229,7 @@
       "model": "claude-opus-5-5",
       "session": "e52d3908",
       "commit": "1e62655357",
-      "reasoning": "READY"
+      "reasoning": null
      }
     },
     {
@@ -9248,7 +9248,7 @@
       "model": "claude-opus-5-5",
       "session": "e52d3908",
       "commit": "1e62655357",
-      "reasoning": "READY"
+      "reasoning": null
      }
     },
     {
@@ -9267,7 +9267,7 @@
       "model": "claude-opus-5-5",
       "session": "e52d3908",
       "commit": "1e62655357",
-      "reasoning": "READY"
+      "reasoning": null
      }
     },
     {
@@ -9286,7 +9286,7 @@
       "model": "claude-opus-5-5",
       "session": "e52d3908",
       "commit": "1e62655357",
-      "reasoning": "READY"
+      "reasoning": null
      }
     },
     {
@@ -9305,7 +9305,7 @@
       "model": "claude-opus-5-5",
       "session": "e52d3908",
       "commit": "1e62655357",
-      "reasoning": "READY"
+      "reasoning": null
      }
     },
     {
@@ -9324,7 +9324,7 @@
       "model": "claude-opus-5-5",
       "session": "e52d3908",
       "commit": "1e62655357",
-      "reasoning": "READY"
+      "reasoning": null
      }
     },
     {
@@ -9343,7 +9343,7 @@
       "model": "claude-opus-5-5",
       "session": "e52d3908",
       "commit": "1e62655357",
-      "reasoning": "READY"
+      "reasoning": null
      }
     },
     {
@@ -9362,7 +9362,7 @@
       "model": "claude-opus-5-5",
       "session": "e52d3908",
       "commit": "1e62655357",
-      "reasoning": "READY"
+      "reasoning": null
      }
     },
     {
@@ -9381,7 +9381,7 @@
       "model": "claude-opus-5-5",
       "session": "e52d3908",
       "commit": "1e62655357",
-      "reasoning": "READY"
+      "reasoning": null
      }
     },
     {
@@ -9400,7 +9400,7 @@
       "model": "claude-opus-5-5",
       "session": "e52d3908",
       "commit": "1e62655357",
-      "reasoning": "READY"
+      "reasoning": null
      }
     }
    ]

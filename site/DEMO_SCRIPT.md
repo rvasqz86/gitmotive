@@ -9,6 +9,12 @@ URL: **gitmotive.tech**
 
 ## Before recording
 
+- [ ] **PyPI resolves:** in a clean shell, `pipx install gitmotive` installs the published
+      package from PyPI (not a local wheel). Uninstall it again before the dry run if needed.
+- [ ] **Deployed demo deep link:** the deployed demo at `gitmotive.tech` shows the deep-linked
+      line selected with its panel filled (see **Demo viewer** below), not only a local copy.
+- [ ] **Paste, don't type:** paste the agent prompt rather than typing it on camera, and cut the
+      recording from submit to the finished edit.
 - [ ] **Clean terminal:** new window, empty scrollback (`clear`), short prompt (`PS1='$ '`), no
       personal paths, hostnames or tokens on screen, notifications off.
 - [ ] **Font size:** 20 pt or larger in the terminal, browser zoom at 125 %, window about 1280×720

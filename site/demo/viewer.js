@@ -48,6 +48,7 @@ function hashFor(path, n) {
 function setState(kind, ...kids) {
   const box = $("state");
   box.className = `state state-${kind}`;
+  box.setAttribute("role", kind === "err" ? "alert" : "status");
   box.replaceChildren(...kids);
   box.hidden = kids.length === 0;
 }
@@ -67,6 +68,13 @@ function showError(detail) {
 
 function summaryBanner(totalLines, matched) {
   if (matched > 0) return setState("ok");
+  if (totalLines === 0) {
+    return setState("empty",
+      h("p", { class: "hunk-line", "aria-hidden": "true", text: "@@ 0 lines @@" }),
+      h("p", { class: "state-msg" }, h("strong", { text: "This snapshot has no source lines." })),
+      h("p", { class: "state-sub" },
+        "The exported files are empty, so there is nothing to blame and no intent to show."));
+  }
   setState("empty",
     h("p", { class: "hunk-line", "aria-hidden": "true", text: `@@ intent: 0 of ${totalLines.toLocaleString()} lines @@` }),
     h("p", { class: "state-msg" }, h("strong", { text: "No intent is recorded in this snapshot yet." })),
@@ -119,7 +127,7 @@ function renderFile(path) {
   S.rows = lines.map((l, i) => {
     const m = l && l.match;
     const cls = m ? `m p${colorFor(m.prompt_id)}` : null;
-    const gutter = m ? h("td", { class: "g", title: `prompt ${m.prompt_id}`, text: short(m.commit || l.commit) })
+    const gutter = m ? h("td", { class: "g", title: `prompt ${m.prompt_id}`, text: short(m.commit || l.commit) || "·" })
                      : h("td", { class: "g", text: "·" });
     const tr = h("tr", { class: cls, tabindex: i === 0 ? "0" : "-1", "data-i": i },
       gutter, h("td", { class: "n", text: l.n }), h("td", { class: "c", text: l.text ?? "" }));
@@ -283,23 +291,29 @@ async function load() {
     showError(err instanceof SyntaxError ? "not valid JSON" : err.message || "network error");
     return;
   }
-  S.data = data;
-  S.idx = indexData(data);
-  if (!S.idx.files.size) {
-    showError("it lists no files");
-    return;
+  try {
+    S.data = data;
+    S.idx = indexData(data);
+    if (!S.idx.files.size) {
+      showError("it lists no files");
+      return;
+    }
+    let total = 0, matched = 0;
+    for (const f of S.idx.files.values()) {
+      for (const l of f.lines || []) { total++; if (l && l.match) matched++; }
+    }
+    renderMeta(data, total, matched);
+    summaryBanner(total, matched);
+    renderFiles();
+    $("viewer").hidden = false;
+    $("keys").hidden = false;
+    S.file = null;
+    applyHash();
+  } catch (err) {
+    S.idx = null;
+    $("meta").hidden = true;
+    showError("unreadable data");
   }
-  let total = 0, matched = 0;
-  for (const f of S.idx.files.values()) {
-    for (const l of f.lines || []) { total++; if (l && l.match) matched++; }
-  }
-  renderMeta(data, total, matched);
-  summaryBanner(total, matched);
-  renderFiles();
-  $("viewer").hidden = false;
-  $("keys").hidden = false;
-  S.file = null;
-  applyHash();
 }
 
 function wire() {
