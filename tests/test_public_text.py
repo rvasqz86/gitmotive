@@ -271,6 +271,64 @@ def test_real_tree():
     assert not cmds, "unknown gitmotive commands:\n" + "\n".join(cmds)
 
 
+def test_readme_links_site_and_pipx():
+    text = _read(ROOT, "README.md")
+    assert "https://gitmotive.tech" in text, "README must link https://gitmotive.tech"
+    assert "pipx install gitmotive" in text, "README must contain `pipx install gitmotive`"
+
+
+README_SECTIONS = ["Install", "Quickstart", "Supported agents", "Commands", "How it links",
+                   "Privacy", "Known gaps", "Live demo and docs", "License"]
+
+
+def _readme_section(text: str, name: str) -> str:
+    m = re.search(rf"^## {re.escape(name)}[ \t]*\n(.*?)(?=^## |\Z)", text, re.M | re.S)
+    assert m, f"README has no `## {name}` section"
+    return m.group(1)
+
+
+def test_readme_section_order():
+    text = _read(ROOT, "README.md")
+    heads = re.findall(r"^## (.+?)[ \t]*$", text, re.M)
+    assert heads == README_SECTIONS, f"README ## headings out of order: {heads}"
+
+
+def test_readme_gif_and_recording_sequence():
+    text = _read(ROOT, "README.md")
+    gif = text.find("<!-- GIF: docs/demo.gif -->")
+    install = text.find("\n## Install")
+    assert 0 <= gif < install, "GIF placeholder must come before ## Install"
+    m = re.match(r"\s*```[^\n]*\n(.*?)^```", text[gif + len("<!-- GIF: docs/demo.gif -->"):], re.M | re.S)
+    assert m, "GIF placeholder must be followed by a fenced recording sequence"
+    fence = m.group(1)
+    steps = ["pipx install gitmotive", "cd your-repo", "gitmotive install --agent claude",
+             "git commit -am", "git motive ", "gitmotive log"]
+    pos = [fence.find(s) for s in steps]
+    assert all(p >= 0 for p in pos), f"recording sequence missing steps: {steps}, {pos}"
+    assert pos == sorted(pos), f"recording sequence out of order: {pos}"
+
+
+def test_readme_why_example_matches_cmd_why():
+    text = _read(ROOT, "README.md")
+    edited = re.findall(r"^\s*edited .*$", text, re.M)
+    assert edited, "README must show an example `edited` line"
+    # cli.cmd_why: "  edited   <ts>  by <tool>  session <id8>  [<why>]  via <agent>  model <model>"
+    layout = re.compile(r"^\s*edited   \d{4}-\d\d-\d\d \d\d:\d\d  by \S+  session [0-9a-f]{1,8}"
+                        r"  \[[^\]]+\]  via \S+  model \S+$")
+    for line in edited:
+        assert layout.match(line), f"`edited` line does not match cmd_why layout: {line!r}"
+
+
+def test_readme_commands_match_usage():
+    sys.path.insert(0, str(ROOT))
+    from gitmotive import cli
+    section = _readme_section(_read(ROOT, "README.md"), "Commands").replace("\\|", "|")
+    for cmd, (usage, _desc) in cli.USAGE.items():
+        assert f"`{usage}`" in section, f"Commands section missing USAGE[{cmd!r}]: {usage}"
+    assert "`gitmotive --version`" in section, "Commands section missing `gitmotive --version`"
+    assert "-V" in section, "Commands section missing `-V`"
+
+
 if __name__ == "__main__":
     for name, fn in list(globals().items()):
         if name.startswith("test_") and callable(fn):

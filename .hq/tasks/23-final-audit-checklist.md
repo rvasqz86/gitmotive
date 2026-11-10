@@ -10,7 +10,7 @@ Regenerate `site/demo/data.json` from the dogfood events captured while building
 - launch/CHECKLIST.md (create)
 ## Acceptance criteria
 - [ ] data.json is regenerated at a clean HEAD with the local denylist. **Every default file has at least one match with a non-null `model`**; matches from events before the dogfood step may have a null `model`. If any default file has none, stop with a Spec issue stating the cause (dogfood step not run, or the implementer's hooks expose no model, per spec Open questions 7 and 8) instead of fabricating or hand-editing data
-- [ ] `audit_public.py --tree --denylist .audit-denylist` exits 0. The `--history` result is summarised (redacted) in the report, with a pointer to `.hq/history-rewrite-plan.md`
+- [ ] `audit_public.py --tree --denylist .hq/audit-denylist` exits 0. The `--history` result is summarised (redacted) in the report, with a pointer to `.hq/history-rewrite-plan.md`
 - [ ] `launch/CHECKLIST.md` "Done" lists each delivered item with its path. "You do by hand" lists, in order, with exact commands or links:
   1. review and merge this branch to main locally
   2. run the approved `.hq/history-rewrite-plan.md` on a fresh clone, then `scripts/audit_public.py --history`, then `scripts/export_demo.py`, and commit
