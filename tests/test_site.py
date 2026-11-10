@@ -544,6 +544,44 @@ def test_headers():
     assert "Content-Type: text/plain; charset=utf-8" in blocks.get("/install.sh", []), blocks
 
 
+# --- DEMO_SCRIPT.md ------------------------------------------------------------------------
+
+# m:ss with a one-digit minute; the \b keeps clock times such as 21:32 from matching as 1:32
+_MSS = re.compile(r"\b(\d):([0-5]\d)\b")
+
+
+def script_seconds(text: str) -> list[int]:
+    return [int(m) * 60 + int(s) for m, s in _MSS.findall(text)]
+
+
+def test_script_timestamp_parser():
+    assert script_seconds("### 0:00–0:08 · Hook\n### 0:54–1:00 · Close") == [0, 8, 54, 60]
+    assert script_seconds("edited 2026-11-10 21:32 at src/f.py:42") == []
+    assert max(script_seconds("### 0:58–1:05")) > 60
+
+
+def test_demo_script():
+    text = (SITE / "DEMO_SCRIPT.md").read_text(encoding="utf-8")
+    secs = script_seconds(text)
+    assert secs, "no m:ss timestamps"
+    assert max(secs) <= 60, f"script runs past 1:00: {max(secs)} s"
+    heads = re.findall(r"^### (\d:[0-5]\d)–(\d:[0-5]\d) · (.+)$", text, re.M)
+    assert heads and heads[0][0] == "0:00" and heads[0][1] == "0:08", heads
+    assert [h[2] for h in heads][-1] == "Close", heads
+    ends = [script_seconds(a + " " + b) for a, b, _ in heads]
+    for (s, e), nxt in zip(ends, ends[1:] + [None]):
+        assert s < e, (s, e)
+        if nxt:
+            assert nxt[0] == e, f"gap or overlap at {e} s"
+    for s in ("pipx install gitmotive", "gitmotive install --agent claude", "claude",
+              "git commit", "git motive src/", "prompt", "reasoning", "model",
+              "https://gitmotive.tech/demo/#", "git blame tells you who. git motive tells you why.",
+              "gitmotive.tech"):
+        assert s in text, f"missing: {s!r}"
+    for s in ("Clean terminal", "Font size", "Prepared sample repo", "unset GITMOTIVE_STORE"):
+        assert s in text, f"checklist missing: {s!r}"
+
+
 if __name__ == "__main__":
     for name, fn in list(globals().items()):
         if name.startswith("test_") and callable(fn):

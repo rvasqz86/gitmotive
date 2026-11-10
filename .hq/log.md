@@ -42,3 +42,4 @@
 - 2026-11-10 21:22 [task 14] PASS r1; 6 viewer minors (hidden meta, render try/catch, blank gutter, alert role, 0-line banner, live-region) deferred to Phase D cleanup task.
 - 2026-11-10 21:28 [task 15] PASS r1; docs accuracy minors (from_json required keys, exclude repo-scope only, toc/fields css, list continuation, toc guard) deferred to Phase D.
 - 2026-11-10 21:31 [task 16] PASS r1; installer hardening minors (HOME unset, quoted heredoc, override tests) deferred to Phase D.
+- 2026-11-10 21:35 [task 17] PASS r1; script prereqs (re-export data, PyPI live, paste prompt) + weak test asserts deferred to Phase D.
