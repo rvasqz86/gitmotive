@@ -15,3 +15,5 @@
 - 2026-11-10 17:53 [task 01] PASS r1, runtime clean; 2 minor test-tightening notes accepted as-is (nothing tracked today).
 - 2026-11-10 18:00 [task 02] r1 FIX: history path dedup misses paths; excerpt windowed before redact (leak). -> r2.
 - 2026-11-10 18:02 [task 02] PASS r2; tree audit clean. Theoretical mask-before-redact edge (4 chars of a term inside a token) accepted as minor.
+- 2026-11-10 18:05 [task 03] r1 FIX: inline-code regex spans paragraphs (misses fake commands). -> r2.
+- 2026-11-10 18:07 [task 03] PASS r2. ~30 leftover /tmp/pubtext-* dirs from round-1 test runs left in place (harmless; human may remove).
