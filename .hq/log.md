@@ -12,3 +12,4 @@
 - 2026-11-10 17:40 [spec r1] specrev REVISE (2 blocker, 10 major, 5 minor); manager adds: .hq is committed (role contract), not gitignored; dogfood reinstall is a human/manager step. -> round 2.
 - 2026-11-10 17:49 [spec r2] specrev READY with 5 minors; manager reworded the private-IP quote in spec-review, appended the minors to the spec and to tasks 13/18. -> gate1.
 - 2026-11-10 17:52 [gate1] Human: approve (no answers to open questions). Taking spec defaults: Q1 real CLI only, Q2 Cloudflare, Q3 rewrite after merge, Q4 no analytics, Q5 OK, Q8 kind_impl=claude, Q9 per spec. Q6 (denylist) and Q7 (reinstall touching ~) asked at the relevant task.
+- 2026-11-10 17:53 [task 01] PASS r1, runtime clean; 2 minor test-tightening notes accepted as-is (nothing tracked today).

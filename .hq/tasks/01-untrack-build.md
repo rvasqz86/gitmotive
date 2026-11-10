@@ -1,5 +1,5 @@
 # Task 01: Untrack build/ artifacts; ignore build output and local .hq reports
-Status: todo
+Status: done
 Type: chore
 Scope: repo
 Depends on: none
@@ -21,3 +21,10 @@ Remove the stale tracked `build/lib/` copy so later `--tree` audits don't hit it
 Run: `for f in tests/test_*.py; do python3 "$f" || exit 1; done`
 ## Spec issue
 none
+
+## Implementation notes (round 1)
+- `git rm -r build/` (deletion staged, not committed); removed the leftover working-tree dir too.
+- `.gitignore`: appended `build/`; existing `dist/`, `*.egg-info/`, `.gitmotive/`, `__pycache__/` kept.
+- `.hq/.gitignore`: added `audit-report*.md`, `history-rewrite-plan.md`, `deploy-readiness.md`; kept `brief-source.md`, `runtime.log*`.
+- `tests/test_repo_hygiene.py`: checks `git ls-files` for build artifacts, root + `.hq` ignores via `git check-ignore --no-index` (so results don't depend on whether a path is tracked), and that `.hq/spec.md` etc. are not ignored.
+- Full test command passes. Commit is left to the manager (no history rewrite).
