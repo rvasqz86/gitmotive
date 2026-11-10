@@ -30,3 +30,5 @@
 - 2026-11-10 20:15 [task 09] PASS r1; check_dist passes; PyPI name 'gitmotive' free (404) on 2026-11-10. Minor sdist/_wheel.py gap deferred to Phase D.
 - 2026-11-10 20:23 [task 10] r1 FIX: post-commit stamp line not upserted; manager amended spec hook-command interface to the <run> form (-I installed / PYTHONPATH source). -> r2.
 - 2026-11-10 20:26 [task 10] PASS r2; smoke OK in venv and docker (py3.12). install.sh bug fixed (-I, post-commit upsert).
+- 2026-11-10 20:44 [task 11] r1 FIX: pre aria-label without role (a11y). -> r2 (fix all incl. minors).
+- 2026-11-10 20:48 [task 11] PASS r2.
