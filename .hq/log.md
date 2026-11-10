@@ -13,3 +13,5 @@
 - 2026-11-10 17:49 [spec r2] specrev READY with 5 minors; manager reworded the private-IP quote in spec-review, appended the minors to the spec and to tasks 13/18. -> gate1.
 - 2026-11-10 17:52 [gate1] Human: approve (no answers to open questions). Taking spec defaults: Q1 real CLI only, Q2 Cloudflare, Q3 rewrite after merge, Q4 no analytics, Q5 OK, Q8 kind_impl=claude, Q9 per spec. Q6 (denylist) and Q7 (reinstall touching ~) asked at the relevant task.
 - 2026-11-10 17:53 [task 01] PASS r1, runtime clean; 2 minor test-tightening notes accepted as-is (nothing tracked today).
+- 2026-11-10 18:00 [task 02] r1 FIX: history path dedup misses paths; excerpt windowed before redact (leak). -> r2.
+- 2026-11-10 18:02 [task 02] PASS r2; tree audit clean. Theoretical mask-before-redact edge (4 chars of a term inside a token) accepted as minor.
