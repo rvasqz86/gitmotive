@@ -17,3 +17,7 @@
 - 2026-11-10 18:02 [task 02] PASS r2; tree audit clean. Theoretical mask-before-redact edge (4 chars of a term inside a token) accepted as minor.
 - 2026-11-10 18:05 [task 03] r1 FIX: inline-code regex spans paragraphs (misses fake commands). -> r2.
 - 2026-11-10 18:07 [task 03] PASS r2. ~30 leftover /tmp/pubtext-* dirs from round-1 test runs left in place (harmless; human may remove).
+- 2026-11-10 19:09 [task 04] Human Q6: manager creates denylist. Wrote .hq/audit-denylist (gitignored, 3 terms); amended task 04 to use --denylist .hq/audit-denylist.
+- 2026-11-10 19:12 [task 04] HUMAN STOP reached. Audit: tree clean; history 15 medium artifacts (build/, dist/ copies of own source), 0 secret/denylist/transcript/host. Verified refs+status unchanged, no denylist terms in reports. Awaiting human decision on rewrite plan.
+- 2026-11-10 19:26 [task 04] Human: approve. Rewrite plan stands for after merge to main, before visibility flip (human runs force-push). Task 04 makes no commit per spec; its .hq edits ride with task 05's commit.
+- 2026-11-10 19:27 [task 05] Zero tree findings -> manager verified the acceptance criteria directly, no implementer turn. Runtime test= now exports GITMOTIVE_AUDIT_DENYLIST=.hq/audit-denylist so every test run checks the real denylist.

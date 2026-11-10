@@ -1,7 +1,7 @@
 dev=
 health=
 errors=(Error|Exception|Traceback|ECONNREFUSED|panic|UnhandledPromiseRejection)
-test=for f in tests/test_*.py; do python3 "$f" || exit 1; done
+test=export GITMOTIVE_AUDIT_DENYLIST=.hq/audit-denylist; for f in tests/test_*.py; do python3 "$f" || exit 1; done
 log_max=20M
 autonomy=ask
 kind_planner=claude

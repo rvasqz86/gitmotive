@@ -1,6 +1,6 @@
 # Task 05: Apply approved working-tree audit fixes
-Status: todo
-Type: fix
+Status: done
+Type: chore
 Scope: audit
 Depends on: 04
 ## Goal
@@ -20,3 +20,6 @@ Apply the working-tree fixes the human approved in `.hq/audit-report.md` (edits,
 Run: `for f in tests/test_*.py; do python3 "$f" || exit 1; done` and `python3 scripts/audit_public.py --tree --denylist .audit-denylist`
 ## Spec issue
 none
+
+## Manager notes
+No working-tree findings (audit report, human approved). Verified by manager: `audit_public.py --tree --denylist .hq/audit-denylist` exit 0; `tests/test_public_text.py` passes with GITMOTIVE_AUDIT_DENYLIST set; no expected-fail markers; spec-review private-IP quote already reworded by manager before Gate 1. No code change, so Type changed from fix to chore.
