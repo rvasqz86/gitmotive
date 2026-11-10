@@ -49,3 +49,4 @@
 - 2026-11-10 22:18 [task 19] Human: approve Cloudflare Pages. Deploy happens by human after Gate 2 merge + task 23 re-export.
 - 2026-11-10 22:21 [task 20] r1 FIX: README acceptance not tested; agent-capture rows inaccurate. Manager amended tasks 20-23 to --denylist .hq/audit-denylist. -> r2.
 - 2026-11-10 22:23 [task 20] PASS r2.
+- 2026-11-10 22:26 [task 21] PASS r1; wording minors deferred to Phase D.

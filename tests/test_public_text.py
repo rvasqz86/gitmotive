@@ -329,6 +329,114 @@ def test_readme_commands_match_usage():
     assert "-V" in section, "Commands section missing `-V`"
 
 
+# --- launch drafts -------------------------------------------------------------------------
+
+DRAFT_STATUS = "Status: DRAFT — do not post without review"
+LAUNCH_FILES = ("launch/show-hn.md", "launch/product-hunt.md", "launch/linkedin.md")
+ALLOWED_LINKS = {"https://gitmotive.tech", "https://gitmotive.tech/demo/",
+                 "https://github.com/rvasqz86/gitmotive"}
+# (file, section) -> (unit, max): "chars" counts the stripped section text, "words" splits on space
+LAUNCH_LIMITS = {
+    ("launch/show-hn.md", "Title"): ("chars", 80),
+    ("launch/show-hn.md", "Body"): ("words", 250),
+    ("launch/product-hunt.md", "Name"): ("chars", 60),
+    ("launch/product-hunt.md", "Tagline"): ("chars", 60),
+    ("launch/product-hunt.md", "Description"): ("chars", 260),
+    ("launch/product-hunt.md", "First comment"): ("words", 200),
+    ("launch/product-hunt.md", "Gallery captions"): ("chars", 1000),
+    ("launch/product-hunt.md", "Topics"): ("chars", 500),
+    ("launch/linkedin.md", "Post"): ("chars", 1300),
+}
+_URL = re.compile(r"https?://[^\s)\]>\"'`]+")
+# a number (not an `[N]` placeholder) next to a traction word, e.g. "1,200 users", "500 stars"
+_TRACTION = re.compile(r"\b\d[\d,.]*\s*[kKmM+]?\s*(?:users|stars|downloads|installs|customers"
+                       r"|teams|companies|developers|signups|sign-ups)\b", re.I)
+
+
+def _section(text: str, name: str) -> str | None:
+    m = re.search(rf"^## {re.escape(name)}[ \t]*\n(.*?)(?=^## |\Z)", text, re.M | re.S)
+    return m.group(1).strip() if m else None
+
+
+def section_length(text: str, unit: str) -> int:
+    return len(text.split()) if unit == "words" else len(text)
+
+
+def launch_violations(root: Path) -> list[str]:
+    found = []
+    texts = {}
+    for rel in LAUNCH_FILES:
+        p = Path(root) / rel
+        if not p.is_file():
+            found.append(f"{rel}: missing")
+            continue
+        texts[rel] = text = p.read_text(encoding="utf-8")
+        if not text.startswith(DRAFT_STATUS):
+            found.append(f"{rel}: must start with `{DRAFT_STATUS}`")
+        for url in _URL.findall(text):
+            url = url.rstrip(".,;:!?")
+            if url not in ALLOWED_LINKS:
+                found.append(f"{rel}: link not allowed: {url}")
+        for m in _TRACTION.finditer(text):
+            found.append(f"{rel}: traction claim (use [N]): {m.group(0)}")
+    for (rel, name), (unit, limit) in LAUNCH_LIMITS.items():
+        if rel not in texts:
+            continue
+        body = _section(texts[rel], name)
+        if not body:
+            found.append(f"{rel}: missing or empty `## {name}`")
+            continue
+        n = section_length(body, unit)
+        if n > limit:
+            found.append(f"{rel}: `## {name}` is {n} {unit}, limit {limit}")
+    captions = _section(texts.get("launch/product-hunt.md", ""), "Gallery captions")
+    if captions is not None:
+        items = re.findall(r"^\s*(?:\d+[.)]|[-*])\s+\S", captions, re.M)
+        if len(items) != 3:
+            found.append(f"launch/product-hunt.md: `## Gallery captions` needs 3 items, has {len(items)}")
+    return found
+
+
+def test_launch_checks_catch_violations():
+    over = " ".join(["word"] * 251)
+    d = _repo({
+        "launch/show-hn.md": f"{DRAFT_STATUS}\n## Title\n{'x' * 81}\n## Body\n{over}\n"
+                             "see https://example.com/x. and https://gitmotive.tech/demo/.\n",
+        "launch/product-hunt.md": "Status: draft\n## Name\nn\n## Tagline\nt\n## Description\n"
+                                  "We have 1,200 users and [N] stars.\n## First comment\nhi\n"
+                                  "## Gallery captions\n1. a\n2. b\n## Topics\nx\n",
+    })
+    found = launch_violations(d)
+    blob = "\n".join(found)
+    assert "launch/linkedin.md: missing" in blob, blob
+    assert "`## Title` is 81 chars, limit 80" in blob, blob
+    assert "`## Body` is 255 words, limit 250" in blob, blob  # 251 + "see", 2 links, "and"
+    assert "link not allowed: https://example.com/x" in blob, blob
+    assert "https://gitmotive.tech/demo/" not in blob, blob
+    assert "product-hunt.md: must start with" in blob, blob
+    assert "traction claim (use [N]): 1,200 users" in blob, blob
+    assert "[N] stars" not in blob, blob
+    assert "needs 3 items, has 2" in blob, blob
+
+
+def test_launch_checks_accept_within_limits():
+    d = _repo({
+        "launch/show-hn.md": f"{DRAFT_STATUS}\n## Title\n{'x' * 80}\n## Body\n"
+                             + " ".join(["w"] * 250) + "\n",
+        "launch/product-hunt.md": f"{DRAFT_STATUS}\n## Name\nn\n## Tagline\n{'t' * 60}\n"
+                                  f"## Description\n{'d' * 260}\n## First comment\nhi\n"
+                                  "## Gallery captions\n1. a\n2. b\n3. c\n## Topics\n- x\n",
+        # 1277 + 1 space + 22-char link = 1300 chars exactly
+        "launch/linkedin.md": f"{DRAFT_STATUS}\n## Post\n{'p' * 1277} https://gitmotive.tech\n",
+    })
+    assert launch_violations(d) == [], launch_violations(d)
+
+
+def test_launch_drafts_real_tree():
+    found = launch_violations(ROOT)
+    assert not found, "launch draft problems:\n" + "\n".join(found)
+
+
 if __name__ == "__main__":
     for name, fn in list(globals().items()):
         if name.startswith("test_") and callable(fn):
