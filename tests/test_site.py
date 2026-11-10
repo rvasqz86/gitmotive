@@ -458,7 +458,7 @@ def test_home_intent_panel_is_real_cmd_why_output():
     patches = [
         (store, "repo_root", lambda *a, **k: root),
         (store, "read_all", lambda *a, **k: [prompt, edit]),
-        (cli, "_stamp", lambda *a, **k: 0),
+        (resolve, "stamp", lambda *a, **k: 0),
         (resolve, "find", lambda *a, **k: (bl, "            time.sleep(2 ** attempt)", [match])),
         (resolve, "siblings", lambda *a, **k: ["src/fetch.py", "src/http_errors.py",
                                                 "tests/test_fetch.py"]),

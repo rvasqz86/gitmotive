@@ -32,3 +32,4 @@
 - 2026-11-10 20:26 [task 10] PASS r2; smoke OK in venv and docker (py3.12). install.sh bug fixed (-I, post-commit upsert).
 - 2026-11-10 20:44 [task 11] r1 FIX: pre aria-label without role (a11y). -> r2 (fix all incl. minors).
 - 2026-11-10 20:48 [task 11] PASS r2.
+- 2026-11-10 20:50 [task 12] PASS r1; unused 'import subprocess' in cli.py deferred to Phase D cleanup.

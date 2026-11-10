@@ -73,7 +73,7 @@ def cmd_why(args: list[str]) -> int:
     root = store.repo_root()
     file = os.path.relpath(os.path.abspath(file), root)
     events = store.read_all(root)
-    _stamp(root, events, quiet=True)
+    resolve.stamp(root, events)
     bl, text, matches = resolve.find(root, file, line, events)
 
     print(f"{file}:{line}")
@@ -124,7 +124,7 @@ def cmd_why(args: list[str]) -> int:
 def cmd_log(args: list[str]) -> int:
     root = store.repo_root()
     events = store.read_all(root)
-    _stamp(root, events, quiet=True)
+    resolve.stamp(root, events)
     filt = os.path.relpath(os.path.abspath(args[0]), root) if args else None
     edits_by_prompt: dict[str, list[store.Event]] = {}
     for e in events:
@@ -153,62 +153,13 @@ def cmd_log(args: list[str]) -> int:
     return 0
 
 
-def _stamp(root: Path, events: list[store.Event], quiet: bool = False) -> int:
-    """Attach each unstamped edit to the first commit after it that touched its file."""
-    pending = [e for e in events if e.kind == "edit" and e.commit is None and e.file]
-    if not pending:
-        return 0
-    n = 0
-    cache: dict[str, list[tuple[int, str]]] = {}
-    for e in pending:
-        if e.file not in cache:
-            try:
-                out = subprocess.run(
-                    ["git", "log", "--format=%ct %H", f"--since=@{int(min(x.ts for x in pending if x.file == e.file)) - 5}", "--", e.file],
-                    cwd=root, capture_output=True, text=True, check=True).stdout
-                # git log is newest-first; reverse to oldest-first, keep git order on equal timestamps
-                cache[e.file] = [(int(a), b) for a, b in (l.split() for l in out.splitlines() if l.strip())][::-1]
-            except (subprocess.CalledProcessError, ValueError):
-                cache[e.file] = []
-        for ctime, sha in cache[e.file]:
-            if ctime < int(e.ts) - 5:
-                continue
-            if not _commit_has(root, sha, e.file, e.new, e.old):
-                continue
-            e.commit = sha
-            n += 1
-            break
-    if n:
-        store.rewrite_all(events, root)
-    if not quiet:
-        print(f"stamped {n} edit(s)")
-    return n
-
-
-def _blob_lines(root: Path, rev: str, file: str) -> set[str] | None:
-    try:
-        out = subprocess.run(["git", "show", f"{rev}:{file}"], cwd=root, capture_output=True, text=True, check=True).stdout
-    except subprocess.CalledProcessError:
-        return None
-    return {l.strip() for l in out.splitlines()}
-
-
-def _commit_has(root: Path, sha: str, file: str, new: str | None, old: str | None = None) -> bool:
-    """True if this commit *introduced* a line from the edit: present at sha, absent at sha^."""
-    probes = [l.strip() for l in (new or "").splitlines() if len(l.strip()) >= 4]
-    if not probes:
-        return True
-    cur = _blob_lines(root, sha, file)
-    if cur is None:
-        return False
-    parent = _blob_lines(root, f"{sha}^", file) or set()
-    # every introduced line must be present, and at least one must be absent from the parent
-    return all(p in cur for p in probes) and any(p not in parent for p in probes)
-
-
 def cmd_stamp(_args: list[str]) -> int:
     root = store.repo_root()
-    _stamp(root, store.read_all(root))
+    events = store.read_all(root)
+    # unchanged output: nothing is printed when no edit is waiting for a stamp
+    if any(e.kind == "edit" and e.commit is None and e.file for e in events):
+        n = resolve.stamp(root, events)
+        print(f"stamped {n} edit(s)")
     return 0
 
 
