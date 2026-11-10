@@ -277,6 +277,38 @@ def test_real_tree():
     assert not cmds, "unknown gitmotive commands:\n" + "\n".join(cmds)
 
 
+_TWINE_DIST_GLOB = re.compile(r"twine[ \t]+upload[ \t]+(?:\./)?dist/\*")
+
+
+def twine_dist_violations(root: Path) -> list[str]:
+    """`twine upload dist/*` is wrong: scripts/check_dist.sh builds into a temp dir, not ./dist."""
+    found = []
+    for rel in public_files(root, COMMAND_SCOPE):
+        text = _read(root, rel)
+        for m in _TWINE_DIST_GLOB.finditer(text):
+            found.append(f"{rel}:{text.count(chr(10), 0, m.start()) + 1}: {m.group(0)}")
+    return found
+
+
+def test_twine_dist_check_catches_violations():
+    d = _repo({
+        "README.md": "ok\n",
+        "launch/CHECKLIST.md": "```\nsh scripts/check_dist.sh\npython -m twine upload dist/*\n```\n",
+        "site/docs/index.html": "<code>twine upload ./dist/*</code>\n",
+        "other/x.md": "twine upload dist/*\n",
+    })
+    found = twine_dist_violations(d)
+    assert found == ["launch/CHECKLIST.md:3: twine upload dist/*",
+                     "site/docs/index.html:1: twine upload ./dist/*"], found
+    ok = _repo({"launch/c.md": "python -m twine upload /tmp/gitmotive-dist.ab/dist/x.whl\n"})
+    assert twine_dist_violations(ok) == []
+
+
+def test_twine_dist_real_tree():
+    found = twine_dist_violations(ROOT)
+    assert not found, "`twine upload dist/*` (check_dist.sh builds into a temp dir):\n" + "\n".join(found)
+
+
 def test_readme_links_site_and_pipx():
     text = _read(ROOT, "README.md")
     assert "https://gitmotive.tech" in text, "README must link https://gitmotive.tech"

@@ -56,3 +56,5 @@
 - 2026-11-10 22:42 [task 23] PASS r2. data.json: 4 files, 859 matched lines, 0 tmp/home leaks. -> Phase D.
 - 2026-11-10 22:43 [final] Phase D review: no TODOs; unused import; consolidated all deferred minors + honest-reasoning fix (stale 'READY' reasoning in demo) into task 25.
 - 2026-11-10 22:49 [task 25] PASS r1. Next: regenerate data.json at final HEAD (generated artifact) and fold into chore(hq): summary.
+- 2026-11-10 22:50 [final] Checklist step 5 'twine upload dist/*' wrong (check_dist builds to temp) -> task 26. Regenerated data.json stashed meanwhile.
+- 2026-11-10 22:51 [task 26] PASS r1.

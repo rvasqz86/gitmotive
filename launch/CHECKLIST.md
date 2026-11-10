@@ -62,11 +62,16 @@ pushed, published, deployed or made public. "You do by hand" is the remaining wo
    secrets, nameservers, records and custom domains, the `www` redirect, then the first deploy from
    `main`), and run the checks in its section 6.
 5. **Build, check and upload to PyPI.** Do this before recording: the demo script runs
-   `pipx install gitmotive`.
+   `pipx install gitmotive`. You need a PyPI account and a PyPI API token (twine asks for them:
+   username `__token__`, password the token).
    ```
    sh scripts/check_dist.sh
-   python -m twine upload dist/*
    ```
+   The script builds into a fresh temp directory (`$TMPDIR/gitmotive-dist.XXXXXX/dist`), not `./dist`,
+   and its last line, under `to publish (not run):`, is the exact upload command with the full file
+   paths. Copy that `python -m twine upload …` line and run it. Twine must be installed for that
+   `python` (`python -m pip install --user twine`), or run the same line as `pipx run twine upload …`
+   with the same file paths.
 6. **Record the demo** following `site/DEMO_SCRIPT.md` and add it as `docs/demo.gif`
    (`git add docs/demo.gif && git commit -m "docs: add demo recording" && git push origin main`).
 7. **Fill the placeholders in `launch/application.md`** (the bracketed fields such as stars, installs
