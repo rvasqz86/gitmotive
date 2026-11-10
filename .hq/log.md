@@ -58,3 +58,4 @@
 - 2026-11-10 22:49 [task 25] PASS r1. Next: regenerate data.json at final HEAD (generated artifact) and fold into chore(hq): summary.
 - 2026-11-10 22:50 [final] Checklist step 5 'twine upload dist/*' wrong (check_dist builds to temp) -> task 26. Regenerated data.json stashed meanwhile.
 - 2026-11-10 22:51 [task 26] PASS r1.
+- 2026-11-10 22:52 [final] Summary written; data.json regenerated at 01cca2a committed with summary. -> gate2.
