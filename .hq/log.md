@@ -45,3 +45,5 @@
 - 2026-11-10 21:35 [task 17] PASS r1; script prereqs (re-export data, PyPI live, paste prompt) + weak test asserts deferred to Phase D.
 - 2026-11-10 21:38 [task 18] r1 FIX: workflow_dispatch from any branch deploys to prod. -> r2.
 - 2026-11-10 21:39 [task 18] PASS r2.
+- 2026-11-10 21:41 [task 19] HUMAN STOP reached. Report GO; manager caveats: data.json still 0 matches (task 23 re-exports; store now 74/114 edits with model), and report wrongly says .hq is excluded from public repo (it is committed; the info hits are own-home paths, harmless).
+- 2026-11-10 22:18 [task 19] Human: approve Cloudflare Pages. Deploy happens by human after Gate 2 merge + task 23 re-export.
