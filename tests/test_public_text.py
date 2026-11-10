@@ -437,6 +437,97 @@ def test_launch_drafts_real_tree():
     assert not found, "launch draft problems:\n" + "\n".join(found)
 
 
+# --- grant application ---------------------------------------------------------------------
+
+APPLICATION = "launch/application.md"
+APPLICATION_STATUS = "Status: DRAFT — fill placeholders, do not submit without review"
+APPLICATION_SECTIONS = ["What it is", "The problem", "Who it's for", "What's live at gitmotive.tech",
+                        "Traction", "What the money funds", "Why me", "Ownership and licensing"]
+HYPE_WORDS = ("revolutionary", "game-changing", "disrupt")
+_HYPE = re.compile(r"\b(?:revolutionary|game[\s-]*changing|disrupt\w*)", re.I)
+LIVE_PATHS = ("`/`", "`/demo/`", "`/docs/`", "`/install.sh`")
+TRACTION_PLACEHOLDERS = ("[GitHub stars]", "[pipx installs]", "[design partners]")
+MILESTONES = ("Team sync", "Hosted index", "PR review integration")
+
+
+def application_violations(root: Path) -> list[str]:
+    p = Path(root) / APPLICATION
+    if not p.is_file():
+        return [f"{APPLICATION}: missing"]
+    text = p.read_text(encoding="utf-8")
+    found = []
+    if not text.startswith(APPLICATION_STATUS):
+        found.append(f"{APPLICATION}: must start with `{APPLICATION_STATUS}`")
+    heads = re.findall(r"^## (.+?)[ \t]*$", text, re.M)
+    if heads != APPLICATION_SECTIONS:
+        found.append(f"{APPLICATION}: ## headings must be exactly {APPLICATION_SECTIONS}, got {heads}")
+    for m in _HYPE.finditer(text):
+        found.append(f"{APPLICATION}: hype word: {m.group(0)}")
+    for m in _TRACTION.finditer(text):
+        found.append(f"{APPLICATION}: traction claim (use a placeholder): {m.group(0)}")
+    live = _section(text, "What's live at gitmotive.tech") or ""
+    for path in LIVE_PATHS:
+        if path not in live:
+            found.append(f"{APPLICATION}: `What's live` must name {path}")
+    if "client-side" not in live:
+        found.append(f"{APPLICATION}: `What's live` must say the demo runs client-side")
+    traction = _section(text, "Traction") or ""
+    for ph in TRACTION_PLACEHOLDERS:
+        if ph not in traction:
+            found.append(f"{APPLICATION}: `Traction` missing placeholder {ph}")
+    if re.search(r"\d", traction):
+        found.append(f"{APPLICATION}: `Traction` must not contain numbers")
+    funds = _section(text, "What the money funds") or ""
+    for name in MILESTONES:
+        m = re.search(rf"^\s*\d+\.\s+\*\*{re.escape(name)}\*\*(.*)$", funds, re.M)
+        if not m:
+            found.append(f"{APPLICATION}: `What the money funds` missing milestone {name}")
+            continue
+        if not re.search(r"\(about \d+ weeks?\)", m.group(1)):
+            found.append(f"{APPLICATION}: milestone {name} needs a timeframe `(about N weeks)`")
+        if "Deliverable:" not in m.group(1):
+            found.append(f"{APPLICATION}: milestone {name} needs a `Deliverable:`")
+    return found
+
+
+def test_application_checks_catch_violations():
+    d = _repo({APPLICATION: (
+        "Status: draft\n## What it is\nA revolutionary, Game-Changing tool to disrupt review.\n"
+        "## The problem\n## What's live at gitmotive.tech\n`/` and `/docs/`\n"
+        "## Traction\n1,200 stars and [GitHub stars]\n"
+        "## What the money funds\n1. **Team sync**: git notes.\n"
+        "2. **Hosted index** (about 8 weeks). Deliverable: index.\n")})
+    blob = "\n".join(application_violations(d))
+    assert "must start with" in blob, blob
+    assert "## headings must be exactly" in blob, blob
+    for w in ("revolutionary", "Game-Changing", "disrupt"):
+        assert f"hype word: {w}" in blob, blob
+    assert "traction claim (use a placeholder): 1,200 stars" in blob, blob
+    assert "must name `/demo/`" in blob and "must name `/install.sh`" in blob, blob
+    assert "must name `/docs/`" not in blob, blob
+    assert "client-side" in blob, blob
+    assert "missing placeholder [pipx installs]" in blob, blob
+    assert "missing placeholder [GitHub stars]" not in blob, blob
+    assert "`Traction` must not contain numbers" in blob, blob
+    assert "milestone Team sync needs a timeframe" in blob, blob
+    assert "milestone Team sync needs a `Deliverable:`" in blob, blob
+    assert "milestone Hosted index" not in blob, blob
+    assert "missing milestone PR review integration" in blob, blob
+    assert application_violations(_repo({})) == [f"{APPLICATION}: missing"]
+
+
+def test_application_real_tree():
+    found = application_violations(ROOT)
+    assert not found, "application problems:\n" + "\n".join(found)
+    text = _read(ROOT, APPLICATION).lower()
+    assert not any(w in text for w in HYPE_WORDS), "hype word in application"
+    why = _section(_read(ROOT, APPLICATION), "Why me") or ""
+    assert "large-scale orgs" in why and "10+ years" in why, why
+    own = _section(_read(ROOT, APPLICATION), "Ownership and licensing") or ""
+    for s in ("sole author", "MIT", "personal time", "personal equipment", "audited"):
+        assert s in own, f"Ownership and licensing missing {s!r}"
+
+
 if __name__ == "__main__":
     for name, fn in list(globals().items()):
         if name.startswith("test_") and callable(fn):

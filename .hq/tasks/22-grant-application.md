@@ -1,5 +1,5 @@
 # Task 22: Grant application draft
-Status: todo
+Status: done
 Type: docs
 Scope: launch
 Depends on: 19, 20
@@ -29,3 +29,9 @@ Extend `tests/test_public_text.py`.
 Run: `for f in tests/test_*.py; do python3 "$f" || exit 1; done`
 ## Spec issue
 none
+## Implementation notes (round 1)
+- Created `launch/application.md`: starts with the required status line, exactly the eight `##` headings in order. Facts taken from README/site (adapters, deterministic scoring, `/demo/` loads gitmotive's own dogfood data from static JSON, client-side). Why me uses "large-scale orgs" only; no organisation names. Traction is placeholders only, no numbers.
+- Milestones are a numbered list `N. **Name** (about N weeks). Deliverable: ...`: team sync ~6 weeks (git notes), hosted index ~8 weeks (opt-in, deterministic), PR review integration ~6 weeks (intent inline on PR diffs). Timeframes are rough guesses for the user to adjust.
+- Ownership claims the audit was done "for the public release" (audit commits e5d87cd, 19c3448 exist); user should confirm before submitting.
+- `tests/test_public_text.py`: added `application_violations()` (status header, exact headings, hype words incl. variants like "disruptive"/"game changing", `_TRACTION` number claims, the four live paths + "client-side", the three placeholders and no digits in Traction, each milestone with `Deliverable:` and `(about N weeks)`), a self-test on a synthetic bad file, and a real-tree test that also checks Why me / Ownership content. Existing denylist scan already covers `launch/`.
+- Full test command passes with the denylist set (denylist check ran, not skipped).
