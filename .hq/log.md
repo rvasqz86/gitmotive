@@ -1,0 +1,14 @@
+# Log
+- 2026-11-10 17:24 [setup] Brief file was untracked in repo root; human chose to move it to .hq/brief-source.md (gitignored: it holds employer/client names the audit must purge).
+- 2026-11-10 17:24 [setup] Branch feat/tech-launch-site created (new capability: site + packaging + launch).
+- 2026-11-10 17:24 [setup] No CLAUDE.md/AGENTS.md/docs; architecture.md derived from README + code, marked DRAFT.
+- 2026-11-10 17:24 [setup] Runtime: pure Python CLI, no dev server -> dev/health empty; tests are plain scripts (no pytest installed), test= runs each tests/test_*.py.
+- 2026-11-10 17:24 [setup] Brief has its own [CONFIRM] gates (history rewrite, deploy) beyond Gate 1/2; spec must make them explicit human stops.
+- 2026-11-10 17:24 [setup] Runtime: no dev server; baseline tests pass. -> phase spec, round 1.
+- 2026-11-10 17:25 [spec r1] Planner (omp, github-copilot/gpt-5.5) returned HTTP 403 Copilot access denied on both the priming and the task prompt; no files were written. Waiting on the human: fix the omp model/auth, or set kind_planner override.
+- 2026-11-10 17:30 [spec r1] Human: use claude for planner and specrev (Copilot 403). Added kind_planner/kind_specrev overrides; respawning.
+- 2026-11-10 17:31 [spec r1] specrev first respawn garbled its role prompt (escape codes); second respawn READY.
+- 2026-11-10 17:38 [spec r1] Planner DONE: spec.md + 21 tasks; grep shows no denylist names outside brief-source.md.
+- 2026-11-10 17:40 [spec r1] specrev REVISE (2 blocker, 10 major, 5 minor); manager adds: .hq is committed (role contract), not gitignored; dogfood reinstall is a human/manager step. -> round 2.
+- 2026-11-10 17:49 [spec r2] specrev READY with 5 minors; manager reworded the private-IP quote in spec-review, appended the minors to the spec and to tasks 13/18. -> gate1.
+- 2026-11-10 17:52 [gate1] Human: approve (no answers to open questions). Taking spec defaults: Q1 real CLI only, Q2 Cloudflare, Q3 rewrite after merge, Q4 no analytics, Q5 OK, Q8 kind_impl=claude, Q9 per spec. Q6 (denylist) and Q7 (reinstall touching ~) asked at the relevant task.
