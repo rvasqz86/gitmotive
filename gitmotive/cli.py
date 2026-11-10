@@ -61,7 +61,12 @@ def cmd_why(args: list[str]) -> int:
 
     top = matches[0]
     e, p = top.edit, top.prompt
-    print(f"  edited   {_fmt_ts(e.ts)}  by {e.tool}  session {e.session[:8]}  [{top.why}]")
+    edited = f"  edited   {_fmt_ts(e.ts)}  by {e.tool}  session {e.session[:8]}  [{top.why}]"
+    if e.agent:
+        edited += f"  via {e.agent}"
+    if e.model:
+        edited += f"  model {e.model}"
+    print(edited)
     if p:
         print("  prompt")
         print(_wrap(p.prompt))
@@ -192,7 +197,12 @@ def _claude_style(cfg: dict, cmd: str, prompt_event: str, tool_event: str, match
     def ensure(event: str, m: str | None):
         lst = hooks.setdefault(event, [])
         for entry in lst:
-            if any("gitmotive capture" in h.get("command", "") for h in entry.get("hooks", [])):
+            found = False
+            for h in entry.get("hooks", []):
+                if "gitmotive capture" in h.get("command", ""):
+                    h["command"] = cmd   # upsert: refresh stale paths and labels
+                    found = True
+            if found:
                 return
         entry = {"hooks": [{"type": "command", "command": cmd, "timeout": 10}]}
         if m:
@@ -201,6 +211,15 @@ def _claude_style(cfg: dict, cmd: str, prompt_event: str, tool_event: str, match
 
     ensure(prompt_event, None)
     ensure(tool_event, matcher)
+
+
+def _upsert_flat(lst: list, entry: dict) -> None:
+    """Flat hook list (cursor, copilot): replace the command of an existing gitmotive entry, else append."""
+    for h in lst:
+        if isinstance(h, dict) and "gitmotive capture" in h.get("command", ""):
+            h["command"] = entry["command"]
+            return
+    lst.append(entry)
 
 
 def install_claude(root: Path, cmd: str) -> None:
@@ -218,7 +237,7 @@ def install_omp(root: Path, cmd: str) -> None:
     p = (Path.home() / ".omp" / "agent" / "settings.json") if root is None else (root / ".omp" / "settings.json")
     p.parent.mkdir(parents=True, exist_ok=True)
     cfg = _load_json(p)
-    _claude_style(cfg, cmd + " --agent claude", "UserPromptSubmit", "PostToolUse", None)
+    _claude_style(cfg, cmd + " --agent claude --source omp", "UserPromptSubmit", "PostToolUse", None)
     p.write_text(json.dumps(cfg, indent=2) + "\n")
     print(f"wrote {p}  (requires: omp install omp-hooks)")
 
@@ -232,8 +251,7 @@ def install_cursor(root: Path, cmd: str) -> None:
     for event in ("beforeSubmitPrompt", "afterFileEdit"):
         lst = hooks.setdefault(event, [])
         c = f"{cmd} --agent cursor --event {event}"
-        if not any("gitmotive capture" in h.get("command", "") for h in lst):
-            lst.append({"command": c})
+        _upsert_flat(lst, {"command": c})
     p.write_text(json.dumps(cfg, indent=2) + "\n")
     print(f"wrote {p}")
 
@@ -247,8 +265,7 @@ def install_copilot(root: Path, cmd: str) -> None:
     hooks = cfg.setdefault("hooks", {})
     for event in ("UserPromptSubmit", "PostToolUse"):
         lst = hooks.setdefault(event, [])
-        if not any("gitmotive capture" in h.get("command", "") for h in lst):
-            lst.append({"type": "command", "command": f"{cmd} --agent claude", "timeoutSec": 10})
+        _upsert_flat(lst, {"type": "command", "command": f"{cmd} --agent claude --source copilot", "timeoutSec": 10})
     p.write_text(json.dumps(cfg, indent=2) + "\n")
     print(f"wrote {p}")
 

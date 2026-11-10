@@ -11,6 +11,8 @@ Canonical dict returned by normalize():
     "tool": str | None,
     "tool_use_id": str | None,
     "transcript_path": str | None,
+    "agent": str,                              # producing product: source label, else resolved agent
+    "model": str | None,                       # payload model, if the agent sends one
   }
 
 Agents:
@@ -52,11 +54,17 @@ def _file_from_tool_input(ti: dict) -> Optional[str]:
     return _first(ti, "file_path", "filePath", "path", "target_file", "file")
 
 
-def normalize(payload: dict, agent: Optional[str] = None, event: Optional[str] = None) -> dict:
+def normalize(payload: dict, agent: Optional[str] = None, event: Optional[str] = None,
+              source: Optional[str] = None) -> dict:
+    """agent selects the payload shape; source labels the producing product (e.g. omp emits the
+    claude shape but is recorded as omp)."""
     out = {"event": None, "session": "unknown", "cwd": payload.get("cwd"), "prompt": None,
            "file_path": None, "edits": [], "tool": None, "tool_use_id": None, "transcript_path": None}
 
     agent = agent or detect(payload)
+    out["agent"] = source or agent
+    model = payload.get("model")
+    out["model"] = model if isinstance(model, str) and model else None
     ev = (event or payload.get("hook_event_name") or payload.get("hookEventName") or "").lower()
 
     if agent == "cursor":

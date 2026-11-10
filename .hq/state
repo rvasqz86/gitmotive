@@ -1,5 +1,6 @@
 phase=tasks
 branch=feat/tech-launch-site
 spec_round=2
-task=06
+task=07
 round=1
+waiting=human-dogfood-reinstall

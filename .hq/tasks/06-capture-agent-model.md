@@ -1,5 +1,5 @@
 # Task 06: Record agent and model on events; --source labels; upserting installers
-Status: todo
+Status: done
 Type: feat
 Scope: capture
 Depends on: 01
@@ -26,3 +26,11 @@ Add optional `agent` and `model` to `store.Event` and fill them during capture (
 Run: `for f in tests/test_*.py; do python3 "$f" || exit 1; done`
 ## Spec issue
 none
+
+## Implementation notes (round 1)
+- store.py: `agent`, `model` (default None) added after `commit`; `FIELD_DOCS` has one entry per field (tested for equality with `dataclasses.fields`).
+- adapters.py: `normalize(..., source=None)` sets `agent = source or resolved agent` and `model = payload["model"]` (non-empty str) else None, for every shape (set before the cursor early return).
+- capture.py: `--source` parsed in `main`, passed through `handle(..., source=)`. `_transcript_context` returns `(reasoning, model)` in one pass; model is `message.model` of the assistant record holding the matching `tool_use` only (no fallback to other records, per spec). `_preceding_assistant_text` is now a wrapper. Payload model wins over the transcript. Prompt events get agent + payload model.
+- cli.py: omp writes `--agent claude --source omp`, copilot `--agent claude --source copilot`. `_claude_style` replaces the command of every gitmotive hook in the first matching entry; cursor/copilot use a new `_upsert_flat` helper. Matchers/timeouts of existing entries are left as they are. `why` appends `  via {agent}` / `  model {model}` to the `edited` line only when set.
+- Tests: tests/test_capture_model.py (installer test runs each written command via `sh -c` with HOME and GITMOTIVE_HOME in a temp dir); tests/test_adapters.py gains agent-per-shape, source override and cursor model cases. Full test command passes.
+- Not done here (separate spec section "Cursor end to end"): cursor `cwd` fallback to `workspace_roots[0]` and the `detect()` change.

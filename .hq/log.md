@@ -21,3 +21,4 @@
 - 2026-11-10 19:12 [task 04] HUMAN STOP reached. Audit: tree clean; history 15 medium artifacts (build/, dist/ copies of own source), 0 secret/denylist/transcript/host. Verified refs+status unchanged, no denylist terms in reports. Awaiting human decision on rewrite plan.
 - 2026-11-10 19:26 [task 04] Human: approve. Rewrite plan stands for after merge to main, before visibility flip (human runs force-push). Task 04 makes no commit per spec; its .hq edits ride with task 05's commit.
 - 2026-11-10 19:27 [task 05] Zero tree findings -> manager verified the acceptance criteria directly, no implementer turn. Runtime test= now exports GITMOTIVE_AUDIT_DENYLIST=.hq/audit-denylist so every test run checks the real denylist.
+- 2026-11-10 19:29 [task 06] PASS r1, runtime clean; minors accepted (payload model on any shape is harmless; dup-entry cleanup optional).
