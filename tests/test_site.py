@@ -582,6 +582,36 @@ def test_demo_script():
         assert s in text, f"checklist missing: {s!r}"
 
 
+def test_demo_data_and_deep_links():
+    """Every exported demo file has a match with a model, and each `/demo/#<file>:<n>` deep link
+    on the site and in the demo script points at a line in data.json that carries a model."""
+    import json
+    sys.path.insert(0, str(ROOT / "scripts"))
+    import export_demo
+    data = json.loads((SITE / "demo" / "data.json").read_text(encoding="utf-8"))
+    files = {f["path"]: f for f in data["files"]}
+    assert set(files) == set(export_demo.DEFAULT_FILES), sorted(files)
+    for path, f in files.items():
+        assert any(l["match"] and l["match"]["model"] for l in f["lines"]), f"{path}: no model match"
+    sources = [SITE / "index.html", SITE / "demo" / "index.html", SITE / "DEMO_SCRIPT.md"]
+    links = set()
+    for p in sources:
+        links |= set(re.findall(r"/demo/#([\w./-]+):(\d+)", p.read_text(encoding="utf-8")))
+        links |= set(re.findall(r"<code>#([\w./-]+):(\d+)</code>", p.read_text(encoding="utf-8")))
+    assert links, "no demo deep links found"
+    for path, n in links:
+        assert path in files, f"deep link to unexported file {path}"
+        line = next((l for l in files[path]["lines"] if l["n"] == int(n)), None)
+        assert line and line["match"] and line["match"]["model"], f"{path}:{n} has no model match"
+        assert "line text in edit" in line["match"]["why"], f"{path}:{n} not matched by line text"
+        assert line["match"]["prompt_id"] in data["prompts"], f"{path}:{n} prompt missing"
+        assert line["match"]["reasoning"], f"{path}:{n} has no reasoning"
+    # no local paths outside the repo leak through a prompt's sibling files
+    for pid, p in data["prompts"].items():
+        for f in p["files"]:
+            assert not f.startswith(("/", "~", "../")), f"prompt {pid}: non-repo path {f}"
+
+
 if __name__ == "__main__":
     for name, fn in list(globals().items()):
         if name.startswith("test_") and callable(fn):

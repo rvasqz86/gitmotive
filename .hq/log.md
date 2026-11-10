@@ -51,3 +51,6 @@
 - 2026-11-10 22:23 [task 20] PASS r2.
 - 2026-11-10 22:26 [task 21] PASS r1; wording minors deferred to Phase D.
 - 2026-11-10 22:29 [task 22] PASS r1; application wording minors (prereqs line, git-notes refspec, figures line, test asserts) deferred to Phase D.
+- 2026-11-10 22:36 [task 23] r1 FIX: scratchpad path leaked via prompt files list; checklist rewrite steps would force-push pre-launch history; spec defaults stale (manager amended); weak deep link. History rewrite now conflicts with demo SHAs -> asking human.
+- 2026-11-10 22:39 [task 23] Human: skip history rewrite (artifacts only, harmless; keeps demo SHAs valid). Plan marked superseded. -> r2.
+- 2026-11-10 22:42 [task 23] PASS r2. data.json: 4 files, 859 matched lines, 0 tmp/home leaks. -> Phase D.

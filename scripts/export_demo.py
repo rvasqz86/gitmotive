@@ -31,8 +31,9 @@ sys.path.insert(0, str(HERE.parent))
 import audit_public  # noqa: E402
 from gitmotive import hq, resolve, store  # noqa: E402
 
-DEFAULT_FILES = ("gitmotive/cli.py", "gitmotive/adapters.py", "scripts/gen_docs.py",
-                 "site/demo/viewer-core.mjs")
+# Files written after the dogfood reinstall, so their matches carry `agent` and `model`.
+DEFAULT_FILES = ("site/demo/viewer.js", "site/demo/viewer-core.mjs", "launch/DEPLOY.md",
+                 "tests/test_export_demo.py")
 DEFAULT_OUT = "site/demo/data.json"
 CHECKS = ("secret", "host", "denylist", "path")
 CHECK_ORDER = ("secret", "denylist", "host", "path")
@@ -191,6 +192,27 @@ def repo_slug(root: Path) -> str:
 
 # --- export -----------------------------------------------------------------------------
 
+def repo_files(root: Path, paths: list[str]) -> list[str]:
+    """Sibling files as repo-relative POSIX paths. Absolute paths inside `root` are made
+    relative; absolute paths elsewhere (scratchpads under /tmp, other checkouts) and relative
+    paths that climb out of the repo are dropped, since they carry local usernames and paths."""
+    out: list[str] = []
+    for p in paths:
+        p = p.replace("\\", "/")
+        if p.startswith("/") or re.match(r"^[A-Za-z]:/", p):
+            try:
+                rel = Path(os.path.normpath(p)).relative_to(root).as_posix()
+            except ValueError:
+                continue
+        else:
+            rel = os.path.normpath(p).replace("\\", "/")
+            if rel == ".." or rel.startswith("../"):
+                continue
+        if rel and rel != "." and rel not in out:
+            out.append(rel)
+    return out
+
+
 def _hq_block(gate: Gate, root: Path, prompt: str, limit: int) -> dict | None:
     ref = hq.parse(prompt or "")
     if ref is None:
@@ -261,7 +283,7 @@ def build(root: Path, files: list[str], denylist, limit: int, err) -> tuple[dict
             "ts": p.ts,
             "session": short_session(p.session),
             "hq": _hq_block(gate, root, p.prompt, limit),
-            "files": [tilde(f) for f in resolve.siblings(events, pid)],
+            "files": repo_files(root, resolve.siblings(events, pid)),
         }
 
     head = git(root, "rev-parse", "HEAD").strip()

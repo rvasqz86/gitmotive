@@ -41,6 +41,8 @@ _TAG = re.compile(r"<[^>]+>")
 _INVOCATION = re.compile(
     r"(?:^|(?<=[\s;&|(`'\"$]))(?:[\w.~/-]*/)?gitmotive[ \t]+(-{1,2}[\w-]+|[A-Za-z][\w-]*)",
     re.I | re.M)
+# `gh repo <verb> ` directly before the match: the `owner/gitmotive` that follows is a slug
+_GH_REPO = re.compile(r"\bgh[ \t]+repo[ \t]+[\w-]+[ \t]+(?:-[^\n]*?[ \t]+)?$")
 
 
 # --- file listing --------------------------------------------------------------------------
@@ -94,6 +96,8 @@ def command_violations_in(text: str, where: str, denylist=None) -> list[str]:
         for m in _INVOCATION.finditer(code):
             word = m.group(1)
             if word in REAL_COMMANDS:  # exact: the CLI is case-sensitive
+                continue
+            if _GH_REPO.search(code, 0, m.start()):  # `gh repo edit owner/gitmotive --flag`: a repo slug
                 continue
             line = text.count("\n", 0, off) + code.count("\n", 0, m.start()) + 1
             if (line, word) in seen:
@@ -239,6 +243,8 @@ def test_command_check_accepts_real_commands():
     text = "".join(f"`gitmotive {c}`\n" for c in sorted(REAL_COMMANDS))
     text += "`git motive a.py:3`, `~/.gitmotive/venv`, `pip install gitmotive && gitmotive install`\n"
     text += "`git clone https://github.com/x/gitmotive && cd gitmotive`\n"
+    text += "`gh repo edit x/gitmotive --visibility public`\n"
+    assert command_violations_in("`gh repo edit x/gitmotive\n./gitmotive --nope`", "a") != []
     assert command_violations_in(text, "README.md") == [], command_violations_in(text, "README.md")
 
 

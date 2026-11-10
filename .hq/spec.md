@@ -214,9 +214,10 @@ no CLI command.
 - **Revision:** always `HEAD`. There is no `--rev` flag, because `resolve.find` blames the working tree
   and reads line text from disk. The exporter aborts with exit 2 if any exported file has uncommitted
   changes (`git status --porcelain -- <files>` non-empty).
-- **Files:** `--file` is repeatable. The defaults are `gitmotive/cli.py`, `gitmotive/adapters.py`,
-  `scripts/gen_docs.py` and `site/demo/viewer-core.mjs`. Each of these is created or edited by a task
-  that runs after the dogfood step (07, 08, 14, 15). Files that don't exist yet are skipped with a note on stderr.
+- **Files:** `--file` is repeatable. The defaults are `site/demo/viewer.js`, `site/demo/viewer-core.mjs`,
+  `launch/DEPLOY.md` and `tests/test_export_demo.py`: files written after the task-06 reinstall and the task-24
+  model fix, so their matches carry `agent` and `model`. (Amended by manager at task 23; earlier defaults had no
+  model-bearing events because of the dogfood gaps found at task 13.)
 - **Stamping:** events are read once with `store.read_all`, then `resolve.stamp(root, events,
   persist=False)` runs. The store file is never written (tested by comparing bytes before and after).
 - **Lines:** each line comes from `resolve.find(root, file, n, events)`.

@@ -26,7 +26,7 @@ URL: **gitmotive.tech**
 - [ ] **Dry run once:** do the whole loop off camera, then `git reset --hard HEAD~1` and
       `rm -rf .gitmotive .claude` to start clean. If `gitmotive` is already installed, keep the
       install beat as is: it only reinstalls.
-- [ ] **Demo viewer:** open `https://gitmotive.tech/demo/#gitmotive/cli.py:42` in a browser tab and
+- [ ] **Demo viewer:** open `https://gitmotive.tech/demo/#site/demo/viewer-core.mjs:19` in a browser tab and
       check that the line is selected and the panel is filled. If that line shows `none recorded`,
       pick a line with a coloured gutter and use its link instead.
 
@@ -116,7 +116,8 @@ exact line."
 ### 0:46–0:54 · The live demo
 
 **Screen:** switch to the browser tab on the deep link
-`https://gitmotive.tech/demo/#gitmotive/cli.py:42`. The line is selected and the panel shows the
+`https://gitmotive.tech/demo/#site/demo/viewer-core.mjs:19` (`colorFor`, the prompt colour
+picker). The line is selected and the panel shows the
 prompt, reasoning, agent and model. Press `j` twice to move down a line or two.
 
 **Voice-over:** "The site runs on gitmotive's own history. Every coloured line links back to the
