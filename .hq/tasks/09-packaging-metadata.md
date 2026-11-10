@@ -1,5 +1,5 @@
 # Task 09: PyPI-ready packaging metadata and dist dry run
-Status: todo
+Status: done
 Type: chore
 Scope: packaging
 Depends on: 08
@@ -26,3 +26,24 @@ Make `pipx install gitmotive` work once published: complete the metadata (Homepa
 Run: `for f in tests/test_*.py; do python3 "$f" || exit 1; done`, plus `sh scripts/check_dist.sh` with its output recorded in the report
 ## Spec issue
 none
+
+## Implementation notes (round 1)
+- `pyproject.toml`: `dynamic = ["version"]` from `gitmotive.__version__` (static `version` removed); classifiers as listed, no `License ::`; `[project.urls]` Homepage/Documentation/Repository/Issues per spec; `[tool.setuptools] packages = ["gitmotive"]`; `build-system.requires = ["setuptools>=77"]`.
+- `tests/_wheel.py`: `build_wheel()` runs `sys.executable -m build --wheel` (isolated by default) into a `mkdtemp` dir, cached per process; returns None if `build` is missing, the run errors, or no wheel results.
+- `tests/test_packaging.py`: metadata checks via `tomllib`; wheel namelist must be only top-level `gitmotive/*.py` plus `*.dist-info/*`, else prints `skip build`.
+  - The system python3 has no `build` module, so the normal runner prints `skip build`. I also ran the test from a scratch venv that had `build` installed, and the wheel branch passed there.
+- `scripts/check_dist.sh`: makes a venv under `$TMPDIR` (falls back to /tmp) and installs `build` + `twine` only inside it. It builds the sdist and wheel to `$WORK/dist` and runs `twine check --strict`. It then prints the dist paths and the `python -m twine upload …` line without running it. The venv is removed on exit and the dist dir is kept.
+- PyPI name check, 2026-11-10: `curl -s -o /dev/null -w '%{http_code}' https://pypi.org/pypi/gitmotive/json` → `404` (name is free).
+- Nothing uploaded. `~/.pypirc` does not exist and was neither created nor read.
+- Full test command passes.
+- `sh scripts/check_dist.sh` output (tail):
+```
+Successfully built gitmotive-0.1.0.tar.gz and gitmotive-0.1.0-py3-none-any.whl
+Checking /tmp/gitmotive-dist.HinKhi/dist/gitmotive-0.1.0-py3-none-any.whl: PASSED
+Checking /tmp/gitmotive-dist.HinKhi/dist/gitmotive-0.1.0.tar.gz: PASSED
+dist files:
+  /tmp/gitmotive-dist.HinKhi/dist/gitmotive-0.1.0-py3-none-any.whl
+  /tmp/gitmotive-dist.HinKhi/dist/gitmotive-0.1.0.tar.gz
+to publish (not run):
+  python -m twine upload /tmp/gitmotive-dist.HinKhi/dist/gitmotive-0.1.0-py3-none-any.whl /tmp/gitmotive-dist.HinKhi/dist/gitmotive-0.1.0.tar.gz
+```

@@ -1,6 +1,6 @@
 [project]
 name = "gitmotive"
-version = "0.1.0"
+dynamic = ["version"]
 description = "git blame tells you who. git motive tells you why. Links AI-written lines to the prompt and reasoning that produced them."
 requires-python = ">=3.10"
 license = "MIT"
@@ -8,16 +8,37 @@ license-files = ["LICENSE"]
 authors = [{name = "Raul Vasquez", email = "rvasqz86@gmail.com"}]
 readme = "README.md"
 keywords = ["git", "blame", "provenance", "ai", "claude-code", "copilot", "cursor"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "Operating System :: POSIX",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Software Development :: Version Control :: Git",
+]
 
 dependencies = []
 
 [project.urls]
-Homepage = "https://github.com/rvasqz86/gitmotive"
+Homepage = "https://gitmotive.tech"
+Documentation = "https://gitmotive.tech/docs/"
+Repository = "https://github.com/rvasqz86/gitmotive"
+Issues = "https://github.com/rvasqz86/gitmotive/issues"
 
 [project.scripts]
 gitmotive = "gitmotive.cli:main"
 git-motive = "gitmotive.cli:main"
 
+[tool.setuptools]
+packages = ["gitmotive"]
+
+[tool.setuptools.dynamic]
+version = {attr = "gitmotive.__version__"}
+
 [build-system]
-requires = ["setuptools>=68"]
+requires = ["setuptools>=77"]
 build-backend = "setuptools.build_meta"

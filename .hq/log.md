@@ -27,3 +27,4 @@
 - 2026-11-10 20:08 [task 07] PASS r1; live Cursor unverified -> label per spec Q9 default ('verified against documented payloads').
 - 2026-11-10 20:10 [task 08] r1 PASS from taskrev, manager FIX: 'install --help' runs a real install. -> r2.
 - 2026-11-10 20:12 [task 08] PASS r2; verified install --help writes nothing in a scratch repo.
+- 2026-11-10 20:15 [task 09] PASS r1; check_dist passes; PyPI name 'gitmotive' free (404) on 2026-11-10. Minor sdist/_wheel.py gap deferred to Phase D.
