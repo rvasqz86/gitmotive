@@ -31,3 +31,6 @@ Prove a stranger's path works using the real CLI (spec Open question 1: the brie
 Run: `for f in tests/test_*.py; do python3 "$f" || exit 1; done`, plus `sh scripts/smoke_fresh.sh --docker` (manual, recorded)
 ## Spec issue
 none
+
+## Added by manager (found during dogfood reinstall)
+- [ ] Bug: running `sh install.sh --agent ...` with cwd = the source checkout bakes `PYTHONPATH=<checkout>` into hook commands (because `python -m gitmotive` imports from cwd), so hooks run working-tree code instead of the venv. Fix in `install.sh` (run the post-install `gitmotive install` from a neutral cwd, e.g. `cd "$HOME"`, or `-I`/`-P` isolation) and/or in the HOOK_CMD derivation; the smoke test asserts hook commands reference the install venv, never the source dir, when install.sh is run from inside the checkout.

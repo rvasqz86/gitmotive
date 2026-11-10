@@ -22,3 +22,6 @@
 - 2026-11-10 19:26 [task 04] Human: approve. Rewrite plan stands for after merge to main, before visibility flip (human runs force-push). Task 04 makes no commit per spec; its .hq edits ride with task 05's commit.
 - 2026-11-10 19:27 [task 05] Zero tree findings -> manager verified the acceptance criteria directly, no implementer turn. Runtime test= now exports GITMOTIVE_AUDIT_DENYLIST=.hq/audit-denylist so every test run checks the real denylist.
 - 2026-11-10 19:29 [task 06] PASS r1, runtime clean; minors accepted (payload model on any shape is harmless; dup-entry cleanup optional).
+- 2026-11-10 20:05 [task 07] Human OK: dogfood reinstall run (sh install.sh --agent claude,omp --scope user). Verified venv normalize has 'source'; omp hooks carry --source omp; claude has 2 gitmotive entries. Config backups in session scratchpad.
+- 2026-11-10 20:05 [task 07] install.sh from inside checkout baked PYTHONPATH=<checkout> into user hooks; manager re-ran hook install from scratchpad cwd -> venv site-packages restored (settings identical to backup). Bug added to task 10 acceptance.
+- 2026-11-10 20:08 [task 07] PASS r1; live Cursor unverified -> label per spec Q9 default ('verified against documented payloads').

@@ -18,8 +18,9 @@ Canonical dict returned by normalize():
 Agents:
   claude   Claude Code. hook_event_name + snake_case fields. Also what omp-hooks (oh-my-pi) and
            Copilot CLI's PascalCase-alias mode emit, so they ride this adapter.
-  cursor   .cursor/hooks.json. conversation_id, prompt / file_path + edits[]. No event name in the
-           payload, so install passes --event on the command line.
+  cursor   .cursor/hooks.json. conversation_id, prompt / file_path + edits[]. cwd may be absent;
+           workspace_roots[0] stands in. Older payloads have no event name, so install passes --event
+           on the command line; current ones also carry hook_event_name.
   copilot  GitHub Copilot CLI camelCase mode (sessionId, toolName, toolArgs). Field names for edit
            tools are not documented; we probe common ones. Prefer the PascalCase alias config, which
            yields Claude-shaped payloads.
@@ -69,6 +70,9 @@ def normalize(payload: dict, agent: Optional[str] = None, event: Optional[str] =
 
     if agent == "cursor":
         out["session"] = payload.get("conversation_id") or payload.get("session_id") or "unknown"
+        roots = payload.get("workspace_roots")
+        if not out["cwd"] and isinstance(roots, list) and roots and isinstance(roots[0], str):
+            out["cwd"] = roots[0]
         if "prompt" in payload and (ev in ("", "beforesubmitprompt") or not payload.get("file_path")):
             out["event"], out["prompt"] = "prompt", payload["prompt"]
         elif payload.get("file_path"):
@@ -106,7 +110,7 @@ def normalize(payload: dict, agent: Optional[str] = None, event: Optional[str] =
 
 
 def detect(payload: dict) -> str:
-    if "conversation_id" in payload and ("edits" in payload or "prompt" in payload) and "hook_event_name" not in payload:
+    if "conversation_id" in payload:   # cursor, with or without hook_event_name
         return "cursor"
     if "sessionId" in payload or "toolName" in payload:
         return "copilot"

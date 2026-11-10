@@ -95,6 +95,32 @@ def test_model_from_payload():
     assert n["model"] is None
 
 
+def test_cursor_workspace_roots_as_cwd():
+    n = normalize({"conversation_id": "c1", "hook_event_name": "afterFileEdit", "workspace_roots": ["/r", "/other"],
+                   "file_path": "/r/a.py", "edits": [{"old_string": "", "new_string": "x"}]},
+                  agent="cursor", event="afterFileEdit")
+    assert n["cwd"] == "/r" and n["event"] == "edit"
+    n = normalize({"conversation_id": "c1", "cwd": "/here", "workspace_roots": ["/r"], "prompt": "p"},
+                  agent="cursor", event="beforeSubmitPrompt")
+    assert n["cwd"] == "/here"
+    n = normalize({"conversation_id": "c1", "prompt": "p"}, agent="cursor", event="beforeSubmitPrompt")
+    assert n["cwd"] is None
+
+
+def test_cursor_detect_with_hook_event_name():
+    from gitmotive.adapters import detect
+    edit = {"conversation_id": "c1", "hook_event_name": "afterFileEdit", "workspace_roots": ["/r"],
+            "file_path": "/r/a.py", "edits": [{"old_string": "a", "new_string": "b"}]}
+    assert detect(edit) == "cursor"
+    n = normalize(edit)
+    assert n["agent"] == "cursor" and n["event"] == "edit" and n["cwd"] == "/r"
+    assert n["edits"] == [{"old": "a", "new": "b"}]
+    prompt = {"conversation_id": "c1", "hook_event_name": "beforeSubmitPrompt", "prompt": "fix it"}
+    assert detect(prompt) == "cursor"
+    n = normalize(prompt)
+    assert n["event"] == "prompt" and n["prompt"] == "fix it" and n["session"] == "c1"
+
+
 if __name__ == "__main__":
     for name, fn in list(globals().items()):
         if name.startswith("test_"):
