@@ -39,3 +39,4 @@
 - 2026-11-10 21:04 [task 13] PASS r3. data.json currently 0 matches (dogfood gaps); task 24 next, then task 23 re-exports.
 - 2026-11-10 21:06 [task 24] Root cause: Claude Code flushes turn records after first PostToolUse. Follow-up (not this task): same race makes reasoning for first edit of a turn fall back to previous text (possibly mismatched) -> record in summary/known gaps.
 - 2026-11-10 21:07 [task 24] PASS r1; spec model chain amended. Refreshing ~/.gitmotive/venv via pip only (hooks unchanged).
+- 2026-11-10 21:22 [task 14] PASS r1; 6 viewer minors (hidden meta, render try/catch, blank gutter, alert role, 0-line banner, live-region) deferred to Phase D cleanup task.

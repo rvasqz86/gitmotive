@@ -1,0 +1,45 @@
+{
+ "version": 1,
+ "generated_at": "2026-11-09T12:00:00Z",
+ "repo": "rvasqz86/gitmotive",
+ "rev": "0123456789abcdef0123456789abcdef01234567",
+ "files": [
+  {
+   "path": "gitmotive/cli.py",
+   "lines": [
+    {"n": 1, "text": "from __future__ import annotations", "commit": "da374b47b1", "author": "rvasqz86", "date": "2026-10-29", "match": null},
+    {"n": 2, "text": "", "commit": "da374b47b1", "author": "rvasqz86", "date": "2026-10-29", "match": null},
+    {"n": 3, "text": "def cmd_why(args):", "commit": "5934f9c1ab", "author": "rvasqz86", "date": "2026-11-09",
+     "match": {"edit_id": "a1b2c3d4e5f6", "prompt_id": "16d846335950", "why": "same commit, line text in edit",
+               "ts": 1794331334.96, "tool": "Edit", "agent": "claude", "model": "claude-opus-5-5",
+               "session": "01a1c67b", "commit": "5934f9c1ab", "reasoning": "Adding the why subcommand; it resolves a file:line through git blame."}},
+    {"n": 4, "text": "    html = \"<script>alert('x')</script>\"", "commit": "5934f9c1ab", "author": "rvasqz86", "date": "2026-11-09",
+     "match": {"edit_id": "b2c3d4e5f6a1", "prompt_id": "7e0c1d2b3a49", "why": "same commit",
+               "ts": 1794331400.5, "tool": "Write", "agent": null, "model": null,
+               "session": "9f8e7d6c", "commit": "5934f9c1ab", "reasoning": null}},
+    {"n": 5, "text": "    return 0", "commit": "5934f9c1ab", "author": "rvasqz86", "date": "2026-11-09",
+     "match": {"edit_id": "c3d4e5f6a1b2", "prompt_id": "16d846335950", "why": "same commit, line text in edit",
+               "ts": 1794331335.1, "tool": "Edit", "agent": "claude", "model": "claude-opus-5-5",
+               "session": "01a1c67b", "commit": "5934f9c1ab", "reasoning": "[omitted: secret]"}}
+   ]
+  },
+  {
+   "path": "dir/a:b.py",
+   "lines": [
+    {"n": 1, "text": "x = 1", "commit": "da374b47b1", "author": "rvasqz86", "date": "2026-10-29", "match": null},
+    {"n": 2, "text": "y = 2", "commit": "5934f9c1ab", "author": "rvasqz86", "date": "2026-11-09",
+     "match": {"edit_id": "d4e5f6a1b2c3", "prompt_id": "16d846335950", "why": "line text in edit",
+               "ts": 1794331336.0, "tool": "Edit", "agent": "cursor", "model": "gpt-5",
+               "session": "01a1c67b", "commit": "5934f9c1ab", "reasoning": "Second file for the same prompt."}}
+   ]
+  }
+ ],
+ "prompts": {
+  "16d846335950": {"text": "Implement .hq/tasks/14-demo-viewer.md, round 1.", "ts": 1794331300.0, "session": "01a1c67b",
+                   "hq": {"kind": "implement", "task": ".hq/tasks/14-demo-viewer.md", "task_title": "Task 14: Live demo viewer",
+                          "goal": "Build /demo/, a client-side viewer for data.json.", "round": 1},
+                   "files": ["gitmotive/cli.py", "dir/a:b.py", "site/demo/viewer.js"]},
+  "7e0c1d2b3a49": {"text": "render <script>alert(1)</script> & \"quotes\" safely", "ts": 1794331390.0, "session": "9f8e7d6c",
+                   "hq": null, "files": ["gitmotive/cli.py"]}
+ }
+}

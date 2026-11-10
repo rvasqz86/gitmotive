@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Live demo · gitmotive</title>
+<meta name="description" content="gitmotive's own source, blamed line by line with the prompts and reasoning that wrote it. Runs entirely in your browser.">
+<meta name="theme-color" content="#131a24" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#f3f5f8" media="(prefers-color-scheme: light)">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="gitmotive">
+<meta property="og:title" content="gitmotive live demo: ask any line why it exists">
+<meta property="og:description" content="gitmotive's own source, blamed line by line with the prompts and reasoning that wrote it.">
+<meta property="og:image" content="https://gitmotive.tech/assets/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The gitmotive tagline above a blame view of a Python file, with the prompt and reasoning for line 42">
+<meta property="og:url" content="https://gitmotive.tech/demo/">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="https://gitmotive.tech/demo/">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon.ico" sizes="32x32">
+<link rel="stylesheet" href="/assets/site.css">
+<link rel="stylesheet" href="/demo/viewer.css">
+<script type="module" src="/demo/viewer.js"></script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="top">
+  <nav class="bar" aria-label="Primary">
+    <a class="mark" href="/"><span class="mark-glyph" aria-hidden="true">±</span>gitmotive</a>
+    <ul>
+      <li><a href="/demo/" aria-current="page">Demo</a></li>
+      <li><a href="/docs/">Docs</a></li>
+      <li><a href="https://github.com/rvasqz86/gitmotive">GitHub</a></li>
+    </ul>
+  </nav>
+</header>
+
+<main id="main" class="demo">
+
+<section class="demo-head" aria-labelledby="demo-h">
+  <p class="hunk" aria-hidden="true">@@ /demo/ @@</p>
+  <h1 id="demo-h">gitmotive, blamed by its own prompts</h1>
+  <p class="lede">This is gitmotive's own repository, exported line by line with the intent that <code>git motive</code> recorded for it. Pick a file, then a line, to see the prompt, the reasoning and the session behind it. Everything runs in your browser from one static file.</p>
+  <p class="meta" id="meta" hidden></p>
+</section>
+
+<div class="state" id="state" role="status">
+  <p class="state-msg"><span class="prompt" aria-hidden="true">$ </span>loading data.json<span class="dots" aria-hidden="true"></span></p>
+</div>
+<noscript><div class="state state-err"><p class="state-msg"><span class="err">fatal:</span> the demo needs JavaScript. It reads <a href="/demo/data.json">data.json</a> and renders it here; nothing is sent anywhere.</p></div></noscript>
+
+<div class="viewer" id="viewer" hidden>
+  <nav class="files" aria-label="Files in this export">
+    <p class="files-h" id="files-h">files</p>
+    <ul id="files" aria-labelledby="files-h"></ul>
+  </nav>
+
+  <div class="panes">
+    <section class="pane blame" aria-labelledby="blame-path">
+      <p class="pane-head"><span class="path" id="blame-path">&nbsp;</span><span class="cmd">git blame</span></p>
+      <div class="scroll" id="scroll">
+        <table class="code" id="code">
+          <caption class="vh" id="code-cap">Blame of the selected file. Arrow keys or j and k move between lines; Enter shows the line's intent.</caption>
+          <thead class="vh"><tr><th scope="col">Commit with recorded intent</th><th scope="col">Line</th><th scope="col">Code</th></tr></thead>
+          <tbody id="rows"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <aside class="pane intent" aria-labelledby="detail-path">
+      <p class="pane-head"><span class="path" id="detail-path">intent</span><span class="cmd">git motive</span></p>
+      <div class="detail" id="detail" tabindex="-1" aria-live="polite"></div>
+    </aside>
+  </div>
+</div>
+
+<p class="keys" id="keys" hidden><kbd>↑</kbd> <kbd>↓</kbd> or <kbd>j</kbd> <kbd>k</kbd> move · <kbd>Enter</kbd> shows intent · <kbd>Esc</kbd> back to the code · links like <code>#gitmotive/cli.py:42</code> open a line</p>
+
+</main>
+
+<footer class="foot">
+  <p><span class="mark-glyph" aria-hidden="true">±</span>gitmotive. MIT licensed.</p>
+  <ul>
+    <li><a href="/">Home</a></li>
+    <li><a href="/docs/">Docs</a></li>
+    <li><a href="https://github.com/rvasqz86/gitmotive">GitHub</a></li>
+  </ul>
+</footer>
+</body>
+</html>
