@@ -180,6 +180,36 @@ def test_install_upserts_flat_lists_idempotently():
         assert all(len(v) == 1 for v in cp["hooks"].values())
 
 
+def test_install_upserts_stale_post_commit_stamp_line():
+    with scratch_repo() as (root, _):
+        hook = root / ".git" / "hooks" / "post-commit"
+        hook.parent.mkdir(parents=True, exist_ok=True)
+        stale = "PYTHONPATH=/stale /usr/bin/python3 -m gitmotive stamp >/dev/null 2>&1 || true\n"
+        hook.write_text("#!/bin/sh\necho other-hook\n" + stale)
+        assert _quiet(cli.cmd_install, ["--agent", "claude"]) == 0
+        body = hook.read_text()
+        stamps = [l for l in body.splitlines() if "gitmotive stamp" in l]
+        assert len(stamps) == 1 and "/stale" not in stamps[0], body
+        assert stamps[0].startswith(cli._python_cmd() + " stamp"), stamps
+        assert body.startswith("#!/bin/sh\necho other-hook\n"), body
+        first = hook.read_bytes()
+        assert _quiet(cli.cmd_install, ["--agent", "claude"]) == 0
+        assert hook.read_bytes() == first
+
+
+def test_python_cmd_installed_vs_source_tree():
+    import sysconfig
+    pkg_parent = str(Path(cli.__file__).resolve().parent.parent)
+    real = sysconfig.get_paths
+    try:
+        sysconfig.get_paths = lambda *a, **k: {**real(), "purelib": pkg_parent, "platlib": pkg_parent}
+        assert cli._python_cmd() == f"{sys.executable} -I -m gitmotive"
+        sysconfig.get_paths = lambda *a, **k: {**real(), "purelib": "/nonexistent/site", "platlib": "/nonexistent/site"}
+        assert cli._python_cmd() == f"PYTHONPATH={pkg_parent} {sys.executable} -m gitmotive"
+    finally:
+        sysconfig.get_paths = real
+
+
 def _why_edited_line(root):
     out = io.StringIO()
     with contextlib.redirect_stdout(out):

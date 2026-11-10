@@ -368,12 +368,13 @@ USAGE: dict[str, tuple[str, str]]     # cmd -> (usage line, description)
 EXPERIMENTAL: tuple[str, ...] = ("copilot", "omp")
 why "edited" line: "  edited   {ts}  by {tool}  session {sess8}  [{why}]" + ("  via {agent}" if agent) + ("  model {model}" if model)
 ```
-Hook command strings written by installers (repo scope; user scope prefixes `GITMOTIVE_STORE=user`):
+Hook command strings written by installers (repo scope; user scope prefixes `GITMOTIVE_STORE=user`).
+`<run>` is `<python> -I -m gitmotive` when gitmotive is imported from an installed site-packages (pipx/venv; `-I` so a cwd inside a checkout is never imported), and `PYTHONPATH=<pkg> <python> -m gitmotive` only when running from a source tree. The post-commit `stamp` line uses the same `<run>`. Re-running `gitmotive install` upserts every gitmotive line (capture hooks and the post-commit stamp line), healing stale paths. (Amended by manager during task 10.)
 ```
-claude : PYTHONPATH=<pkg> <python> -m gitmotive capture
-cursor : PYTHONPATH=<pkg> <python> -m gitmotive capture --agent cursor --event <beforeSubmitPrompt|afterFileEdit>
-copilot: PYTHONPATH=<pkg> <python> -m gitmotive capture --agent claude --source copilot
-omp    : PYTHONPATH=<pkg> <python> -m gitmotive capture --agent claude --source omp
+claude : <run> capture
+cursor : <run> capture --agent cursor --event <beforeSubmitPrompt|afterFileEdit>
+copilot: <run> capture --agent claude --source copilot
+omp    : <run> capture --agent claude --source omp
 ```
 
 Store, adapters, capture, resolve:

@@ -12,10 +12,11 @@ def build_wheel():
     """Isolated `python -m build --wheel` into a cached temp dir. None if build is missing or fails."""
     if "wheel" in _cache:
         return _cache["wheel"]
+    # cwd=out: run from a neutral dir, or the checkout's build/ dir shadows the `build` module
     out = Path(tempfile.mkdtemp(prefix="gitmotive-wheel-"))
     try:
         r = subprocess.run([sys.executable, "-m", "build", "--wheel", "--outdir", str(out), str(ROOT)],
-                           capture_output=True, text=True, timeout=600)
+                           capture_output=True, text=True, timeout=600, cwd=out)
     except (OSError, subprocess.SubprocessError):
         r = None
     wheels = sorted(out.glob("*.whl")) if r is not None and r.returncode == 0 else []

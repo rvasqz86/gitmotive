@@ -6,6 +6,7 @@ import os
 import stat
 import subprocess
 import sys
+import sysconfig
 import textwrap
 from pathlib import Path
 
@@ -211,7 +212,17 @@ def cmd_stamp(_args: list[str]) -> int:
     return 0
 
 
-HOOK_CMD = f"{sys.executable} -m gitmotive capture"
+def _python_cmd() -> str:
+    """How hook commands invoke this gitmotive. Installed into site-packages (wheel, pipx, install.sh
+    venv): `<python> -I -m gitmotive`, isolated so a hook run with cwd inside a source checkout never
+    imports the checkout's working tree. Running from a source tree: pin it with PYTHONPATH."""
+    pkg_dir = Path(__file__).resolve().parent.parent
+    site = {Path(sysconfig.get_paths()[k]).resolve() for k in ("purelib", "platlib")}
+    if pkg_dir in site:
+        return f"{sys.executable} -I -m gitmotive"
+    return f"PYTHONPATH={pkg_dir} {sys.executable} -m gitmotive"
+
+
 AGENTS = ("claude", "cursor", "copilot", "omp")
 
 
@@ -300,7 +311,7 @@ def install_copilot(root: Path, cmd: str) -> None:
 
 
 def cmd_install(args: list[str]) -> int:
-    pkg_dir = str(Path(__file__).resolve().parent.parent)
+    py = _python_cmd()
     scope = args[args.index("--scope") + 1] if "--scope" in args else "repo"
     if scope not in ("repo", "user"):
         print("--scope must be repo or user", file=sys.stderr)
@@ -319,7 +330,7 @@ def cmd_install(args: list[str]) -> int:
 
     if scope == "user":
         # Nothing written into any repo. Hook configs under ~/, events under ~/.gitmotive/repos/<hash>/.
-        cmd = f"GITMOTIVE_STORE=user PYTHONPATH={pkg_dir} {HOOK_CMD}"
+        cmd = f"GITMOTIVE_STORE=user {py} capture"
         for a in agents:
             {"claude": install_claude, "cursor": install_cursor,
              "copilot": install_copilot, "omp": install_omp}[a](None, cmd)
@@ -328,17 +339,18 @@ def cmd_install(args: list[str]) -> int:
         return 0
 
     root = store.repo_root()
-    cmd = f"PYTHONPATH={pkg_dir} {HOOK_CMD}"
+    cmd = f"{py} capture"
     for a in agents:
         {"claude": install_claude, "cursor": install_cursor,
          "copilot": install_copilot, "omp": install_omp}[a](root, cmd)
 
     hook = root / ".git" / "hooks" / "post-commit"
-    stamp_line = f"PYTHONPATH={pkg_dir} {sys.executable} -m gitmotive stamp >/dev/null 2>&1 || true\n"
+    stamp_line = f"{py} stamp >/dev/null 2>&1 || true\n"
     if hook.exists():
-        body = hook.read_text()
-        if "gitmotive stamp" not in body:
-            hook.write_text(body.rstrip("\n") + "\n" + stamp_line)
+        # upsert: drop every existing gitmotive stamp line (stale paths heal), keep everything else
+        kept = [l for l in hook.read_text().splitlines(keepends=True) if "gitmotive stamp" not in l]
+        body = "".join(kept).rstrip("\n")
+        hook.write_text((body + "\n" if body else "#!/bin/sh\n") + stamp_line)
     else:
         hook.write_text("#!/bin/sh\n" + stamp_line)
     hook.chmod(hook.stat().st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
