@@ -1,12 +1,3 @@
-"""git blame tells you who. git motive tells you why.
-
-  git motive <file>:<line>        why does this line exist (also: gitmotive why <file>:<line>)
-  gitmotive log [file]            prompts recorded, with files they touched
-  gitmotive stamp                 tag uncommitted edit events with HEAD (run from post-commit)
-  gitmotive install [--agent claude|cursor|copilot|omp|all] [--scope repo|user]
-                               repo: hooks in this repo. user: hooks under ~/, zero repo footprint
-  gitmotive capture               (internal) hook entrypoint, reads payload on stdin
-"""
 from __future__ import annotations
 
 import datetime as dt
@@ -18,7 +9,45 @@ import sys
 import textwrap
 from pathlib import Path
 
-from . import capture, hq, resolve, store
+from . import __version__, capture, hq, resolve, store
+
+# Single source of truth for the command list: the module docstring (help) and the docs generator use it.
+USAGE: dict[str, tuple[str, str]] = {
+    "why": ("git motive <file>:<line>",
+            "why does this line exist (also: gitmotive why <file>:<line>)"),
+    "log": ("gitmotive log [file]",
+            "prompts recorded, with files they touched"),
+    "stamp": ("gitmotive stamp",
+              "tag uncommitted edit events with HEAD (run from post-commit)"),
+    "install": ("gitmotive install [--agent claude|cursor|copilot|omp|all] [--scope repo|user]",
+                "copilot (experimental), omp (experimental). "
+                "repo: hooks in this repo. user: hooks under ~/, zero repo footprint"),
+    "capture": ("gitmotive capture [--agent A] [--event E] [--source S]",
+                "(internal) hook entrypoint, reads payload on stdin. "
+                "--source S labels the product (e.g. copilot, omp) over the payload agent"),
+    "help": ("gitmotive help [cmd] | -h | --help",
+             "show this help, or one command's entry. gitmotive --version | -V prints the version"),
+}
+
+EXPERIMENTAL: tuple[str, ...] = ("copilot", "omp")
+EXPERIMENTAL_NOTE = "note: {agent} support is experimental (prompt + edits only; payload shape not fully documented)"
+
+
+HELP_WIDTH = 80          # help text fits an 80-column terminal
+_HELP_INDENT = 34        # column where descriptions start
+
+
+def _usage_entry(cmd: str) -> str:
+    usage, desc = USAGE[cmd]
+    pad = " " * _HELP_INDENT
+    lines = textwrap.wrap(desc, width=HELP_WIDTH - _HELP_INDENT, break_on_hyphens=False)
+    if len(usage) <= _HELP_INDENT - 4:
+        return "\n".join([f"  {usage:<{_HELP_INDENT - 2}}" + lines[0]] + [pad + r for r in lines[1:]])
+    return "\n".join([f"  {usage}"] + [pad + r for r in lines])
+
+
+__doc__ = ("git blame tells you who. git motive tells you why.\n\n"
+           + "\n".join(_usage_entry(c) for c in USAGE) + "\n")
 
 
 def _fmt_ts(ts: float) -> str:
@@ -284,6 +313,9 @@ def cmd_install(args: list[str]) -> int:
         if a not in AGENTS:
             print(f"unknown agent {a}; choose from {', '.join(AGENTS)} or all", file=sys.stderr)
             return 2
+    for a in dict.fromkeys(agents):
+        if a in EXPERIMENTAL:
+            print(EXPERIMENTAL_NOTE.format(agent=a))
 
     if scope == "user":
         # Nothing written into any repo. Hook configs under ~/, events under ~/.gitmotive/repos/<hash>/.
@@ -321,12 +353,30 @@ def cmd_install(args: list[str]) -> int:
     return 0
 
 
+def cmd_help(args: list[str]) -> int:
+    if not args:
+        print(__doc__)
+        return 0
+    if args[0] not in USAGE:
+        print(f"unknown command {args[0]}; choose from {', '.join(USAGE)}", file=sys.stderr)
+        return 2
+    print(_usage_entry(args[0]))
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     argv = sys.argv[1:] if argv is None else argv
     if not argv:
         print(__doc__)
         return 2
     cmd, rest = argv[0], argv[1:]
+    if cmd in ("--version", "-V"):
+        print(f"gitmotive {__version__}")
+        return 0
+    if cmd in USAGE and ("-h" in rest or "--help" in rest):   # gitmotive install --help: never run it
+        return cmd_help([cmd])
+    if cmd in ("help", "-h", "--help"):
+        return cmd_help(rest)
     if ":" in cmd and cmd.rsplit(":", 1)[1].isdigit():   # git motive file.py:42
         return cmd_why(argv)
     if cmd == "capture":

@@ -25,3 +25,5 @@
 - 2026-11-10 20:05 [task 07] Human OK: dogfood reinstall run (sh install.sh --agent claude,omp --scope user). Verified venv normalize has 'source'; omp hooks carry --source omp; claude has 2 gitmotive entries. Config backups in session scratchpad.
 - 2026-11-10 20:05 [task 07] install.sh from inside checkout baked PYTHONPATH=<checkout> into user hooks; manager re-ran hook install from scratchpad cwd -> venv site-packages restored (settings identical to backup). Bug added to task 10 acceptance.
 - 2026-11-10 20:08 [task 07] PASS r1; live Cursor unverified -> label per spec Q9 default ('verified against documented payloads').
+- 2026-11-10 20:10 [task 08] r1 PASS from taskrev, manager FIX: 'install --help' runs a real install. -> r2.
+- 2026-11-10 20:12 [task 08] PASS r2; verified install --help writes nothing in a scratch repo.
