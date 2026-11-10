@@ -1,0 +1,3803 @@
+{
+ "version": 1,
+ "generated_at": "2026-11-10T21:00:03Z",
+ "repo": "rvasqz86/gitmotive",
+ "rev": "2565b8bb6b2c22599b07022f849a195722adaaee",
+ "files": [
+  {
+   "path": "gitmotive/cli.py",
+   "lines": [
+    {
+     "n": 1,
+     "text": "from __future__ import annotations",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 2,
+     "text": "",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 3,
+     "text": "import datetime as dt",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 4,
+     "text": "import json",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 5,
+     "text": "import os",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 6,
+     "text": "import stat",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 7,
+     "text": "import subprocess",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 8,
+     "text": "import sys",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 9,
+     "text": "import sysconfig",
+     "commit": "379abfbd77",
+     "author": "rvasqz86",
+     "date": "2026-11-10",
+     "match": null
+    },
+    {
+     "n": 10,
+     "text": "import textwrap",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 11,
+     "text": "from pathlib import Path",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 12,
+     "text": "",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 13,
+     "text": "from . import __version__, capture, hq, resolve, store",
+     "commit": "43dae17ae8",
+     "author": "rvasqz86",
+     "date": "2026-11-10",
+     "match": null
+    },
+    {
+     "n": 14,
+     "text": "",
+     "commit": "43dae17ae8",
+     "author": "rvasqz86",
+     "date": "2026-11-10",
+     "match": null
+    },
+    {
+     "n": 15,
+     "text": "# Single source of truth for the command list: the module docstring (help) and the docs generator use it.",
+     "commit": "43dae17ae8",
+     "author": "rvasqz86",
+     "date": "2026-11-10",
+     "match": null
+    },
+    {
+     "n": 16,
+     "text": "USAGE: dict[str, tuple[str, str]] = {",
+     "commit": "43dae17ae8",
+     "author": "rvasqz86",
+     "date": "2026-11-10",
+     "match": null
+    },
+    {
+     "n": 17,
+     "text": "    \"why\": (\"git motive <file>:<line>\",",
+     "commit": "43dae17ae8",
+     "author": "rvasqz86",
+     "date": "2026-11-10",
+     "match": null
+    },
+    {
+     "n": 18,
+     "text": "            \"why does this line exist (also: gitmotive why <file>:<line>)\"),",
+     "commit": "43dae17ae8",
+     "author": "rvasqz86",
+     "date": "2026-11-10",
+     "match": null
+    },
+    {
+     "n": 19,
+     "text": "    \"log\": (\"gitmotive log [file]\",",
+     "commit": "43dae17ae8",
+     "author": "rvasqz86",
+     "date": "2026-11-10",
+     "match": null
+    },
+    {
+     "n": 20,
+     "text": "            \"prompts recorded, with files they touched\"),",
+     "commit": "43dae17ae8",
+     "author": "rvasqz86",
+     "date": "2026-11-10",
+     "match": null
+    },
+    {
+     "n": 21,
+     "text": "    \"stamp\": (\"gitmotive stamp\",",
+     "commit": "43dae17ae8",
+     "author": "rvasqz86",
+     "date": "2026-11-10",
+     "match": null
+    },
+    {
+     "n": 22,
+     "text": "              \"tag uncommitted edit events with HEAD (run from post-commit)\"),",
+     "commit": "43dae17ae8",
+     "author": "rvasqz86",
+     "date": "2026-11-10",
+     "match": null
+    },
+    {
+     "n": 23,
+     "text": "    \"install\": (\"gitmotive install [--agent claude|cursor|copilot|omp|all] [--scope repo|user]\",",
+     "commit": "43dae17ae8",
+     "author": "rvasqz86",
+     "date": "2026-11-10",
+     "match": null
+    },
+    {
+     "n": 24,
+     "text": "                \"copilot (experimental), omp (experimental). \"",
+     "commit": "43dae17ae8",
+     "author": "rvasqz86",
+     "date": "2026-11-10",
+     "match": null
+    },
+    {
+     "n": 25,
+     "text": "                \"repo: hooks in this repo. user: hooks under ~/, zero repo footprint\"),",
+     "commit": "43dae17ae8",
+     "author": "rvasqz86",
+     "date": "2026-11-10",
+     "match": null
+    },
+    {
+     "n": 26,
+     "text": "    \"capture\": (\"gitmotive capture [--agent A] [--event E] [--source S]\",",
+     "commit": "43dae17ae8",
+     "author": "rvasqz86",
+     "date": "2026-11-10",
+     "match": null
+    },
+    {
+     "n": 27,
+     "text": "                \"(internal) hook entrypoint, reads payload on stdin. \"",
+     "commit": "43dae17ae8",
+     "author": "rvasqz86",
+     "date": "2026-11-10",
+     "match": null
+    },
+    {
+     "n": 28,
+     "text": "                \"--source S labels the product (e.g. copilot, omp) over the payload agent\"),",
+     "commit": "43dae17ae8",
+     "author": "rvasqz86",
+     "date": "2026-11-10",
+     "match": null
+    },
+    {
+     "n": 29,
+     "text": "    \"help\": (\"gitmotive help [cmd] | -h | --help\",",
+     "commit": "43dae17ae8",
+     "author": "rvasqz86",
+     "date": "2026-11-10",
+     "match": null
+    },
+    {
+     "n": 30,
+     "text": "             \"show this help, or one command's entry. gitmotive --version | -V prints the version\"),",
+     "commit": "43dae17ae8",
+     "author": "rvasqz86",
+     "date": "2026-11-10",
+     "match": null
+    },
+    {
+     "n": 31,
+     "text": "}",
+     "commit": "43dae17ae8",
+     "author": "rvasqz86",
+     "date": "2026-11-10",
+     "match": null
+    },
+    {
+     "n": 32,
+     "text": "",
+     "commit": "43dae17ae8",
+     "author": "rvasqz86",
+     "date": "2026-11-10",
+     "match": null
+    },
+    {
+     "n": 33,
+     "text": "EXPERIMENTAL: tuple[str, ...] = (\"copilot\", \"omp\")",
+     "commit": "43dae17ae8",
+     "author": "rvasqz86",
+     "date": "2026-11-10",
+     "match": null
+    },
+    {
+     "n": 34,
+     "text": "EXPERIMENTAL_NOTE = \"note: {agent} support is experimental (prompt + edits only; payload shape not fully documented)\"",
+     "commit": "43dae17ae8",
+     "author": "rvasqz86",
+     "date": "2026-11-10",
+     "match": null
+    },
+    {
+     "n": 35,
+     "text": "",
+     "commit": "43dae17ae8",
+     "author": "rvasqz86",
+     "date": "2026-11-10",
+     "match": null
+    },
+    {
+     "n": 36,
+     "text": "",
+     "commit": "43dae17ae8",
+     "author": "rvasqz86",
+     "date": "2026-11-10",
+     "match": null
+    },
+    {
+     "n": 37,
+     "text": "HELP_WIDTH = 80          # help text fits an 80-column terminal",
+     "commit": "43dae17ae8",
+     "author": "rvasqz86",
+     "date": "2026-11-10",
+     "match": null
+    },
+    {
+     "n": 38,
+     "text": "_HELP_INDENT = 34        # column where descriptions start",
+     "commit": "43dae17ae8",
+     "author": "rvasqz86",
+     "date": "2026-11-10",
+     "match": null
+    },
+    {
+     "n": 39,
+     "text": "",
+     "commit": "43dae17ae8",
+     "author": "rvasqz86",
+     "date": "2026-11-10",
+     "match": null
+    },
+    {
+     "n": 40,
+     "text": "",
+     "commit": "43dae17ae8",
+     "author": "rvasqz86",
+     "date": "2026-11-10",
+     "match": null
+    },
+    {
+     "n": 41,
+     "text": "def _usage_entry(cmd: str) -> str:",
+     "commit": "43dae17ae8",
+     "author": "rvasqz86",
+     "date": "2026-11-10",
+     "match": null
+    },
+    {
+     "n": 42,
+     "text": "    usage, desc = USAGE[cmd]",
+     "commit": "43dae17ae8",
+     "author": "rvasqz86",
+     "date": "2026-11-10",
+     "match": null
+    },
+    {
+     "n": 43,
+     "text": "    pad = \" \" * _HELP_INDENT",
+     "commit": "43dae17ae8",
+     "author": "rvasqz86",
+     "date": "2026-11-10",
+     "match": null
+    },
+    {
+     "n": 44,
+     "text": "    lines = textwrap.wrap(desc, width=HELP_WIDTH - _HELP_INDENT, break_on_hyphens=False)",
+     "commit": "43dae17ae8",
+     "author": "rvasqz86",
+     "date": "2026-11-10",
+     "match": null
+    },
+    {
+     "n": 45,
+     "text": "    if len(usage) <= _HELP_INDENT - 4:",
+     "commit": "43dae17ae8",
+     "author": "rvasqz86",
+     "date": "2026-11-10",
+     "match": null
+    },
+    {
+     "n": 46,
+     "text": "        return \"\\n\".join([f\"  {usage:<{_HELP_INDENT - 2}}\" + lines[0]] + [pad + r for r in lines[1:]])",
+     "commit": "43dae17ae8",
+     "author": "rvasqz86",
+     "date": "2026-11-10",
+     "match": null
+    },
+    {
+     "n": 47,
+     "text": "    return \"\\n\".join([f\"  {usage}\"] + [pad + r for r in lines])",
+     "commit": "43dae17ae8",
+     "author": "rvasqz86",
+     "date": "2026-11-10",
+     "match": null
+    },
+    {
+     "n": 48,
+     "text": "",
+     "commit": "43dae17ae8",
+     "author": "rvasqz86",
+     "date": "2026-11-10",
+     "match": null
+    },
+    {
+     "n": 49,
+     "text": "",
+     "commit": "43dae17ae8",
+     "author": "rvasqz86",
+     "date": "2026-11-10",
+     "match": null
+    },
+    {
+     "n": 50,
+     "text": "__doc__ = (\"git blame tells you who. git motive tells you why.\\n\\n\"",
+     "commit": "43dae17ae8",
+     "author": "rvasqz86",
+     "date": "2026-11-10",
+     "match": null
+    },
+    {
+     "n": 51,
+     "text": "           + \"\\n\".join(_usage_entry(c) for c in USAGE) + \"\\n\")",
+     "commit": "43dae17ae8",
+     "author": "rvasqz86",
+     "date": "2026-11-10",
+     "match": null
+    },
+    {
+     "n": 52,
+     "text": "",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 53,
+     "text": "",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 54,
+     "text": "def _fmt_ts(ts: float) -> str:",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 55,
+     "text": "    return dt.datetime.fromtimestamp(ts).strftime(\"%Y-%m-%d %H:%M\")",
+     "commit": "dab558ed6a",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 56,
+     "text": "",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 57,
+     "text": "",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 58,
+     "text": "def _wrap(s: str, indent: str = \"    \", width: int = 88) -> str:",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 59,
+     "text": "    return \"\\n\".join(textwrap.fill(p, width=width, initial_indent=indent, subsequent_indent=indent)",
+     "commit": "dab558ed6a",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 60,
+     "text": "                     if p.strip() else \"\" for p in s.split(\"\\n\"))",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 61,
+     "text": "",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 62,
+     "text": "",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 63,
+     "text": "def cmd_why(args: list[str]) -> int:",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 64,
+     "text": "    if not args or \":\" not in args[0]:",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 65,
+     "text": "        print(\"usage: gitmotive why <file>:<line>\", file=sys.stderr)",
+     "commit": "856a54d2cb",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 66,
+     "text": "        return 2",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 67,
+     "text": "    file, _, line_s = args[0].rpartition(\":\")",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 68,
+     "text": "    try:",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 69,
+     "text": "        line = int(line_s)",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 70,
+     "text": "    except ValueError:",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 71,
+     "text": "        print(f\"bad line number: {line_s}\", file=sys.stderr)",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 72,
+     "text": "        return 2",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 73,
+     "text": "    root = store.repo_root()",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 74,
+     "text": "    file = os.path.relpath(os.path.abspath(file), root)",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 75,
+     "text": "    events = store.read_all(root)",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 76,
+     "text": "    resolve.stamp(root, events)",
+     "commit": "2565b8bb6b",
+     "author": "rvasqz86",
+     "date": "2026-11-10",
+     "match": null
+    },
+    {
+     "n": 77,
+     "text": "    bl, text, matches = resolve.find(root, file, line, events)",
+     "commit": "dab558ed6a",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 78,
+     "text": "",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 79,
+     "text": "    print(f\"{file}:{line}\")",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 80,
+     "text": "    if text is not None:",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 81,
+     "text": "        print(f\"  | {text}\")",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 82,
+     "text": "    if bl:",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 83,
+     "text": "        if bl.commit.startswith(\"0\" * 40):",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 84,
+     "text": "            print(\"  commit   (uncommitted)\")",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 85,
+     "text": "        else:",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 86,
+     "text": "            when = dt.datetime.fromtimestamp(bl.author_time).strftime(\"%Y-%m-%d\")",
+     "commit": "dab558ed6a",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 87,
+     "text": "            print(f\"  commit   {bl.commit[:10]}  {bl.author}  {when}  {bl.summary}\")",
+     "commit": "dab558ed6a",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 88,
+     "text": "    if not matches:",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 89,
+     "text": "        print(\"  intent   (none recorded)\")",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 90,
+     "text": "        return 1",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 91,
+     "text": "",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 92,
+     "text": "    top = matches[0]",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 93,
+     "text": "    e, p = top.edit, top.prompt",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 94,
+     "text": "    edited = f\"  edited   {_fmt_ts(e.ts)}  by {e.tool}  session {e.session[:8]}  [{top.why}]\"",
+     "commit": "3b953dd205",
+     "author": "rvasqz86",
+     "date": "2026-11-10",
+     "match": null
+    },
+    {
+     "n": 95,
+     "text": "    if e.agent:",
+     "commit": "3b953dd205",
+     "author": "rvasqz86",
+     "date": "2026-11-10",
+     "match": null
+    },
+    {
+     "n": 96,
+     "text": "        edited += f\"  via {e.agent}\"",
+     "commit": "3b953dd205",
+     "author": "rvasqz86",
+     "date": "2026-11-10",
+     "match": null
+    },
+    {
+     "n": 97,
+     "text": "    if e.model:",
+     "commit": "3b953dd205",
+     "author": "rvasqz86",
+     "date": "2026-11-10",
+     "match": null
+    },
+    {
+     "n": 98,
+     "text": "        edited += f\"  model {e.model}\"",
+     "commit": "3b953dd205",
+     "author": "rvasqz86",
+     "date": "2026-11-10",
+     "match": null
+    },
+    {
+     "n": 99,
+     "text": "    print(edited)",
+     "commit": "3b953dd205",
+     "author": "rvasqz86",
+     "date": "2026-11-10",
+     "match": null
+    },
+    {
+     "n": 100,
+     "text": "    if p:",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 101,
+     "text": "        print(\"  prompt\")",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 102,
+     "text": "        print(_wrap(p.prompt))",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 103,
+     "text": "        ref = hq.parse(p.prompt)",
+     "commit": "5934f9c6fc",
+     "author": "Raul",
+     "date": "2026-10-30",
+     "match": null
+    },
+    {
+     "n": 104,
+     "text": "        if ref:",
+     "commit": "5934f9c6fc",
+     "author": "Raul",
+     "date": "2026-10-30",
+     "match": null
+    },
+    {
+     "n": 105,
+     "text": "            for line in hq.describe(hq.resolve(root, ref), _wrap):",
+     "commit": "5934f9c6fc",
+     "author": "Raul",
+     "date": "2026-10-30",
+     "match": null
+    },
+    {
+     "n": 106,
+     "text": "                print(line)",
+     "commit": "5934f9c6fc",
+     "author": "Raul",
+     "date": "2026-10-30",
+     "match": null
+    },
+    {
+     "n": 107,
+     "text": "    if e.reasoning:",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 108,
+     "text": "        print(\"  reasoning\")",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 109,
+     "text": "        print(_wrap(e.reasoning))",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 110,
+     "text": "    sib = [f for f in resolve.siblings(events, e.prompt_id) if f != e.file]",
+     "commit": "dab558ed6a",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 111,
+     "text": "    if sib:",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 112,
+     "text": "        print(\"  also changed for same prompt\")",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 113,
+     "text": "        for f in sib:",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 114,
+     "text": "            print(f\"    {f}\")",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 115,
+     "text": "    if len(matches) > 1:",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 116,
+     "text": "        print(f\"  ({len(matches) - 1} older candidate(s); use --all)\")",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 117,
+     "text": "        if \"--all\" in args:",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 118,
+     "text": "            for m in matches[1:]:",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 119,
+     "text": "                pp = m.prompt.prompt if m.prompt else \"(no prompt)\"",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 120,
+     "text": "                print(f\"    {_fmt_ts(m.edit.ts)} [{m.why}] {pp[:70]}\")",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 121,
+     "text": "    return 0",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 122,
+     "text": "",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 123,
+     "text": "",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 124,
+     "text": "def cmd_log(args: list[str]) -> int:",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 125,
+     "text": "    root = store.repo_root()",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 126,
+     "text": "    events = store.read_all(root)",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 127,
+     "text": "    resolve.stamp(root, events)",
+     "commit": "2565b8bb6b",
+     "author": "rvasqz86",
+     "date": "2026-11-10",
+     "match": null
+    },
+    {
+     "n": 128,
+     "text": "    filt = os.path.relpath(os.path.abspath(args[0]), root) if args else None",
+     "commit": "dab558ed6a",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 129,
+     "text": "    edits_by_prompt: dict[str, list[store.Event]] = {}",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 130,
+     "text": "    for e in events:",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 131,
+     "text": "        if e.kind == \"edit\":",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 132,
+     "text": "            edits_by_prompt.setdefault(e.prompt_id or \"\", []).append(e)",
+     "commit": "dab558ed6a",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 133,
+     "text": "    for p in events:",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 134,
+     "text": "        if p.kind != \"prompt\":",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 135,
+     "text": "            continue",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 136,
+     "text": "        edits = edits_by_prompt.get(p.id, [])",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 137,
+     "text": "        files = sorted({e.file for e in edits if e.file})",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 138,
+     "text": "        if filt and filt not in files:",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 139,
+     "text": "            continue",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 140,
+     "text": "        commits = sorted({e.commit[:8] for e in edits if e.commit})",
+     "commit": "dab558ed6a",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 141,
+     "text": "        print(f\"{_fmt_ts(p.ts)}  {p.id}  session {p.session[:8]}  {len(edits)} edit(s)  {' '.join(commits)}\")",
+     "commit": "dab558ed6a",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 142,
+     "text": "        ref = hq.parse(p.prompt)",
+     "commit": "5934f9c6fc",
+     "author": "Raul",
+     "date": "2026-10-30",
+     "match": null
+    },
+    {
+     "n": 143,
+     "text": "        if ref and ref.kind != \"role\":",
+     "commit": "5934f9c6fc",
+     "author": "Raul",
+     "date": "2026-10-30",
+     "match": null
+    },
+    {
+     "n": 144,
+     "text": "            ref = hq.resolve(root, ref)",
+     "commit": "5934f9c6fc",
+     "author": "Raul",
+     "date": "2026-10-30",
+     "match": null
+    },
+    {
+     "n": 145,
+     "text": "            tag = f\"[hq {ref.kind}\" + (f\" r{ref.round}\" if ref.round else \"\") + \"]\"",
+     "commit": "5934f9c6fc",
+     "author": "Raul",
+     "date": "2026-10-30",
+     "match": null
+    },
+    {
+     "n": 146,
+     "text": "            print(_wrap(f\"{tag} {ref.task_title or ref.task or ''}\".strip()))",
+     "commit": "5934f9c6fc",
+     "author": "Raul",
+     "date": "2026-10-30",
+     "match": null
+    },
+    {
+     "n": 147,
+     "text": "        elif ref:",
+     "commit": "5934f9c6fc",
+     "author": "Raul",
+     "date": "2026-10-30",
+     "match": null
+    },
+    {
+     "n": 148,
+     "text": "            print(_wrap(f\"[hq role {ref.role}]\"))",
+     "commit": "5934f9c6fc",
+     "author": "Raul",
+     "date": "2026-10-30",
+     "match": null
+    },
+    {
+     "n": 149,
+     "text": "        else:",
+     "commit": "5934f9c6fc",
+     "author": "Raul",
+     "date": "2026-10-30",
+     "match": null
+    },
+    {
+     "n": 150,
+     "text": "            print(_wrap(p.prompt[:300]))",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 151,
+     "text": "        for f in files:",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 152,
+     "text": "            print(f\"      {f}\")",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 153,
+     "text": "    return 0",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 154,
+     "text": "",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 155,
+     "text": "",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 156,
+     "text": "def cmd_stamp(_args: list[str]) -> int:",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 157,
+     "text": "    root = store.repo_root()",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 158,
+     "text": "    events = store.read_all(root)",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 159,
+     "text": "    # unchanged output: nothing is printed when no edit is waiting for a stamp",
+     "commit": "2565b8bb6b",
+     "author": "rvasqz86",
+     "date": "2026-11-10",
+     "match": null
+    },
+    {
+     "n": 160,
+     "text": "    if any(e.kind == \"edit\" and e.commit is None and e.file for e in events):",
+     "commit": "2565b8bb6b",
+     "author": "rvasqz86",
+     "date": "2026-11-10",
+     "match": null
+    },
+    {
+     "n": 161,
+     "text": "        n = resolve.stamp(root, events)",
+     "commit": "2565b8bb6b",
+     "author": "rvasqz86",
+     "date": "2026-11-10",
+     "match": null
+    },
+    {
+     "n": 162,
+     "text": "        print(f\"stamped {n} edit(s)\")",
+     "commit": "2565b8bb6b",
+     "author": "rvasqz86",
+     "date": "2026-11-10",
+     "match": null
+    },
+    {
+     "n": 163,
+     "text": "    return 0",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 164,
+     "text": "",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 165,
+     "text": "",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 166,
+     "text": "def _python_cmd() -> str:",
+     "commit": "379abfbd77",
+     "author": "rvasqz86",
+     "date": "2026-11-10",
+     "match": null
+    },
+    {
+     "n": 167,
+     "text": "    \"\"\"How hook commands invoke this gitmotive. Installed into site-packages (wheel, pipx, install.sh",
+     "commit": "379abfbd77",
+     "author": "rvasqz86",
+     "date": "2026-11-10",
+     "match": null
+    },
+    {
+     "n": 168,
+     "text": "    venv): `<python> -I -m gitmotive`, isolated so a hook run with cwd inside a source checkout never",
+     "commit": "379abfbd77",
+     "author": "rvasqz86",
+     "date": "2026-11-10",
+     "match": null
+    },
+    {
+     "n": 169,
+     "text": "    imports the checkout's working tree. Running from a source tree: pin it with PYTHONPATH.\"\"\"",
+     "commit": "379abfbd77",
+     "author": "rvasqz86",
+     "date": "2026-11-10",
+     "match": null
+    },
+    {
+     "n": 170,
+     "text": "    pkg_dir = Path(__file__).resolve().parent.parent",
+     "commit": "379abfbd77",
+     "author": "rvasqz86",
+     "date": "2026-11-10",
+     "match": null
+    },
+    {
+     "n": 171,
+     "text": "    site = {Path(sysconfig.get_paths()[k]).resolve() for k in (\"purelib\", \"platlib\")}",
+     "commit": "379abfbd77",
+     "author": "rvasqz86",
+     "date": "2026-11-10",
+     "match": null
+    },
+    {
+     "n": 172,
+     "text": "    if pkg_dir in site:",
+     "commit": "379abfbd77",
+     "author": "rvasqz86",
+     "date": "2026-11-10",
+     "match": null
+    },
+    {
+     "n": 173,
+     "text": "        return f\"{sys.executable} -I -m gitmotive\"",
+     "commit": "379abfbd77",
+     "author": "rvasqz86",
+     "date": "2026-11-10",
+     "match": null
+    },
+    {
+     "n": 174,
+     "text": "    return f\"PYTHONPATH={pkg_dir} {sys.executable} -m gitmotive\"",
+     "commit": "379abfbd77",
+     "author": "rvasqz86",
+     "date": "2026-11-10",
+     "match": null
+    },
+    {
+     "n": 175,
+     "text": "",
+     "commit": "379abfbd77",
+     "author": "rvasqz86",
+     "date": "2026-11-10",
+     "match": null
+    },
+    {
+     "n": 176,
+     "text": "",
+     "commit": "379abfbd77",
+     "author": "rvasqz86",
+     "date": "2026-11-10",
+     "match": null
+    },
+    {
+     "n": 177,
+     "text": "AGENTS = (\"claude\", \"cursor\", \"copilot\", \"omp\")",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 178,
+     "text": "",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 179,
+     "text": "",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 180,
+     "text": "def _load_json(p: Path) -> dict:",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 181,
+     "text": "    return json.loads(p.read_text()) if p.exists() else {}",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 182,
+     "text": "",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 183,
+     "text": "",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 184,
+     "text": "def _claude_style(cfg: dict, cmd: str, prompt_event: str, tool_event: str, matcher: str | None) -> None:",
+     "commit": "ef4bc7425a",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 185,
+     "text": "    \"\"\"Claude Code settings.json hooks shape. Used by Claude Code, omp-hooks, and Copilot's alias mode.\"\"\"",
+     "commit": "ef4bc7425a",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 186,
+     "text": "    hooks = cfg.setdefault(\"hooks\", {})",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 187,
+     "text": "",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 188,
+     "text": "    def ensure(event: str, m: str | None):",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 189,
+     "text": "        lst = hooks.setdefault(event, [])",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 190,
+     "text": "        for entry in lst:",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 191,
+     "text": "            found = False",
+     "commit": "3b953dd205",
+     "author": "rvasqz86",
+     "date": "2026-11-10",
+     "match": null
+    },
+    {
+     "n": 192,
+     "text": "            for h in entry.get(\"hooks\", []):",
+     "commit": "3b953dd205",
+     "author": "rvasqz86",
+     "date": "2026-11-10",
+     "match": null
+    },
+    {
+     "n": 193,
+     "text": "                if \"gitmotive capture\" in h.get(\"command\", \"\"):",
+     "commit": "3b953dd205",
+     "author": "rvasqz86",
+     "date": "2026-11-10",
+     "match": null
+    },
+    {
+     "n": 194,
+     "text": "                    h[\"command\"] = cmd   # upsert: refresh stale paths and labels",
+     "commit": "3b953dd205",
+     "author": "rvasqz86",
+     "date": "2026-11-10",
+     "match": null
+    },
+    {
+     "n": 195,
+     "text": "                    found = True",
+     "commit": "3b953dd205",
+     "author": "rvasqz86",
+     "date": "2026-11-10",
+     "match": null
+    },
+    {
+     "n": 196,
+     "text": "            if found:",
+     "commit": "3b953dd205",
+     "author": "rvasqz86",
+     "date": "2026-11-10",
+     "match": null
+    },
+    {
+     "n": 197,
+     "text": "                return",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 198,
+     "text": "        entry = {\"hooks\": [{\"type\": \"command\", \"command\": cmd, \"timeout\": 10}]}",
+     "commit": "dab558ed6a",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 199,
+     "text": "        if m:",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 200,
+     "text": "            entry[\"matcher\"] = m",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 201,
+     "text": "        lst.append(entry)",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 202,
+     "text": "",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 203,
+     "text": "    ensure(prompt_event, None)",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 204,
+     "text": "    ensure(tool_event, matcher)",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 205,
+     "text": "",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 206,
+     "text": "",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 207,
+     "text": "def _upsert_flat(lst: list, entry: dict) -> None:",
+     "commit": "3b953dd205",
+     "author": "rvasqz86",
+     "date": "2026-11-10",
+     "match": null
+    },
+    {
+     "n": 208,
+     "text": "    \"\"\"Flat hook list (cursor, copilot): replace the command of an existing gitmotive entry, else append.\"\"\"",
+     "commit": "3b953dd205",
+     "author": "rvasqz86",
+     "date": "2026-11-10",
+     "match": null
+    },
+    {
+     "n": 209,
+     "text": "    for h in lst:",
+     "commit": "3b953dd205",
+     "author": "rvasqz86",
+     "date": "2026-11-10",
+     "match": null
+    },
+    {
+     "n": 210,
+     "text": "        if isinstance(h, dict) and \"gitmotive capture\" in h.get(\"command\", \"\"):",
+     "commit": "3b953dd205",
+     "author": "rvasqz86",
+     "date": "2026-11-10",
+     "match": null
+    },
+    {
+     "n": 211,
+     "text": "            h[\"command\"] = entry[\"command\"]",
+     "commit": "3b953dd205",
+     "author": "rvasqz86",
+     "date": "2026-11-10",
+     "match": null
+    },
+    {
+     "n": 212,
+     "text": "            return",
+     "commit": "3b953dd205",
+     "author": "rvasqz86",
+     "date": "2026-11-10",
+     "match": null
+    },
+    {
+     "n": 213,
+     "text": "    lst.append(entry)",
+     "commit": "3b953dd205",
+     "author": "rvasqz86",
+     "date": "2026-11-10",
+     "match": null
+    },
+    {
+     "n": 214,
+     "text": "",
+     "commit": "3b953dd205",
+     "author": "rvasqz86",
+     "date": "2026-11-10",
+     "match": null
+    },
+    {
+     "n": 215,
+     "text": "",
+     "commit": "3b953dd205",
+     "author": "rvasqz86",
+     "date": "2026-11-10",
+     "match": null
+    },
+    {
+     "n": 216,
+     "text": "def install_claude(root: Path, cmd: str) -> None:",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 217,
+     "text": "    p = (Path.home() / \".claude\" / \"settings.json\") if root is None else (root / \".claude\" / \"settings.json\")",
+     "commit": "9987f88a9a",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 218,
+     "text": "    p.parent.mkdir(parents=True, exist_ok=True)",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 219,
+     "text": "    cfg = _load_json(p)",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 220,
+     "text": "    _claude_style(cfg, cmd, \"UserPromptSubmit\", \"PostToolUse\", \"Edit|Write|MultiEdit\")",
+     "commit": "ef4bc7425a",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 221,
+     "text": "    p.write_text(json.dumps(cfg, indent=2) + \"\\n\")",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 222,
+     "text": "    print(f\"wrote {p}\")",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 223,
+     "text": "",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 224,
+     "text": "",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 225,
+     "text": "def install_omp(root: Path, cmd: str) -> None:",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 226,
+     "text": "    # oh-my-pi via the omp-hooks plugin: Claude-shaped payloads, Claude-shaped settings.",
+     "commit": "ef4bc7425a",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 227,
+     "text": "    # Tool names differ from Claude's, so match everything; capture ignores non-file tools.",
+     "commit": "ef4bc7425a",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 228,
+     "text": "    p = (Path.home() / \".omp\" / \"agent\" / \"settings.json\") if root is None else (root / \".omp\" / \"settings.json\")",
+     "commit": "9987f88a9a",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 229,
+     "text": "    p.parent.mkdir(parents=True, exist_ok=True)",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 230,
+     "text": "    cfg = _load_json(p)",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 231,
+     "text": "    _claude_style(cfg, cmd + \" --agent claude --source omp\", \"UserPromptSubmit\", \"PostToolUse\", None)",
+     "commit": "3b953dd205",
+     "author": "rvasqz86",
+     "date": "2026-11-10",
+     "match": null
+    },
+    {
+     "n": 232,
+     "text": "    p.write_text(json.dumps(cfg, indent=2) + \"\\n\")",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 233,
+     "text": "    print(f\"wrote {p}  (requires: omp install omp-hooks)\")",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 234,
+     "text": "",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 235,
+     "text": "",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 236,
+     "text": "def install_cursor(root: Path, cmd: str) -> None:",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 237,
+     "text": "    p = (Path.home() / \".cursor\" / \"hooks.json\") if root is None else (root / \".cursor\" / \"hooks.json\")",
+     "commit": "9987f88a9a",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 238,
+     "text": "    p.parent.mkdir(parents=True, exist_ok=True)",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 239,
+     "text": "    cfg = _load_json(p)",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 240,
+     "text": "    cfg.setdefault(\"version\", 1)",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 241,
+     "text": "    hooks = cfg.setdefault(\"hooks\", {})",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 242,
+     "text": "    for event in (\"beforeSubmitPrompt\", \"afterFileEdit\"):",
+     "commit": "ef4bc7425a",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 243,
+     "text": "        lst = hooks.setdefault(event, [])",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 244,
+     "text": "        c = f\"{cmd} --agent cursor --event {event}\"",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 245,
+     "text": "        _upsert_flat(lst, {\"command\": c})",
+     "commit": "3b953dd205",
+     "author": "rvasqz86",
+     "date": "2026-11-10",
+     "match": null
+    },
+    {
+     "n": 246,
+     "text": "    p.write_text(json.dumps(cfg, indent=2) + \"\\n\")",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 247,
+     "text": "    print(f\"wrote {p}\")",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 248,
+     "text": "",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 249,
+     "text": "",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 250,
+     "text": "def install_copilot(root: Path, cmd: str) -> None:",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 251,
+     "text": "    # PascalCase event keys make Copilot CLI emit Claude-style snake_case payloads and tool names.",
+     "commit": "ef4bc7425a",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 252,
+     "text": "    p = (Path.home() / \".copilot\" / \"hooks\" / \"gitmotive.json\") if root is None else (root / \".github\" / \"hooks\" / \"gitmotive.json\")",
+     "commit": "856a54d2cb",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 253,
+     "text": "    p.parent.mkdir(parents=True, exist_ok=True)",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 254,
+     "text": "    cfg = _load_json(p)",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 255,
+     "text": "    cfg.setdefault(\"version\", 1)",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 256,
+     "text": "    hooks = cfg.setdefault(\"hooks\", {})",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 257,
+     "text": "    for event in (\"UserPromptSubmit\", \"PostToolUse\"):",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 258,
+     "text": "        lst = hooks.setdefault(event, [])",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 259,
+     "text": "        _upsert_flat(lst, {\"type\": \"command\", \"command\": f\"{cmd} --agent claude --source copilot\", \"timeoutSec\": 10})",
+     "commit": "3b953dd205",
+     "author": "rvasqz86",
+     "date": "2026-11-10",
+     "match": null
+    },
+    {
+     "n": 260,
+     "text": "    p.write_text(json.dumps(cfg, indent=2) + \"\\n\")",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 261,
+     "text": "    print(f\"wrote {p}\")",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 262,
+     "text": "",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 263,
+     "text": "",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 264,
+     "text": "def cmd_install(args: list[str]) -> int:",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 265,
+     "text": "    py = _python_cmd()",
+     "commit": "379abfbd77",
+     "author": "rvasqz86",
+     "date": "2026-11-10",
+     "match": null
+    },
+    {
+     "n": 266,
+     "text": "    scope = args[args.index(\"--scope\") + 1] if \"--scope\" in args else \"repo\"",
+     "commit": "9987f88a9a",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 267,
+     "text": "    if scope not in (\"repo\", \"user\"):",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 268,
+     "text": "        print(\"--scope must be repo or user\", file=sys.stderr)",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 269,
+     "text": "        return 2",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 270,
+     "text": "    agents = [\"claude\"]",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 271,
+     "text": "    if \"--agent\" in args:",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 272,
+     "text": "        v = args[args.index(\"--agent\") + 1]",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 273,
+     "text": "        agents = list(AGENTS) if v == \"all\" else v.split(\",\")",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 274,
+     "text": "    for a in agents:",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 275,
+     "text": "        if a not in AGENTS:",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 276,
+     "text": "            print(f\"unknown agent {a}; choose from {', '.join(AGENTS)} or all\", file=sys.stderr)",
+     "commit": "ef4bc7425a",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 277,
+     "text": "            return 2",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 278,
+     "text": "    for a in dict.fromkeys(agents):",
+     "commit": "43dae17ae8",
+     "author": "rvasqz86",
+     "date": "2026-11-10",
+     "match": null
+    },
+    {
+     "n": 279,
+     "text": "        if a in EXPERIMENTAL:",
+     "commit": "43dae17ae8",
+     "author": "rvasqz86",
+     "date": "2026-11-10",
+     "match": null
+    },
+    {
+     "n": 280,
+     "text": "            print(EXPERIMENTAL_NOTE.format(agent=a))",
+     "commit": "43dae17ae8",
+     "author": "rvasqz86",
+     "date": "2026-11-10",
+     "match": null
+    },
+    {
+     "n": 281,
+     "text": "",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 282,
+     "text": "    if scope == \"user\":",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 283,
+     "text": "        # Nothing written into any repo. Hook configs under ~/, events under ~/.gitmotive/repos/<hash>/.",
+     "commit": "856a54d2cb",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 284,
+     "text": "        cmd = f\"GITMOTIVE_STORE=user {py} capture\"",
+     "commit": "379abfbd77",
+     "author": "rvasqz86",
+     "date": "2026-11-10",
+     "match": null
+    },
+    {
+     "n": 285,
+     "text": "        for a in agents:",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 286,
+     "text": "            {\"claude\": install_claude, \"cursor\": install_cursor,",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 287,
+     "text": "             \"copilot\": install_copilot, \"omp\": install_omp}[a](None, cmd)",
+     "commit": "9987f88a9a",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 288,
+     "text": "        print(\"events stored under ~/.gitmotive/repos/  (set GITMOTIVE_STORE=user in your shell so why/log read the same place)\")",
+     "commit": "856a54d2cb",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 289,
+     "text": "        print(\"stamping is lazy: why/log attach edits to commits on read, no git hook needed\")",
+     "commit": "9987f88a9a",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 290,
+     "text": "        return 0",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 291,
+     "text": "",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 292,
+     "text": "    root = store.repo_root()",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 293,
+     "text": "    cmd = f\"{py} capture\"",
+     "commit": "379abfbd77",
+     "author": "rvasqz86",
+     "date": "2026-11-10",
+     "match": null
+    },
+    {
+     "n": 294,
+     "text": "    for a in agents:",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 295,
+     "text": "        {\"claude\": install_claude, \"cursor\": install_cursor,",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 296,
+     "text": "         \"copilot\": install_copilot, \"omp\": install_omp}[a](root, cmd)",
+     "commit": "ef4bc7425a",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 297,
+     "text": "",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 298,
+     "text": "    hook = root / \".git\" / \"hooks\" / \"post-commit\"",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 299,
+     "text": "    stamp_line = f\"{py} stamp >/dev/null 2>&1 || true\\n\"",
+     "commit": "379abfbd77",
+     "author": "rvasqz86",
+     "date": "2026-11-10",
+     "match": null
+    },
+    {
+     "n": 300,
+     "text": "    if hook.exists():",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 301,
+     "text": "        # upsert: drop every existing gitmotive stamp line (stale paths heal), keep everything else",
+     "commit": "379abfbd77",
+     "author": "rvasqz86",
+     "date": "2026-11-10",
+     "match": null
+    },
+    {
+     "n": 302,
+     "text": "        kept = [l for l in hook.read_text().splitlines(keepends=True) if \"gitmotive stamp\" not in l]",
+     "commit": "379abfbd77",
+     "author": "rvasqz86",
+     "date": "2026-11-10",
+     "match": null
+    },
+    {
+     "n": 303,
+     "text": "        body = \"\".join(kept).rstrip(\"\\n\")",
+     "commit": "379abfbd77",
+     "author": "rvasqz86",
+     "date": "2026-11-10",
+     "match": null
+    },
+    {
+     "n": 304,
+     "text": "        hook.write_text((body + \"\\n\" if body else \"#!/bin/sh\\n\") + stamp_line)",
+     "commit": "379abfbd77",
+     "author": "rvasqz86",
+     "date": "2026-11-10",
+     "match": null
+    },
+    {
+     "n": 305,
+     "text": "    else:",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 306,
+     "text": "        hook.write_text(\"#!/bin/sh\\n\" + stamp_line)",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 307,
+     "text": "    hook.chmod(hook.stat().st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)",
+     "commit": "dab558ed6a",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 308,
+     "text": "    print(f\"wrote {hook}\")",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 309,
+     "text": "",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 310,
+     "text": "    exclude = root / \".git\" / \"info\" / \"exclude\"",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 311,
+     "text": "    exclude.parent.mkdir(parents=True, exist_ok=True)",
+     "commit": "dab558ed6a",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 312,
+     "text": "    body = exclude.read_text() if exclude.exists() else \"\"",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 313,
+     "text": "    if \".gitmotive/\" not in body:",
+     "commit": "856a54d2cb",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 314,
+     "text": "        exclude.write_text(body.rstrip(\"\\n\") + \"\\n.gitmotive/\\n\")",
+     "commit": "856a54d2cb",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 315,
+     "text": "    print(\"excluded .gitmotive/ from git\")",
+     "commit": "856a54d2cb",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 316,
+     "text": "    return 0",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 317,
+     "text": "",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 318,
+     "text": "",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 319,
+     "text": "def cmd_help(args: list[str]) -> int:",
+     "commit": "43dae17ae8",
+     "author": "rvasqz86",
+     "date": "2026-11-10",
+     "match": null
+    },
+    {
+     "n": 320,
+     "text": "    if not args:",
+     "commit": "43dae17ae8",
+     "author": "rvasqz86",
+     "date": "2026-11-10",
+     "match": null
+    },
+    {
+     "n": 321,
+     "text": "        print(__doc__)",
+     "commit": "43dae17ae8",
+     "author": "rvasqz86",
+     "date": "2026-11-10",
+     "match": null
+    },
+    {
+     "n": 322,
+     "text": "        return 0",
+     "commit": "43dae17ae8",
+     "author": "rvasqz86",
+     "date": "2026-11-10",
+     "match": null
+    },
+    {
+     "n": 323,
+     "text": "    if args[0] not in USAGE:",
+     "commit": "43dae17ae8",
+     "author": "rvasqz86",
+     "date": "2026-11-10",
+     "match": null
+    },
+    {
+     "n": 324,
+     "text": "        print(f\"unknown command {args[0]}; choose from {', '.join(USAGE)}\", file=sys.stderr)",
+     "commit": "43dae17ae8",
+     "author": "rvasqz86",
+     "date": "2026-11-10",
+     "match": null
+    },
+    {
+     "n": 325,
+     "text": "        return 2",
+     "commit": "43dae17ae8",
+     "author": "rvasqz86",
+     "date": "2026-11-10",
+     "match": null
+    },
+    {
+     "n": 326,
+     "text": "    print(_usage_entry(args[0]))",
+     "commit": "43dae17ae8",
+     "author": "rvasqz86",
+     "date": "2026-11-10",
+     "match": null
+    },
+    {
+     "n": 327,
+     "text": "    return 0",
+     "commit": "43dae17ae8",
+     "author": "rvasqz86",
+     "date": "2026-11-10",
+     "match": null
+    },
+    {
+     "n": 328,
+     "text": "",
+     "commit": "43dae17ae8",
+     "author": "rvasqz86",
+     "date": "2026-11-10",
+     "match": null
+    },
+    {
+     "n": 329,
+     "text": "",
+     "commit": "43dae17ae8",
+     "author": "rvasqz86",
+     "date": "2026-11-10",
+     "match": null
+    },
+    {
+     "n": 330,
+     "text": "def main(argv: list[str] | None = None) -> int:",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 331,
+     "text": "    argv = sys.argv[1:] if argv is None else argv",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 332,
+     "text": "    if not argv:",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 333,
+     "text": "        print(__doc__)",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 334,
+     "text": "        return 2",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 335,
+     "text": "    cmd, rest = argv[0], argv[1:]",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 336,
+     "text": "    if cmd in (\"--version\", \"-V\"):",
+     "commit": "43dae17ae8",
+     "author": "rvasqz86",
+     "date": "2026-11-10",
+     "match": null
+    },
+    {
+     "n": 337,
+     "text": "        print(f\"gitmotive {__version__}\")",
+     "commit": "43dae17ae8",
+     "author": "rvasqz86",
+     "date": "2026-11-10",
+     "match": null
+    },
+    {
+     "n": 338,
+     "text": "        return 0",
+     "commit": "43dae17ae8",
+     "author": "rvasqz86",
+     "date": "2026-11-10",
+     "match": null
+    },
+    {
+     "n": 339,
+     "text": "    if cmd in USAGE and (\"-h\" in rest or \"--help\" in rest):   # gitmotive install --help: never run it",
+     "commit": "43dae17ae8",
+     "author": "rvasqz86",
+     "date": "2026-11-10",
+     "match": null
+    },
+    {
+     "n": 340,
+     "text": "        return cmd_help([cmd])",
+     "commit": "43dae17ae8",
+     "author": "rvasqz86",
+     "date": "2026-11-10",
+     "match": null
+    },
+    {
+     "n": 341,
+     "text": "    if cmd in (\"help\", \"-h\", \"--help\"):",
+     "commit": "43dae17ae8",
+     "author": "rvasqz86",
+     "date": "2026-11-10",
+     "match": null
+    },
+    {
+     "n": 342,
+     "text": "        return cmd_help(rest)",
+     "commit": "43dae17ae8",
+     "author": "rvasqz86",
+     "date": "2026-11-10",
+     "match": null
+    },
+    {
+     "n": 343,
+     "text": "    if \":\" in cmd and cmd.rsplit(\":\", 1)[1].isdigit():   # git motive file.py:42",
+     "commit": "856a54d2cb",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 344,
+     "text": "        return cmd_why(argv)",
+     "commit": "856a54d2cb",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 345,
+     "text": "    if cmd == \"capture\":",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 346,
+     "text": "        return capture.main(rest)",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 347,
+     "text": "    if cmd == \"why\":",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 348,
+     "text": "        return cmd_why(rest)",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 349,
+     "text": "    if cmd == \"log\":",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 350,
+     "text": "        return cmd_log(rest)",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 351,
+     "text": "    if cmd == \"stamp\":",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 352,
+     "text": "        return cmd_stamp(rest)",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 353,
+     "text": "    if cmd == \"install\":",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 354,
+     "text": "        return cmd_install(rest)",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 355,
+     "text": "    print(__doc__)",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 356,
+     "text": "    return 2",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    }
+   ]
+  },
+  {
+   "path": "gitmotive/adapters.py",
+   "lines": [
+    {
+     "n": 1,
+     "text": "\"\"\"Normalize hook payloads from different agents into one shape.",
+     "commit": "ef4bc7425a",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 2,
+     "text": "",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 3,
+     "text": "Canonical dict returned by normalize():",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 4,
+     "text": "  {",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 5,
+     "text": "    \"event\": \"prompt\" | \"edit\" | None,",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 6,
+     "text": "    \"session\": str,",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 7,
+     "text": "    \"cwd\": str | None,",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 8,
+     "text": "    \"prompt\": str | None,                      # prompt events",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 9,
+     "text": "    \"file_path\": str | None,                   # edit events",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 10,
+     "text": "    \"edits\": [{\"old\": str|None, \"new\": str}],  # edit events",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 11,
+     "text": "    \"tool\": str | None,",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 12,
+     "text": "    \"tool_use_id\": str | None,",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 13,
+     "text": "    \"transcript_path\": str | None,",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 14,
+     "text": "    \"agent\": str,                              # producing product: source label, else resolved agent",
+     "commit": "3b953dd205",
+     "author": "rvasqz86",
+     "date": "2026-11-10",
+     "match": null
+    },
+    {
+     "n": 15,
+     "text": "    \"model\": str | None,                       # payload model, if the agent sends one",
+     "commit": "3b953dd205",
+     "author": "rvasqz86",
+     "date": "2026-11-10",
+     "match": null
+    },
+    {
+     "n": 16,
+     "text": "  }",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 17,
+     "text": "",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 18,
+     "text": "Agents:",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 19,
+     "text": "  claude   Claude Code. hook_event_name + snake_case fields. Also what omp-hooks (oh-my-pi) and",
+     "commit": "ef4bc7425a",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 20,
+     "text": "           Copilot CLI's PascalCase-alias mode emit, so they ride this adapter.",
+     "commit": "ef4bc7425a",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 21,
+     "text": "  cursor   .cursor/hooks.json. conversation_id, prompt / file_path + edits[]. cwd may be absent;",
+     "commit": "0ba89ebec4",
+     "author": "rvasqz86",
+     "date": "2026-11-10",
+     "match": null
+    },
+    {
+     "n": 22,
+     "text": "           workspace_roots[0] stands in. Older payloads have no event name, so install passes --event",
+     "commit": "0ba89ebec4",
+     "author": "rvasqz86",
+     "date": "2026-11-10",
+     "match": null
+    },
+    {
+     "n": 23,
+     "text": "           on the command line; current ones also carry hook_event_name.",
+     "commit": "0ba89ebec4",
+     "author": "rvasqz86",
+     "date": "2026-11-10",
+     "match": null
+    },
+    {
+     "n": 24,
+     "text": "  copilot  GitHub Copilot CLI camelCase mode (sessionId, toolName, toolArgs). Field names for edit",
+     "commit": "ef4bc7425a",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 25,
+     "text": "           tools are not documented; we probe common ones. Prefer the PascalCase alias config, which",
+     "commit": "ef4bc7425a",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 26,
+     "text": "           yields Claude-shaped payloads.",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 27,
+     "text": "\"\"\"",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 28,
+     "text": "from __future__ import annotations",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 29,
+     "text": "",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 30,
+     "text": "from typing import Any, Optional",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 31,
+     "text": "",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 32,
+     "text": "EDIT_TOOLS = {\"edit\", \"write\", \"multiedit\", \"create_file\", \"createfile\", \"replace_string_in_file\",",
+     "commit": "ef4bc7425a",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 33,
+     "text": "              \"insert_edit_into_file\", \"edit_file\", \"write_file\", \"editfiles\", \"str_replace_editor\",",
+     "commit": "ef4bc7425a",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 34,
+     "text": "              \"apply_patch\"}",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 35,
+     "text": "",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 36,
+     "text": "",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 37,
+     "text": "def _first(d: dict, *keys: str) -> Any:",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 38,
+     "text": "    for k in keys:",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 39,
+     "text": "        if k in d and d[k] is not None:",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 40,
+     "text": "            return d[k]",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 41,
+     "text": "    return None",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 42,
+     "text": "",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 43,
+     "text": "",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 44,
+     "text": "def _edits_from_tool_input(ti: dict) -> list[dict]:",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 45,
+     "text": "    if isinstance(ti.get(\"edits\"), list):",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 46,
+     "text": "        return [{\"old\": e.get(\"old_string\", e.get(\"old\")), \"new\": e.get(\"new_string\", e.get(\"new\", \"\"))}",
+     "commit": "ef4bc7425a",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 47,
+     "text": "                for e in ti[\"edits\"] if isinstance(e, dict)]",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 48,
+     "text": "    new = _first(ti, \"new_string\", \"content\", \"new_str\", \"text\", \"code\", \"newText\")",
+     "commit": "ef4bc7425a",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 49,
+     "text": "    if new is None:",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 50,
+     "text": "        return []",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 51,
+     "text": "    return [{\"old\": _first(ti, \"old_string\", \"old_str\", \"oldText\"), \"new\": new}]",
+     "commit": "ef4bc7425a",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 52,
+     "text": "",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 53,
+     "text": "",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 54,
+     "text": "def _file_from_tool_input(ti: dict) -> Optional[str]:",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 55,
+     "text": "    return _first(ti, \"file_path\", \"filePath\", \"path\", \"target_file\", \"file\")",
+     "commit": "ef4bc7425a",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 56,
+     "text": "",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 57,
+     "text": "",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 58,
+     "text": "def normalize(payload: dict, agent: Optional[str] = None, event: Optional[str] = None,",
+     "commit": "3b953dd205",
+     "author": "rvasqz86",
+     "date": "2026-11-10",
+     "match": null
+    },
+    {
+     "n": 59,
+     "text": "              source: Optional[str] = None) -> dict:",
+     "commit": "3b953dd205",
+     "author": "rvasqz86",
+     "date": "2026-11-10",
+     "match": null
+    },
+    {
+     "n": 60,
+     "text": "    \"\"\"agent selects the payload shape; source labels the producing product (e.g. omp emits the",
+     "commit": "3b953dd205",
+     "author": "rvasqz86",
+     "date": "2026-11-10",
+     "match": null
+    },
+    {
+     "n": 61,
+     "text": "    claude shape but is recorded as omp).\"\"\"",
+     "commit": "3b953dd205",
+     "author": "rvasqz86",
+     "date": "2026-11-10",
+     "match": null
+    },
+    {
+     "n": 62,
+     "text": "    out = {\"event\": None, \"session\": \"unknown\", \"cwd\": payload.get(\"cwd\"), \"prompt\": None,",
+     "commit": "ef4bc7425a",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 63,
+     "text": "           \"file_path\": None, \"edits\": [], \"tool\": None, \"tool_use_id\": None, \"transcript_path\": None}",
+     "commit": "ef4bc7425a",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 64,
+     "text": "",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 65,
+     "text": "    agent = agent or detect(payload)",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 66,
+     "text": "    out[\"agent\"] = source or agent",
+     "commit": "3b953dd205",
+     "author": "rvasqz86",
+     "date": "2026-11-10",
+     "match": null
+    },
+    {
+     "n": 67,
+     "text": "    model = payload.get(\"model\")",
+     "commit": "3b953dd205",
+     "author": "rvasqz86",
+     "date": "2026-11-10",
+     "match": null
+    },
+    {
+     "n": 68,
+     "text": "    out[\"model\"] = model if isinstance(model, str) and model else None",
+     "commit": "3b953dd205",
+     "author": "rvasqz86",
+     "date": "2026-11-10",
+     "match": null
+    },
+    {
+     "n": 69,
+     "text": "    ev = (event or payload.get(\"hook_event_name\") or payload.get(\"hookEventName\") or \"\").lower()",
+     "commit": "ef4bc7425a",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 70,
+     "text": "",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 71,
+     "text": "    if agent == \"cursor\":",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 72,
+     "text": "        out[\"session\"] = payload.get(\"conversation_id\") or payload.get(\"session_id\") or \"unknown\"",
+     "commit": "ef4bc7425a",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 73,
+     "text": "        roots = payload.get(\"workspace_roots\")",
+     "commit": "0ba89ebec4",
+     "author": "rvasqz86",
+     "date": "2026-11-10",
+     "match": null
+    },
+    {
+     "n": 74,
+     "text": "        if not out[\"cwd\"] and isinstance(roots, list) and roots and isinstance(roots[0], str):",
+     "commit": "0ba89ebec4",
+     "author": "rvasqz86",
+     "date": "2026-11-10",
+     "match": null
+    },
+    {
+     "n": 75,
+     "text": "            out[\"cwd\"] = roots[0]",
+     "commit": "0ba89ebec4",
+     "author": "rvasqz86",
+     "date": "2026-11-10",
+     "match": null
+    },
+    {
+     "n": 76,
+     "text": "        if \"prompt\" in payload and (ev in (\"\", \"beforesubmitprompt\") or not payload.get(\"file_path\")):",
+     "commit": "ef4bc7425a",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 77,
+     "text": "            out[\"event\"], out[\"prompt\"] = \"prompt\", payload[\"prompt\"]",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 78,
+     "text": "        elif payload.get(\"file_path\"):",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 79,
+     "text": "            out[\"event\"] = \"edit\"",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 80,
+     "text": "            out[\"file_path\"] = payload[\"file_path\"]",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 81,
+     "text": "            out[\"tool\"] = \"cursor\"",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 82,
+     "text": "            out[\"edits\"] = [{\"old\": e.get(\"old_string\"), \"new\": e.get(\"new_string\", \"\")}",
+     "commit": "ef4bc7425a",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 83,
+     "text": "                            for e in payload.get(\"edits\") or [] if isinstance(e, dict)]",
+     "commit": "ef4bc7425a",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 84,
+     "text": "        return out",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 85,
+     "text": "",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 86,
+     "text": "    # claude / copilot / omp-hooks: snake_case or camelCase",
+     "commit": "ef4bc7425a",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 87,
+     "text": "    out[\"session\"] = _first(payload, \"session_id\", \"sessionId\") or \"unknown\"",
+     "commit": "ef4bc7425a",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 88,
+     "text": "    out[\"transcript_path\"] = _first(payload, \"transcript_path\", \"transcriptPath\")",
+     "commit": "ef4bc7425a",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 89,
+     "text": "    out[\"tool_use_id\"] = _first(payload, \"tool_use_id\", \"toolUseId\", \"toolCallId\")",
+     "commit": "ef4bc7425a",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 90,
+     "text": "",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 91,
+     "text": "    if ev in (\"userpromptsubmit\", \"userpromptsubmitted\", \"prompt\") or (\"prompt\" in payload and not ev):",
+     "commit": "ef4bc7425a",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 92,
+     "text": "        p = payload.get(\"prompt\")",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 93,
+     "text": "        if p:",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 94,
+     "text": "            out[\"event\"], out[\"prompt\"] = \"prompt\", p",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 95,
+     "text": "        return out",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 96,
+     "text": "",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 97,
+     "text": "    if ev in (\"posttooluse\", \"tool_result\", \"edit\", \"\") :",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 98,
+     "text": "        tool = _first(payload, \"tool_name\", \"toolName\") or \"\"",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 99,
+     "text": "        ti = _first(payload, \"tool_input\", \"toolInput\", \"toolArgs\", \"tool_args\", \"input\", \"arguments\") or {}",
+     "commit": "ef4bc7425a",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 100,
+     "text": "        if not isinstance(ti, dict):",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 101,
+     "text": "            return out",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 102,
+     "text": "        fp = _file_from_tool_input(ti)",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 103,
+     "text": "        if not fp:",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 104,
+     "text": "            return out",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 105,
+     "text": "        edits = _edits_from_tool_input(ti)",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 106,
+     "text": "        if not edits and tool.lower() not in EDIT_TOOLS:",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 107,
+     "text": "            return out",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 108,
+     "text": "        out[\"event\"], out[\"tool\"], out[\"file_path\"], out[\"edits\"] = \"edit\", tool or \"unknown\", fp, edits",
+     "commit": "ef4bc7425a",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 109,
+     "text": "    return out",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 110,
+     "text": "",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 111,
+     "text": "",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 112,
+     "text": "def detect(payload: dict) -> str:",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 113,
+     "text": "    if \"conversation_id\" in payload:   # cursor, with or without hook_event_name",
+     "commit": "0ba89ebec4",
+     "author": "rvasqz86",
+     "date": "2026-11-10",
+     "match": null
+    },
+    {
+     "n": 114,
+     "text": "        return \"cursor\"",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 115,
+     "text": "    if \"sessionId\" in payload or \"toolName\" in payload:",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 116,
+     "text": "        return \"copilot\"",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    },
+    {
+     "n": 117,
+     "text": "    return \"claude\"",
+     "commit": "da374b47b1",
+     "author": "Raul",
+     "date": "2026-10-29",
+     "match": null
+    }
+   ]
+  }
+ ],
+ "prompts": {}
+}

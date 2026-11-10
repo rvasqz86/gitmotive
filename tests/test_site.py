@@ -20,7 +20,7 @@ SITE = ROOT / "site"
 
 ORIGIN = "https://gitmotive.tech"
 REPO = "https://github.com/rvasqz86/gitmotive"
-PENDING_DIRS = ("/demo/", "/docs/")  # allowed as link targets only until they exist
+PENDING_DIRS = ("/demo/", "/docs/")  # allowed as link targets only until <dir>/index.html exists
 BUDGET = 100 * 1024
 CSP = ("default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; "
        "connect-src 'self'; base-uri 'none'; frame-ancestors 'none'")
@@ -220,7 +220,7 @@ def link_problems(p: Page, page_path: Path, site: Path = SITE) -> list[str]:
                 out.append(f"fragment {u} has no matching id")
             continue
         path = urlsplit(u).path or "/"
-        if path in PENDING_DIRS and not (site / path.strip("/")).exists():
+        if path in PENDING_DIRS and not (site / path.strip("/") / "index.html").exists():
             continue  # pending: filled in by a later task
         out.append(f"internal link does not resolve: {u}")
     return out
@@ -351,11 +351,13 @@ def test_internal_links_and_pending_dirs():
         probs = link_problems(Page(body), idx, site)
         assert probs == ["internal link does not resolve: /missing.html",
                          "fragment #nope has no matching id"], probs
-        (site / "demo").mkdir()  # the directory exists now, so /demo/ must resolve to a file
+        (site / "demo").mkdir()  # directory with data but no index.html: still pending
+        (site / "demo" / "data.json").write_text("{}")
         probs = link_problems(Page(body), idx, site)
-        assert "internal link does not resolve: /demo/" in probs, probs
-        (site / "demo" / "index.html").write_text(GOOD)
+        assert "internal link does not resolve: /demo/" not in probs, probs
+        (site / "demo" / "index.html").write_text(GOOD)  # now /demo/ resolves to a real file
         assert "internal link does not resolve: /demo/" not in link_problems(Page(body), idx, site)
+        assert resolve_internal("/demo/", idx, site) == site / "demo" / "index.html"
 
 
 def test_contrast_checker():

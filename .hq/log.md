@@ -33,3 +33,7 @@
 - 2026-11-10 20:44 [task 11] r1 FIX: pre aria-label without role (a11y). -> r2 (fix all incl. minors).
 - 2026-11-10 20:48 [task 11] PASS r2.
 - 2026-11-10 20:50 [task 12] PASS r1; unused 'import subprocess' in cli.py deferred to Phase D cleanup.
+- 2026-11-10 20:55 [task 13] BLOCKED spec issue (test_site pending rule vs data.json) -> local fix option 1, task amended, rerun r1. Also found dogfood gaps: impl edits existing files via Bash (not captured by hooks) and model null on 17/19 claude edits -> new task 24 (fix capture) to run right after 13; impl prompts now require Edit/Write tools for file changes.
+- 2026-11-10 20:58 [task 13] r1 FIX: untracked/.. files exportable; denylist substring-in-identifier leak. -> r2.
+- 2026-11-10 21:02 [task 13] r2 FIX: substring-denylist excerpt leaks unmasked secret on stderr. Manager reworded example-hostname prose in .hq. -> r3 (last).
+- 2026-11-10 21:04 [task 13] PASS r3. data.json currently 0 matches (dogfood gaps); task 24 next, then task 23 re-exports.
