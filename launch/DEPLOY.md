@@ -7,9 +7,25 @@ done: it runs on pushes to `main` that touch `site/**`, `gitmotive/**`, `scripts
 
 ## 1. One-time Cloudflare setup
 
-1. Cloudflare dashboard → **Workers & Pages** → **Create** → **Pages** → **Upload assets**
-   (direct-upload mode, not a Git connection). Name the project `gitmotive`. Upload any
-   placeholder file to create it; the workflow replaces it on the first deploy.
+1. Create a direct-upload Pages project (not a Git connection) named `gitmotive`. Either option
+   works; the workflow replaces the content on the first deploy. A Direct Upload project cannot
+   later be switched to Git integration.
+
+   **Option A (dashboard).**
+   1. In the Cloudflare dashboard, go to the **Workers & Pages** page.
+   2. Select **Create application** > **Get started** > **Drag and drop your files**.
+   3. Enter your project name in the provided field and drag and drop your assets. Use the name
+      `gitmotive` and any placeholder file.
+   4. Select **Deploy site**.
+
+   **Option B (CLI)**, if the dashboard labels differ from the above:
+
+   ```
+   npx wrangler login
+   npx wrangler pages project create
+   ```
+
+   The CLI prompts for the project name (`gitmotive`) and the production branch (`main`).
 2. **My Profile** → **API Tokens** → **Create Token** → **Custom token** with the permission
    **Account › Cloudflare Pages › Edit**, scoped to your account. Copy the token.
 3. Note your **Account ID** (dashboard sidebar, or the URL `dash.cloudflare.com/<account-id>`).
@@ -35,21 +51,34 @@ An apex custom domain on Pages requires the zone to be on Cloudflare nameservers
 
 ## 3. Records and custom domains
 
-In the `gitmotive.tech` zone → **DNS** → **Records**:
+Do not add any DNS records by hand. Attach the custom domains first and let Cloudflare create the
+records.
 
-| Type  | Name | Target               | Proxy   |
-|-------|------|----------------------|---------|
-| CNAME | @    | gitmotive.pages.dev  | Proxied |
-| CNAME | www  | gitmotive.pages.dev  | Proxied |
+> **Warning:** adding a CNAME manually before associating the domain in Pages makes the domain
+> fail to resolve with a 522 error. Always attach the custom domain in Pages first.
 
-```
-CNAME @ gitmotive.pages.dev    (proxied; Cloudflare flattens it at the apex)
-CNAME www gitmotive.pages.dev  (proxied)
-```
+1. **Workers & Pages** → select the `gitmotive` project → **Custom domains** → **Set up a domain**
+   → enter `gitmotive.tech` → **Continue**. Cloudflare creates the DNS record itself.
+2. Repeat for `www.gitmotive.tech`.
+3. In the `gitmotive.tech` zone → **DNS** → **Records**, check that the end state is these two
+   records (created by Cloudflare, not by you):
 
-Then **Workers & Pages** → `gitmotive` → **Custom domains** → add both `gitmotive.tech` and
-`www.gitmotive.tech`. If Pages offers to create or update the DNS record for a hostname, accept
-it; the end state must be the two proxied CNAMEs above.
+   | Type  | Name | Target               | Proxy   |
+   |-------|------|----------------------|---------|
+   | CNAME | @    | gitmotive.pages.dev  | Proxied |
+   | CNAME | www  | gitmotive.pages.dev  | Proxied |
+
+   ```
+   CNAME @ gitmotive.pages.dev    (proxied; Cloudflare flattens it at the apex)
+   CNAME www gitmotive.pages.dev  (proxied)
+   ```
+
+The apex `gitmotive.tech` can only be attached because the zone is on Cloudflare nameservers in
+the same account as the Pages project (section 2).
+
+Sources (read 2026-11-11):
+<https://developers.cloudflare.com/pages/get-started/direct-upload/>,
+<https://developers.cloudflare.com/pages/configuration/custom-domains/>.
 
 ## 4. www → apex redirect
 

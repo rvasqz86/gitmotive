@@ -120,9 +120,13 @@ def test_deploy_md_content():
               "curl -sI https://gitmotive.tech/ | head -1", "HTTP/2 200",
               "started from `main`",
               "serves the site directly; it is not a redirect",
-              "A @ 76.76.21.21", "CNAME www cname.vercel-dns.com"):
+              "A @ 76.76.21.21", "CNAME www cname.vercel-dns.com",
+              "Create application", "Drag and drop your files",
+              "npx wrangler pages project create",
+              "Set up a domain", "522"):
         assert s in t, f"DEPLOY.md missing: {s}"
     assert t.count("(proxied") >= 2, "both CNAMEs must be proxied"
+    assert "Upload assets" not in t, "stale dashboard label 'Upload assets'"
 
 
 if __name__ == "__main__":

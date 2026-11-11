@@ -327,9 +327,10 @@ nameservers.
 - At the registrar: change the nameservers to the two Cloudflare assigns (placeholders
   `<ns1>.ns.cloudflare.com` and `<ns2>.ns.cloudflare.com`).
 - In Cloudflare:
-  - `CNAME @ gitmotive.pages.dev` (proxied, flattened at the apex).
-  - `CNAME www gitmotive.pages.dev` (proxied).
-  - Both hostnames added as Pages custom domains.
+  - Both hostnames added as Pages custom domains (project → **Custom domains** → **Set up a
+    domain**). Cloudflare then creates the records itself: proxied CNAMEs `@` and `www` →
+    `gitmotive.pages.dev`. Never add those CNAMEs by hand first; Cloudflare's docs say that
+    gives a 522. (Amended by manager, task 27.)
   - A Redirect Rule: host `www.gitmotive.tech` → `https://gitmotive.tech${uri}`, 301, keeping the
     query string.
 - The apex serves the site directly.

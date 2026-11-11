@@ -62,3 +62,7 @@
 
 ## 2026-11-11 — Gate 2: merge
 Human chose `merge`. Merged feat/tech-launch-site into main with --no-ff (079ba15). Full suite passes on main; tree audit high=0 medium=0. Nothing pushed. phase=done.
+
+## 2026-11-11 — post-merge change: task 27
+Human found DEPLOY.md Cloudflare UI labels wrong and asked for a fix. Read Cloudflare docs (Direct Upload, Custom domains). Spec amended (custom domains create the CNAMEs). Task 27 written; done on main.
+Task 27 review PASS; committed on main. phase=done.
