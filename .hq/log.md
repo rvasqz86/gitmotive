@@ -59,3 +59,6 @@
 - 2026-11-10 22:50 [final] Checklist step 5 'twine upload dist/*' wrong (check_dist builds to temp) -> task 26. Regenerated data.json stashed meanwhile.
 - 2026-11-10 22:51 [task 26] PASS r1.
 - 2026-11-10 22:52 [final] Summary written; data.json regenerated at 01cca2a committed with summary. -> gate2.
+
+## 2026-11-11 — Gate 2: merge
+Human chose `merge`. Merged feat/tech-launch-site into main with --no-ff (079ba15). Full suite passes on main; tree audit high=0 medium=0. Nothing pushed. phase=done.
