@@ -322,6 +322,13 @@ The repo-root `install.sh` stays as it is for clones.
   - The workflow does nothing until the human pushes and adds the secrets.
 - `launch/DEPLOY.md`: the exact human steps.
 
+**Deploy amendment (task 28, human decision 2026-11-11).** The Pages project uses Cloudflare's
+**Git integration** (Create application > Pages > Connect to Git; output directory `site`; no build
+command), not direct upload. Cloudflare deploys `main` to production and other branches as
+previews. The GitHub workflow becomes a test-only check (`.github/workflows/site-checks.yml`:
+`gen_docs.py --check` + site tests on push/PR); it has no deploy step, no secrets, and no
+`deployments` permission. The workflow/secrets bullets above are superseded.
+
 **DNS (Cloudflare Pages).** An apex custom domain on Pages requires the zone to be on Cloudflare
 nameservers.
 - At the registrar: change the nameservers to the two Cloudflare assigns (placeholders

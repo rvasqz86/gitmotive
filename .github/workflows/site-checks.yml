@@ -1,0 +1,30 @@
+# Checks site/ and the generated docs. Deploys nothing: Cloudflare Pages deploys this repo through
+# its Git integration (see launch/DEPLOY.md), and this workflow only runs the checks.
+name: site-checks
+
+on:
+  push:
+    branches: [main]
+    paths: ['site/**', 'gitmotive/**', 'scripts/gen_docs.py', 'scripts/docs_src/**']
+  pull_request:
+    paths: ['site/**', 'gitmotive/**', 'scripts/gen_docs.py', 'scripts/docs_src/**']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Check generated docs are in sync
+        run: python3 scripts/gen_docs.py --check
+
+      - name: Site tests
+        run: for f in tests/test_site*.py tests/test_docs_sync.py tests/test_viewer.py; do python3 "$f" || exit 1; done

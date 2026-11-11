@@ -1,38 +1,35 @@
 # Deploying gitmotive.tech
 
-The site in `site/` is static and deploys to Cloudflare Pages through
-`.github/workflows/deploy-site.yml`. The workflow does nothing useful until the steps below are
-done: it runs on pushes to `main` that touch `site/**`, `gitmotive/**`, `scripts/gen_docs.py` or
+The site in `site/` is static. Cloudflare Pages deploys it from GitHub through its Git
+integration: every push to `main` goes to production, and other branches get preview deployments.
+`.github/workflows/site-checks.yml` deploys nothing; it only runs the site checks on pushes to
+`main` and pull requests that touch `site/**`, `gitmotive/**`, `scripts/gen_docs.py` or
 `scripts/docs_src/**`, and on manual dispatch.
 
 ## 1. One-time Cloudflare setup
 
-1. Create a direct-upload Pages project (not a Git connection) named `gitmotive`. Either option
-   works; the workflow replaces the content on the first deploy. A Direct Upload project cannot
-   later be switched to Git integration.
+Connect a Pages project to the GitHub repo. No API token and no GitHub secrets are needed.
 
-   **Option A (dashboard).**
-   1. In the Cloudflare dashboard, go to the **Workers & Pages** page.
-   2. Select **Create application** > **Get started** > **Drag and drop your files**.
-   3. Enter your project name in the provided field and drag and drop your assets. Use the name
-      `gitmotive` and any placeholder file.
-   4. Select **Deploy site**.
+1. In the Cloudflare dashboard, go to the **Workers & Pages** page.
+2. Select **Create application** > **Pages** > **Connect to Git**.
+3. Select **GitHub** or **GitLab**. If prompted, authenticate with your Git provider. Choose
+   **GitHub**.
+4. Select the `gitmotive` repository.
+5. Once you have selected a Git repository, select **Install & Authorize** and **Begin setup**. You
+   can then customize your deployment in **Set up builds and deployments**:
+   - Project name: `gitmotive`. The project name is used to generate the hostname, so the site
+     is served at `gitmotive.pages.dev`.
+   - **Production branch**: `main`.
+   - Framework preset: None. The site has no build step, so leave the **Build command** field
+     blank.
+   - Set the build output directory to `site`.
+6. Select **Save and Deploy**.
 
-   **Option B (CLI)**, if the dashboard labels differ from the above:
+Notes:
 
-   ```
-   npx wrangler login
-   npx wrangler pages project create
-   ```
-
-   The CLI prompts for the project name (`gitmotive`) and the production branch (`main`).
-2. **My Profile** → **API Tokens** → **Create Token** → **Custom token** with the permission
-   **Account › Cloudflare Pages › Edit**, scoped to your account. Copy the token.
-3. Note your **Account ID** (dashboard sidebar, or the URL `dash.cloudflare.com/<account-id>`).
-4. GitHub → the repo → **Settings** → **Secrets and variables** → **Actions** →
-   **New repository secret**, twice:
-   - `CLOUDFLARE_API_TOKEN` = the token from step 2
-   - `CLOUDFLARE_ACCOUNT_ID` = the ID from step 3
+- You cannot switch to Direct Upload later: a Git-connected project stays Git-connected.
+- The repo can stay private. Both private and public repositories are supported; Cloudflare's
+  GitHub app only needs access to the `gitmotive` repo (granted at **Install & Authorize**).
 
 ## 2. Move DNS to Cloudflare
 
@@ -77,7 +74,7 @@ The apex `gitmotive.tech` can only be attached because the zone is on Cloudflare
 the same account as the Pages project (section 2).
 
 Sources (read 2026-11-11):
-<https://developers.cloudflare.com/pages/get-started/direct-upload/>,
+<https://developers.cloudflare.com/pages/get-started/git-integration/>,
 <https://developers.cloudflare.com/pages/configuration/custom-domains/>.
 
 ## 4. www → apex redirect
@@ -94,9 +91,8 @@ The apex `gitmotive.tech` serves the site directly; it is not a redirect. Only `
 
 ## 5. First deploy
 
-Push to `main` (or run the workflow from the **Actions** tab with **Run workflow**). Manual runs
-must be started from `main`: the deploy job is skipped on any other branch, because it always
-publishes as the production (`main`) deployment.
+**Save and Deploy** in section 1 triggers the first build. After that, every push to `main`
+deploys to production. Other branches and pull requests get preview URLs.
 
 ## 6. Verify
 
@@ -121,5 +117,5 @@ A @ 76.76.21.21
 CNAME www cname.vercel-dns.com
 ```
 
-The Cloudflare workflow and `site/_headers`/`site/_redirects` are Cloudflare Pages specific; on
+`site/_headers` and `site/_redirects` are Cloudflare Pages specific; on
 Vercel the equivalent headers and redirects go in `vercel.json`.

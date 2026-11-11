@@ -66,3 +66,7 @@ Human chose `merge`. Merged feat/tech-launch-site into main with --no-ff (079ba1
 ## 2026-11-11 — post-merge change: task 27
 Human found DEPLOY.md Cloudflare UI labels wrong and asked for a fix. Read Cloudflare docs (Direct Upload, Custom domains). Spec amended (custom domains create the CNAMEs). Task 27 written; done on main.
 Task 27 review PASS; committed on main. phase=done.
+
+## 2026-11-11 — post-merge change: task 28
+Human chose Cloudflare Pages Git integration. Spec amended; workflow becomes test-only. Task 28 written; done on main.
+Task 28 review PASS; committed on main. phase=done.

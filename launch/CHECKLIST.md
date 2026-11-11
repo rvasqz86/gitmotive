@@ -33,7 +33,7 @@ pushed, published, deployed or made public. "You do by hand" is the remaining wo
 - **Docs generated from the real CLI**: `site/docs/index.html`, `scripts/gen_docs.py`, `scripts/docs_src/`
 - **One-line installer** at `gitmotive.tech/install.sh`: `site/install.sh`
 - **60-second demo script**: `site/DEMO_SCRIPT.md`
-- **Cloudflare Pages deploy config**: `.github/workflows/deploy-site.yml`, `site/_headers`,
+- **Cloudflare Pages deploy config**: `.github/workflows/site-checks.yml`, `site/_headers`,
   `site/_redirects`, `launch/DEPLOY.md`
 - **Deploy readiness review**: `.hq/deploy-readiness.md`
 - **README for the public launch**: `README.md`
@@ -52,15 +52,13 @@ pushed, published, deployed or made public. "You do by hand" is the remaining wo
    ```
    git push origin main
    ```
-   The deploy workflow may fail on this push until the Cloudflare secrets from step 4 exist; that is
-   expected, and step 4 re-runs it.
 3. **Flip the repository public (human only).**
    ```
    gh repo edit rvasqz86/gitmotive --visibility public --accept-visibility-change-consequences
    ```
-4. **Cloudflare and DNS.** Do sections 1–5 of `launch/DEPLOY.md` (Pages project and API token, GitHub
-   secrets, nameservers, records and custom domains, the `www` redirect, then the first deploy from
-   `main`), and run the checks in its section 6.
+4. **Cloudflare and DNS.** Do sections 1–5 of `launch/DEPLOY.md` (Pages project connected to the GitHub
+   repo through the Git integration, nameservers, records and custom domains, the `www` redirect,
+   then the first deploy), and run the checks in its section 6.
 5. **Build, check and upload to PyPI.** Do this before recording: the demo script runs
    `pipx install gitmotive`. You need a PyPI account and a PyPI API token (twine asks for them:
    username `__token__`, password the token).
