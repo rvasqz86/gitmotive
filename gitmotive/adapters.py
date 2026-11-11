@@ -11,13 +11,16 @@ Canonical dict returned by normalize():
     "tool": str | None,
     "tool_use_id": str | None,
     "transcript_path": str | None,
+    "agent": str,                              # producing product: source label, else resolved agent
+    "model": str | None,                       # payload model, if the agent sends one
   }
 
 Agents:
   claude   Claude Code. hook_event_name + snake_case fields. Also what omp-hooks (oh-my-pi) and
            Copilot CLI's PascalCase-alias mode emit, so they ride this adapter.
-  cursor   .cursor/hooks.json. conversation_id, prompt / file_path + edits[]. No event name in the
-           payload, so install passes --event on the command line.
+  cursor   .cursor/hooks.json. conversation_id, prompt / file_path + edits[]. cwd may be absent;
+           workspace_roots[0] stands in. Older payloads have no event name, so install passes --event
+           on the command line; current ones also carry hook_event_name.
   copilot  GitHub Copilot CLI camelCase mode (sessionId, toolName, toolArgs). Field names for edit
            tools are not documented; we probe common ones. Prefer the PascalCase alias config, which
            yields Claude-shaped payloads.
@@ -52,15 +55,24 @@ def _file_from_tool_input(ti: dict) -> Optional[str]:
     return _first(ti, "file_path", "filePath", "path", "target_file", "file")
 
 
-def normalize(payload: dict, agent: Optional[str] = None, event: Optional[str] = None) -> dict:
+def normalize(payload: dict, agent: Optional[str] = None, event: Optional[str] = None,
+              source: Optional[str] = None) -> dict:
+    """agent selects the payload shape; source labels the producing product (e.g. omp emits the
+    claude shape but is recorded as omp)."""
     out = {"event": None, "session": "unknown", "cwd": payload.get("cwd"), "prompt": None,
            "file_path": None, "edits": [], "tool": None, "tool_use_id": None, "transcript_path": None}
 
     agent = agent or detect(payload)
+    out["agent"] = source or agent
+    model = payload.get("model")
+    out["model"] = model if isinstance(model, str) and model else None
     ev = (event or payload.get("hook_event_name") or payload.get("hookEventName") or "").lower()
 
     if agent == "cursor":
         out["session"] = payload.get("conversation_id") or payload.get("session_id") or "unknown"
+        roots = payload.get("workspace_roots")
+        if not out["cwd"] and isinstance(roots, list) and roots and isinstance(roots[0], str):
+            out["cwd"] = roots[0]
         if "prompt" in payload and (ev in ("", "beforesubmitprompt") or not payload.get("file_path")):
             out["event"], out["prompt"] = "prompt", payload["prompt"]
         elif payload.get("file_path"):
@@ -98,7 +110,7 @@ def normalize(payload: dict, agent: Optional[str] = None, event: Optional[str] =
 
 
 def detect(payload: dict) -> str:
-    if "conversation_id" in payload and ("edits" in payload or "prompt" in payload) and "hook_event_name" not in payload:
+    if "conversation_id" in payload:   # cursor, with or without hook_event_name
         return "cursor"
     if "sessionId" in payload or "toolName" in payload:
         return "copilot"

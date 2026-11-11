@@ -27,12 +27,23 @@ def _rel(path: str, root: Path) -> str:
 
 
 def _preceding_assistant_text(transcript_path: Optional[str], tool_use_id: Optional[str]) -> Optional[str]:
-    """Walk the transcript JSONL, find the assistant text block(s) just before the given tool_use.
-    Falls back to the last assistant text block in the file. Best-effort; returns None on any failure."""
+    return _transcript_context(transcript_path, tool_use_id)[0]
+
+
+def _transcript_context(transcript_path: Optional[str],
+                        tool_use_id: Optional[str]) -> tuple[Optional[str], Optional[str]]:
+    """Walk the transcript JSONL once. Returns (reasoning, model):
+    reasoning is the assistant text block(s) just before the given tool_use, or None when the
+    matching tool_use is not in the file (never a guess from another tool call); model is message.model of the assistant record holding the
+    matching tool_use, else the most recent assistant record with a model (Claude Code persists the
+    current turn's assistant records with the first tool_result, i.e. after PostToolUse fires for
+    the first tool, and `api-request-blob` records repeat tool_use blocks without a model).
+    Best-effort; (None, None) on any failure."""
     if not transcript_path or not os.path.exists(transcript_path):
-        return None
+        return None, None
     try:
         last_text: Optional[str] = None
+        last_model: Optional[str] = None
         with open(transcript_path, encoding="utf-8") as f:
             for line in f:
                 line = line.strip()
@@ -45,6 +56,9 @@ def _preceding_assistant_text(transcript_path: Optional[str], tool_use_id: Optio
                 msg = rec.get("message") if isinstance(rec, dict) else None
                 if not isinstance(msg, dict) or msg.get("role") != "assistant":
                     continue
+                model = msg.get("model")
+                if isinstance(model, str) and model:
+                    last_model = model
                 content = msg.get("content")
                 if isinstance(content, str):
                     last_text = content.strip() or last_text
@@ -58,30 +72,36 @@ def _preceding_assistant_text(transcript_path: Optional[str], tool_use_id: Optio
                     if block.get("type") == "text" and block.get("text", "").strip():
                         texts.append(block["text"].strip())
                     if block.get("type") == "tool_use" and tool_use_id and block.get("id") == tool_use_id:
-                        # text in this same message, or carried over from previous assistant message
-                        return "\n".join(texts) if texts else last_text
+                        # text in this same message, or carried over from previous assistant message;
+                        # last_model is this record's model when it has one
+                        return ("\n".join(texts) if texts else last_text, last_model)
                 if texts:
                     last_text = "\n".join(texts)
-        return last_text
+        # no matching tool_use (not flushed yet, or no id): the last text belongs to some other
+        # tool call, so record no reasoning rather than guess
+        return None, last_model
     except OSError:
-        return None
+        return None, None
 
 
-def handle(payload: dict, agent: Optional[str] = None, event: Optional[str] = None) -> Optional[store.Event]:
-    n = adapters.normalize(payload, agent=agent, event=event)
+def handle(payload: dict, agent: Optional[str] = None, event: Optional[str] = None,
+           source: Optional[str] = None) -> Optional[store.Event]:
+    n = adapters.normalize(payload, agent=agent, event=event, source=source)
     if not n["event"]:
         return None
     session = n["session"]
     root = store.repo_root(n["cwd"])
 
     if n["event"] == "prompt":
-        ev = store.Event(kind="prompt", session=session, ts=store.now(), prompt=n["prompt"])
+        ev = store.Event(kind="prompt", session=session, ts=store.now(), prompt=n["prompt"],
+                          agent=n["agent"], model=n["model"])
         store.append(ev, root)
         return ev
 
     events = store.read_all(root)
     p = store.latest_prompt(events, session)
-    reasoning = _preceding_assistant_text(n["transcript_path"], n["tool_use_id"])
+    reasoning, t_model = _transcript_context(n["transcript_path"], n["tool_use_id"])
+    model = n["model"] or t_model
     rel = _rel(n["file_path"], root)
     last = None
     for e in n["edits"] or [{"old": None, "new": None}]:
@@ -89,6 +109,7 @@ def handle(payload: dict, agent: Optional[str] = None, event: Optional[str] = No
             kind="edit", session=session, ts=store.now(), file=rel, tool=n["tool"],
             old=e.get("old"), new=e.get("new"),
             reasoning=reasoning, prompt_id=p.id if p else None,
+            agent=n["agent"], model=model,
         )
         store.append(last, root)
     return last
@@ -96,8 +117,10 @@ def handle(payload: dict, agent: Optional[str] = None, event: Optional[str] = No
 
 def main(argv: Optional[list[str]] = None) -> int:
     argv = argv or []
-    agent = event = None
+    agent = event = source = None
     for i, a in enumerate(argv):
+        if a == "--source" and i + 1 < len(argv):
+            source = argv[i + 1]
         if a == "--agent" and i + 1 < len(argv):
             agent = argv[i + 1]
         if a == "--event" and i + 1 < len(argv):
@@ -107,7 +130,7 @@ def main(argv: Optional[list[str]] = None) -> int:
     except (json.JSONDecodeError, OSError):
         return 0
     try:
-        handle(payload, agent=agent, event=event)
+        handle(payload, agent=agent, event=event, source=source)
     except Exception as e:  # never block the agent
         sys.stderr.write(f"gitmotive capture error: {e}\n")
     return 0

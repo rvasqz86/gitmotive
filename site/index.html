@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>gitmotive: git blame tells you who, git motive tells you why</title>
+<meta name="description" content="gitmotive records the prompt and reasoning behind every line an AI coding agent writes, and gives it back when you ask about that line. Local, deterministic, no LLM in the loop.">
+<meta name="theme-color" content="#131a24" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#f3f5f8" media="(prefers-color-scheme: light)">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="gitmotive">
+<meta property="og:title" content="gitmotive: git blame tells you who. git motive tells you why.">
+<meta property="og:description" content="Ask any line of AI-written code for the prompt and reasoning that produced it. Local, deterministic, no LLM in the loop.">
+<meta property="og:image" content="https://gitmotive.tech/assets/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The gitmotive tagline above a blame view of a Python file, with the prompt and reasoning for line 42">
+<meta property="og:url" content="https://gitmotive.tech/">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="https://gitmotive.tech/">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon.ico" sizes="32x32">
+<link rel="stylesheet" href="/assets/site.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="top">
+  <nav class="bar" aria-label="Primary">
+    <a class="mark" href="/" aria-current="page"><span class="mark-glyph" aria-hidden="true">±</span>gitmotive</a>
+    <ul>
+      <li><a href="/demo/">Demo</a></li>
+      <li><a href="/docs/">Docs</a></li>
+      <li><a href="https://github.com/rvasqz86/gitmotive">GitHub</a></li>
+    </ul>
+  </nav>
+</header>
+
+<main id="main">
+
+<section class="hero" aria-labelledby="tagline">
+  <p class="hunk" aria-hidden="true">@@ -1 +1,2 @@</p>
+  <h1 id="tagline" class="tagline">
+    <span class="ln ctx"><span class="sign" aria-hidden="true"> </span>git blame tells you who.</span>
+    <span class="ln add"><span class="sign" aria-hidden="true">+</span>git motive tells you why.</span>
+  </h1>
+  <p class="lede">gitmotive records the prompt and reasoning behind every line an AI coding agent writes, then gives them back when you ask about that line. It runs on your machine. No LLM, no cloud, no account.</p>
+  <div class="actions">
+    <a class="btn" href="/demo/">Open the live demo</a>
+    <a class="btn ghost" href="#install">Install</a>
+  </div>
+
+  <figure class="split" aria-labelledby="split-cap">
+    <div class="pane blame">
+      <p class="pane-head"><span class="path">src/fetch.py</span><span class="cmd">git blame</span></p>
+<pre tabindex="0" role="region" aria-label="git blame of src/fetch.py, lines 31 to 44"><code><span class="row"><span class="g"><span class="h">134d8dd9</span><span class="a"> alex 10-29</span></span><span class="n">31</span>import time</span><span class="row"><span class="g"><span class="h">8c41e07a</span><span class="a"> alex 09-14</span></span><span class="n">32</span></span><span class="row"><span class="g"><span class="h">8c41e07a</span><span class="a"> alex 09-14</span></span><span class="n">33</span>from .http import _get</span><span class="row"><span class="g"><span class="h">134d8dd9</span><span class="a"> alex 10-29</span></span><span class="n">34</span>from .http_errors import UpstreamBusy</span><span class="row"><span class="g"><span class="h">8c41e07a</span><span class="a"> alex 09-14</span></span><span class="n">35</span></span><span class="row"><span class="g"><span class="h">8c41e07a</span><span class="a"> alex 09-14</span></span><span class="n">36</span></span><span class="row"><span class="g"><span class="h">8c41e07a</span><span class="a"> alex 09-14</span></span><span class="n">37</span>def fetch(url, attempts=3):</span><span class="row"><span class="g"><span class="h">134d8dd9</span><span class="a"> alex 10-29</span></span><span class="n">38</span>    for attempt in range(attempts):</span><span class="row"><span class="g"><span class="h">134d8dd9</span><span class="a"> alex 10-29</span></span><span class="n">39</span>        try:</span><span class="row"><span class="g"><span class="h">134d8dd9</span><span class="a"> alex 10-29</span></span><span class="n">40</span>            return _get(url, timeout=10)</span><span class="row"><span class="g"><span class="h">134d8dd9</span><span class="a"> alex 10-29</span></span><span class="n">41</span>        except UpstreamBusy:</span><span class="row sel"><span class="g"><span class="h">134d8dd9</span><span class="a"> alex 10-29</span></span><span class="n">42</span>            time.sleep(2 ** attempt)</span><span class="row"><span class="g"><span class="h">134d8dd9</span><span class="a"> alex 10-29</span></span><span class="n">43</span>    raise TimeoutError(url)</span><span class="row"><span class="g"><span class="h">8c41e07a</span><span class="a"> alex 09-14</span></span><span class="n">44</span></span></code></pre>
+    </div>
+    <div class="pane intent">
+      <p class="pane-head"><span class="path">intent for line 42</span><span class="cmd">git motive</span></p>
+<pre tabindex="0" role="region" aria-label="git motive output for src/fetch.py line 42"><code><span class="prompt" aria-hidden="true">$ </span>git motive src/fetch.py:42<span class="caret" aria-hidden="true"></span>
+src/fetch.py:42
+  |             time.sleep(2 ** attempt)
+  <span class="k">commit</span>   134d8dd9e6  alex  2026-10-29  add retry
+  <span class="k">edited</span>   2026-10-29 06:19  by Edit  session 3f9a2c1e  [same commit, line text in edit]  via claude  model claude-sonnet-4-5
+  <span class="k">prompt</span>
+    add retry with exponential backoff to fetch()
+  <span class="k">reasoning</span>
+    Wrapping the call in a retry loop; 3 attempts with backoff since the upstream flakes
+    under load.
+  <span class="k">also changed for same prompt</span>
+    src/http_errors.py
+    tests/test_fetch.py</code></pre>
+    </div>
+    <figcaption id="split-cap">Blame names the commit. Motive adds the prompt, the reasoning and the session that wrote line 42.</figcaption>
+  </figure>
+</section>
+
+<section class="block" aria-labelledby="problem">
+  <h2 id="problem"><span class="hash" aria-hidden="true">#</span>The why ends with the session</h2>
+  <div class="prose">
+    <p>AI agents now write more code than reviewers can absorb. Every line came from a prompt and a chain of reasoning, but that context lives in a chat window. When the session ends, it is gone.</p>
+    <p>Weeks later, <code>git blame</code> points to a commit and a person, who may not know why the line is there either. The commit message is one sentence. The thinking that produced the code was never saved.</p>
+  </div>
+<pre class="diff" tabindex="0" role="region" aria-label="What is lost when an agent session ends"><code><span class="d-hunk">@@ session 3f9a2c1e ended @@</span><span class="d-ctx">  time.sleep(2 ** attempt)</span><span class="d-del">- prompt     add retry with exponential backoff to fetch()</span><span class="d-del">- reasoning  3 attempts with backoff; upstream flakes under load</span><span class="d-del">- session    3f9a2c1e  claude  2026-10-29 06:19</span></code></pre>
+  <p class="aside">gitmotive keeps those deleted lines.</p>
+</section>
+
+<section class="block" aria-labelledby="how">
+  <h2 id="how"><span class="hash" aria-hidden="true">#</span>How it works</h2>
+  <ol class="steps" role="list">
+    <li>
+      <h3>Install the CLI</h3>
+      <pre><code><span class="prompt" aria-hidden="true">$ </span>pipx install gitmotive</code></pre>
+      <p>Python 3.10 or newer. No runtime dependencies.</p>
+    </li>
+    <li>
+      <h3>Hook up your agent, once per repo</h3>
+      <pre><code><span class="prompt" aria-hidden="true">$ </span>gitmotive install --agent claude</code></pre>
+      <p>Adds the agent's hooks and a git <code>post-commit</code> hook, and keeps <code>.gitmotive/</code> out of git. Then use your agent as usual.</p>
+    </li>
+    <li>
+      <h3>Ask any line why it exists</h3>
+      <pre><code><span class="prompt" aria-hidden="true">$ </span>git motive path/to/file.py:42</code></pre>
+      <p>Prints the prompt, the agent's reasoning, the session, the model and the commit. If no hook saw the edit, it says <q>none recorded</q> instead of guessing.</p>
+    </li>
+  </ol>
+</section>
+
+<section class="block" id="install" aria-labelledby="install-h">
+  <h2 id="install-h"><span class="hash" aria-hidden="true">#</span>Install</h2>
+  <div class="install">
+    <div>
+      <h3>With pipx</h3>
+      <pre><code><span class="prompt" aria-hidden="true">$ </span>pipx install gitmotive</code></pre>
+    </div>
+    <div>
+      <h3>Without pipx</h3>
+      <pre tabindex="0" role="region" aria-label="Install script command"><code><span class="prompt" aria-hidden="true">$ </span>curl -fsSL https://gitmotive.tech/install.sh | sh</code></pre>
+      <p>Creates a venv in <code>~/.gitmotive/venv</code> and puts <code>gitmotive</code> and <code>git-motive</code> in <code>~/.local/bin</code>. Read the script first if you like; it is plain shell.</p>
+    </div>
+  </div>
+
+  <h3 class="agents-h">Agents</h3>
+  <table class="agents">
+    <thead>
+      <tr><th scope="col">Agent</th><th scope="col"><code>--agent</code></th><th scope="col">Status</th></tr>
+    </thead>
+    <tbody>
+      <tr><th scope="row">Claude Code</th><td><code>claude</code></td><td>Supported</td></tr>
+      <tr><th scope="row">Cursor</th><td><code>cursor</code></td><td>Supported</td></tr>
+      <tr><th scope="row">GitHub Copilot CLI</th><td><code>copilot</code></td><td><span class="exp">Experimental</span></td></tr>
+      <tr><th scope="row">oh-my-pi</th><td><code>omp</code></td><td><span class="exp">Experimental</span></td></tr>
+    </tbody>
+  </table>
+  <p class="note">Experimental agents record prompts and edits only; their hook payloads are not fully documented yet.</p>
+</section>
+
+<section class="block" aria-labelledby="honest">
+  <h2 id="honest"><span class="hash" aria-hidden="true">#</span>Nothing is guessed</h2>
+  <dl class="facts">
+    <div><dt>deterministic</dt><dd>Lines are matched to edits through <code>git blame</code> and the recorded edit text. No model reads your code.</dd></div>
+    <div><dt>local</dt><dd>Events are append-only JSONL in <code>.gitmotive/</code>, or under <code>~/.gitmotive/</code> with <code>--scope user</code>. No network calls, no telemetry.</dd></div>
+    <div><dt>open source</dt><dd>MIT licensed. Read the code, file an issue or send a patch on GitHub.</dd></div>
+  </dl>
+</section>
+
+<section class="cta" aria-labelledby="cta-h">
+  <h2 id="cta-h">See it on its own source</h2>
+  <p>The demo is gitmotive's own repository, blamed line by line with the prompts that wrote it. Pick a line and read why it exists.</p>
+  <div class="actions">
+    <a class="btn" href="/demo/#site/demo/viewer-core.mjs:19">Open the live demo</a>
+    <a class="btn ghost" href="https://github.com/rvasqz86/gitmotive">View on GitHub</a>
+  </div>
+</section>
+
+</main>
+
+<footer class="foot">
+  <p><span class="mark-glyph" aria-hidden="true">±</span>gitmotive. MIT licensed.</p>
+  <ul>
+    <li><a href="/demo/">Demo</a></li>
+    <li><a href="/docs/">Docs</a></li>
+    <li><a href="https://github.com/rvasqz86/gitmotive">GitHub</a></li>
+  </ul>
+</footer>
+</body>
+</html>

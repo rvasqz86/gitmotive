@@ -71,6 +71,56 @@ def test_omp_lowercase_tool_any_matcher():
     assert n["event"] is None
 
 
+def test_agent_key_per_shape():
+    assert normalize({"hook_event_name": "UserPromptSubmit", "session_id": "s", "prompt": "x"})["agent"] == "claude"
+    assert normalize({"conversation_id": "c1", "prompt": "x"}, agent="cursor",
+                     event="beforeSubmitPrompt")["agent"] == "cursor"
+    assert normalize({"sessionId": "cp1", "prompt": "hi"}, event="userPromptSubmitted")["agent"] == "copilot"
+
+
+def test_source_overrides_agent():
+    payload = {"hook_event_name": "PostToolUse", "session_id": "o1", "tool_name": "write",
+               "tool_input": {"path": "/r/a.py", "content": "c"}}
+    assert normalize(payload, agent="claude", source="omp")["agent"] == "omp"
+    assert normalize(payload, agent="claude", source="copilot")["agent"] == "copilot"
+    assert normalize(payload, agent="claude")["agent"] == "claude"
+
+
+def test_model_from_payload():
+    n = normalize({"conversation_id": "c1", "file_path": "/r/a.py", "edits": [{"new_string": "x"}],
+                   "model": "gpt-5"}, agent="cursor", event="afterFileEdit")
+    assert n["model"] == "gpt-5"
+    n = normalize({"conversation_id": "c1", "file_path": "/r/a.py", "edits": [{"new_string": "x"}]},
+                  agent="cursor", event="afterFileEdit")
+    assert n["model"] is None
+
+
+def test_cursor_workspace_roots_as_cwd():
+    n = normalize({"conversation_id": "c1", "hook_event_name": "afterFileEdit", "workspace_roots": ["/r", "/other"],
+                   "file_path": "/r/a.py", "edits": [{"old_string": "", "new_string": "x"}]},
+                  agent="cursor", event="afterFileEdit")
+    assert n["cwd"] == "/r" and n["event"] == "edit"
+    n = normalize({"conversation_id": "c1", "cwd": "/here", "workspace_roots": ["/r"], "prompt": "p"},
+                  agent="cursor", event="beforeSubmitPrompt")
+    assert n["cwd"] == "/here"
+    n = normalize({"conversation_id": "c1", "prompt": "p"}, agent="cursor", event="beforeSubmitPrompt")
+    assert n["cwd"] is None
+
+
+def test_cursor_detect_with_hook_event_name():
+    from gitmotive.adapters import detect
+    edit = {"conversation_id": "c1", "hook_event_name": "afterFileEdit", "workspace_roots": ["/r"],
+            "file_path": "/r/a.py", "edits": [{"old_string": "a", "new_string": "b"}]}
+    assert detect(edit) == "cursor"
+    n = normalize(edit)
+    assert n["agent"] == "cursor" and n["event"] == "edit" and n["cwd"] == "/r"
+    assert n["edits"] == [{"old": "a", "new": "b"}]
+    prompt = {"conversation_id": "c1", "hook_event_name": "beforeSubmitPrompt", "prompt": "fix it"}
+    assert detect(prompt) == "cursor"
+    n = normalize(prompt)
+    assert n["event"] == "prompt" and n["prompt"] == "fix it" and n["session"] == "c1"
+
+
 if __name__ == "__main__":
     for name, fn in list(globals().items()):
         if name.startswith("test_"):

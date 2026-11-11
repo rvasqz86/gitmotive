@@ -122,3 +122,58 @@ def siblings(events: list[store.Event], prompt_id: Optional[str]) -> list[str]:
             seen.add(e.file)
             out.append(e.file)
     return out
+
+
+def stamp(root: Path, events: list[store.Event], persist: bool = True) -> int:
+    """Attach each unstamped edit to the first commit after it that touched its file.
+
+    Mutates the in-memory events. With persist=True and at least one stamp, rewrites the store;
+    with persist=False the store file is never touched. Returns the number of edits stamped.
+    """
+    pending = [e for e in events if e.kind == "edit" and e.commit is None and e.file]
+    if not pending:
+        return 0
+    n = 0
+    cache: dict[str, list[tuple[int, str]]] = {}
+    for e in pending:
+        if e.file not in cache:
+            try:
+                out = subprocess.run(
+                    ["git", "log", "--format=%ct %H", f"--since=@{int(min(x.ts for x in pending if x.file == e.file)) - 5}", "--", e.file],
+                    cwd=root, capture_output=True, text=True, check=True).stdout
+                # git log is newest-first; reverse to oldest-first, keep git order on equal timestamps
+                cache[e.file] = [(int(a), b) for a, b in (l.split() for l in out.splitlines() if l.strip())][::-1]
+            except (subprocess.CalledProcessError, ValueError):
+                cache[e.file] = []
+        for ctime, sha in cache[e.file]:
+            if ctime < int(e.ts) - 5:
+                continue
+            if not _commit_has(root, sha, e.file, e.new, e.old):
+                continue
+            e.commit = sha
+            n += 1
+            break
+    if n and persist:
+        store.rewrite_all(events, root)
+    return n
+
+
+def _blob_lines(root: Path, rev: str, file: str) -> set[str] | None:
+    try:
+        out = subprocess.run(["git", "show", f"{rev}:{file}"], cwd=root, capture_output=True, text=True, check=True).stdout
+    except subprocess.CalledProcessError:
+        return None
+    return {l.strip() for l in out.splitlines()}
+
+
+def _commit_has(root: Path, sha: str, file: str, new: str | None, old: str | None = None) -> bool:
+    """True if this commit *introduced* a line from the edit: present at sha, absent at sha^."""
+    probes = [l.strip() for l in (new or "").splitlines() if len(l.strip()) >= 4]
+    if not probes:
+        return True
+    cur = _blob_lines(root, sha, file)
+    if cur is None:
+        return False
+    parent = _blob_lines(root, f"{sha}^", file) or set()
+    # every introduced line must be present, and at least one must be absent from the parent
+    return all(p in cur for p in probes) and any(p not in parent for p in probes)

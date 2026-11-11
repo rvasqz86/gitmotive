@@ -1,0 +1,12 @@
+# Allow-list for scripts/audit_public.py: approved false positives only.
+#
+# Format, one entry per line:
+#   <path-glob> <check-id>  # reason
+#
+# <path-glob> is an fnmatch glob against the repo-relative path; <check-id> is one of
+# secret, denylist, transcript, host, path, artifact. The "# reason" is required: an
+# entry without one is a usage error (exit 2). Matching findings are downgraded to info
+# and shown as "allowed". Never put secret values or denylist terms in this file.
+#
+# Globs match the redacted path: a path containing a denylist term is shown as
+# <denylist:N> and cannot be allowed by name (by design: such paths must not ship).

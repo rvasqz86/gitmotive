@@ -1,0 +1,61 @@
+# Log
+- 2026-11-10 17:24 [setup] Brief file was untracked in repo root; human chose to move it to .hq/brief-source.md (gitignored: it holds employer/client names the audit must purge).
+- 2026-11-10 17:24 [setup] Branch feat/tech-launch-site created (new capability: site + packaging + launch).
+- 2026-11-10 17:24 [setup] No CLAUDE.md/AGENTS.md/docs; architecture.md derived from README + code, marked DRAFT.
+- 2026-11-10 17:24 [setup] Runtime: pure Python CLI, no dev server -> dev/health empty; tests are plain scripts (no pytest installed), test= runs each tests/test_*.py.
+- 2026-11-10 17:24 [setup] Brief has its own [CONFIRM] gates (history rewrite, deploy) beyond Gate 1/2; spec must make them explicit human stops.
+- 2026-11-10 17:24 [setup] Runtime: no dev server; baseline tests pass. -> phase spec, round 1.
+- 2026-11-10 17:25 [spec r1] Planner (omp, github-copilot/gpt-5.5) returned HTTP 403 Copilot access denied on both the priming and the task prompt; no files were written. Waiting on the human: fix the omp model/auth, or set kind_planner override.
+- 2026-11-10 17:30 [spec r1] Human: use claude for planner and specrev (Copilot 403). Added kind_planner/kind_specrev overrides; respawning.
+- 2026-11-10 17:31 [spec r1] specrev first respawn garbled its role prompt (escape codes); second respawn READY.
+- 2026-11-10 17:38 [spec r1] Planner DONE: spec.md + 21 tasks; grep shows no denylist names outside brief-source.md.
+- 2026-11-10 17:40 [spec r1] specrev REVISE (2 blocker, 10 major, 5 minor); manager adds: .hq is committed (role contract), not gitignored; dogfood reinstall is a human/manager step. -> round 2.
+- 2026-11-10 17:49 [spec r2] specrev READY with 5 minors; manager reworded the private-IP quote in spec-review, appended the minors to the spec and to tasks 13/18. -> gate1.
+- 2026-11-10 17:52 [gate1] Human: approve (no answers to open questions). Taking spec defaults: Q1 real CLI only, Q2 Cloudflare, Q3 rewrite after merge, Q4 no analytics, Q5 OK, Q8 kind_impl=claude, Q9 per spec. Q6 (denylist) and Q7 (reinstall touching ~) asked at the relevant task.
+- 2026-11-10 17:53 [task 01] PASS r1, runtime clean; 2 minor test-tightening notes accepted as-is (nothing tracked today).
+- 2026-11-10 18:00 [task 02] r1 FIX: history path dedup misses paths; excerpt windowed before redact (leak). -> r2.
+- 2026-11-10 18:02 [task 02] PASS r2; tree audit clean. Theoretical mask-before-redact edge (4 chars of a term inside a token) accepted as minor.
+- 2026-11-10 18:05 [task 03] r1 FIX: inline-code regex spans paragraphs (misses fake commands). -> r2.
+- 2026-11-10 18:07 [task 03] PASS r2. ~30 leftover /tmp/pubtext-* dirs from round-1 test runs left in place (harmless; human may remove).
+- 2026-11-10 19:09 [task 04] Human Q6: manager creates denylist. Wrote .hq/audit-denylist (gitignored, 3 terms); amended task 04 to use --denylist .hq/audit-denylist.
+- 2026-11-10 19:12 [task 04] HUMAN STOP reached. Audit: tree clean; history 15 medium artifacts (build/, dist/ copies of own source), 0 secret/denylist/transcript/host. Verified refs+status unchanged, no denylist terms in reports. Awaiting human decision on rewrite plan.
+- 2026-11-10 19:26 [task 04] Human: approve. Rewrite plan stands for after merge to main, before visibility flip (human runs force-push). Task 04 makes no commit per spec; its .hq edits ride with task 05's commit.
+- 2026-11-10 19:27 [task 05] Zero tree findings -> manager verified the acceptance criteria directly, no implementer turn. Runtime test= now exports GITMOTIVE_AUDIT_DENYLIST=.hq/audit-denylist so every test run checks the real denylist.
+- 2026-11-10 19:29 [task 06] PASS r1, runtime clean; minors accepted (payload model on any shape is harmless; dup-entry cleanup optional).
+- 2026-11-10 20:05 [task 07] Human OK: dogfood reinstall run (sh install.sh --agent claude,omp --scope user). Verified venv normalize has 'source'; omp hooks carry --source omp; claude has 2 gitmotive entries. Config backups in session scratchpad.
+- 2026-11-10 20:05 [task 07] install.sh from inside checkout baked PYTHONPATH=<checkout> into user hooks; manager re-ran hook install from scratchpad cwd -> venv site-packages restored (settings identical to backup). Bug added to task 10 acceptance.
+- 2026-11-10 20:08 [task 07] PASS r1; live Cursor unverified -> label per spec Q9 default ('verified against documented payloads').
+- 2026-11-10 20:10 [task 08] r1 PASS from taskrev, manager FIX: 'install --help' runs a real install. -> r2.
+- 2026-11-10 20:12 [task 08] PASS r2; verified install --help writes nothing in a scratch repo.
+- 2026-11-10 20:15 [task 09] PASS r1; check_dist passes; PyPI name 'gitmotive' free (404) on 2026-11-10. Minor sdist/_wheel.py gap deferred to Phase D.
+- 2026-11-10 20:23 [task 10] r1 FIX: post-commit stamp line not upserted; manager amended spec hook-command interface to the <run> form (-I installed / PYTHONPATH source). -> r2.
+- 2026-11-10 20:26 [task 10] PASS r2; smoke OK in venv and docker (py3.12). install.sh bug fixed (-I, post-commit upsert).
+- 2026-11-10 20:44 [task 11] r1 FIX: pre aria-label without role (a11y). -> r2 (fix all incl. minors).
+- 2026-11-10 20:48 [task 11] PASS r2.
+- 2026-11-10 20:50 [task 12] PASS r1; unused 'import subprocess' in cli.py deferred to Phase D cleanup.
+- 2026-11-10 20:55 [task 13] BLOCKED spec issue (test_site pending rule vs data.json) -> local fix option 1, task amended, rerun r1. Also found dogfood gaps: impl edits existing files via Bash (not captured by hooks) and model null on 17/19 claude edits -> new task 24 (fix capture) to run right after 13; impl prompts now require Edit/Write tools for file changes.
+- 2026-11-10 20:58 [task 13] r1 FIX: untracked/.. files exportable; denylist substring-in-identifier leak. -> r2.
+- 2026-11-10 21:02 [task 13] r2 FIX: substring-denylist excerpt leaks unmasked secret on stderr. Manager reworded example-hostname prose in .hq. -> r3 (last).
+- 2026-11-10 21:04 [task 13] PASS r3. data.json currently 0 matches (dogfood gaps); task 24 next, then task 23 re-exports.
+- 2026-11-10 21:06 [task 24] Root cause: Claude Code flushes turn records after first PostToolUse. Follow-up (not this task): same race makes reasoning for first edit of a turn fall back to previous text (possibly mismatched) -> record in summary/known gaps.
+- 2026-11-10 21:07 [task 24] PASS r1; spec model chain amended. Refreshing ~/.gitmotive/venv via pip only (hooks unchanged).
+- 2026-11-10 21:22 [task 14] PASS r1; 6 viewer minors (hidden meta, render try/catch, blank gutter, alert role, 0-line banner, live-region) deferred to Phase D cleanup task.
+- 2026-11-10 21:28 [task 15] PASS r1; docs accuracy minors (from_json required keys, exclude repo-scope only, toc/fields css, list continuation, toc guard) deferred to Phase D.
+- 2026-11-10 21:31 [task 16] PASS r1; installer hardening minors (HOME unset, quoted heredoc, override tests) deferred to Phase D.
+- 2026-11-10 21:35 [task 17] PASS r1; script prereqs (re-export data, PyPI live, paste prompt) + weak test asserts deferred to Phase D.
+- 2026-11-10 21:38 [task 18] r1 FIX: workflow_dispatch from any branch deploys to prod. -> r2.
+- 2026-11-10 21:39 [task 18] PASS r2.
+- 2026-11-10 21:41 [task 19] HUMAN STOP reached. Report GO; manager caveats: data.json still 0 matches (task 23 re-exports; store now 74/114 edits with model), and report wrongly says .hq is excluded from public repo (it is committed; the info hits are own-home paths, harmless).
+- 2026-11-10 22:18 [task 19] Human: approve Cloudflare Pages. Deploy happens by human after Gate 2 merge + task 23 re-export.
+- 2026-11-10 22:21 [task 20] r1 FIX: README acceptance not tested; agent-capture rows inaccurate. Manager amended tasks 20-23 to --denylist .hq/audit-denylist. -> r2.
+- 2026-11-10 22:23 [task 20] PASS r2.
+- 2026-11-10 22:26 [task 21] PASS r1; wording minors deferred to Phase D.
+- 2026-11-10 22:29 [task 22] PASS r1; application wording minors (prereqs line, git-notes refspec, figures line, test asserts) deferred to Phase D.
+- 2026-11-10 22:36 [task 23] r1 FIX: scratchpad path leaked via prompt files list; checklist rewrite steps would force-push pre-launch history; spec defaults stale (manager amended); weak deep link. History rewrite now conflicts with demo SHAs -> asking human.
+- 2026-11-10 22:39 [task 23] Human: skip history rewrite (artifacts only, harmless; keeps demo SHAs valid). Plan marked superseded. -> r2.
+- 2026-11-10 22:42 [task 23] PASS r2. data.json: 4 files, 859 matched lines, 0 tmp/home leaks. -> Phase D.
+- 2026-11-10 22:43 [final] Phase D review: no TODOs; unused import; consolidated all deferred minors + honest-reasoning fix (stale 'READY' reasoning in demo) into task 25.
+- 2026-11-10 22:49 [task 25] PASS r1. Next: regenerate data.json at final HEAD (generated artifact) and fold into chore(hq): summary.
+- 2026-11-10 22:50 [final] Checklist step 5 'twine upload dist/*' wrong (check_dist builds to temp) -> task 26. Regenerated data.json stashed meanwhile.
+- 2026-11-10 22:51 [task 26] PASS r1.
+- 2026-11-10 22:52 [final] Summary written; data.json regenerated at 01cca2a committed with summary. -> gate2.

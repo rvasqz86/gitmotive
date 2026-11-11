@@ -1,24 +1,53 @@
-"""git blame tells you who. git motive tells you why.
-
-  git motive <file>:<line>        why does this line exist (also: gitmotive why <file>:<line>)
-  gitmotive log [file]            prompts recorded, with files they touched
-  gitmotive stamp                 tag uncommitted edit events with HEAD (run from post-commit)
-  gitmotive install [--agent claude|cursor|copilot|omp|all] [--scope repo|user]
-                               repo: hooks in this repo. user: hooks under ~/, zero repo footprint
-  gitmotive capture               (internal) hook entrypoint, reads payload on stdin
-"""
 from __future__ import annotations
 
 import datetime as dt
 import json
 import os
 import stat
-import subprocess
 import sys
+import sysconfig
 import textwrap
 from pathlib import Path
 
-from . import capture, hq, resolve, store
+from . import __version__, capture, hq, resolve, store
+
+# Single source of truth for the command list: the module docstring (help) and the docs generator use it.
+USAGE: dict[str, tuple[str, str]] = {
+    "why": ("git motive <file>:<line>",
+            "why does this line exist (also: gitmotive why <file>:<line>)"),
+    "log": ("gitmotive log [file]",
+            "prompts recorded, with files they touched"),
+    "stamp": ("gitmotive stamp",
+              "tag uncommitted edit events with HEAD (run from post-commit)"),
+    "install": ("gitmotive install [--agent claude|cursor|copilot|omp|all] [--scope repo|user]",
+                "copilot (experimental), omp (experimental). "
+                "repo: hooks in this repo. user: hooks under ~/, zero repo footprint"),
+    "capture": ("gitmotive capture [--agent A] [--event E] [--source S]",
+                "(internal) hook entrypoint, reads payload on stdin. "
+                "--source S labels the product (e.g. copilot, omp) over the payload agent"),
+    "help": ("gitmotive help [cmd] | -h | --help",
+             "show this help, or one command's entry. gitmotive --version | -V prints the version"),
+}
+
+EXPERIMENTAL: tuple[str, ...] = ("copilot", "omp")
+EXPERIMENTAL_NOTE = "note: {agent} support is experimental (prompt + edits only; payload shape not fully documented)"
+
+
+HELP_WIDTH = 80          # help text fits an 80-column terminal
+_HELP_INDENT = 34        # column where descriptions start
+
+
+def _usage_entry(cmd: str) -> str:
+    usage, desc = USAGE[cmd]
+    pad = " " * _HELP_INDENT
+    lines = textwrap.wrap(desc, width=HELP_WIDTH - _HELP_INDENT, break_on_hyphens=False)
+    if len(usage) <= _HELP_INDENT - 4:
+        return "\n".join([f"  {usage:<{_HELP_INDENT - 2}}" + lines[0]] + [pad + r for r in lines[1:]])
+    return "\n".join([f"  {usage}"] + [pad + r for r in lines])
+
+
+__doc__ = ("git blame tells you who. git motive tells you why.\n\n"
+           + "\n".join(_usage_entry(c) for c in USAGE) + "\n")
 
 
 def _fmt_ts(ts: float) -> str:
@@ -43,7 +72,7 @@ def cmd_why(args: list[str]) -> int:
     root = store.repo_root()
     file = os.path.relpath(os.path.abspath(file), root)
     events = store.read_all(root)
-    _stamp(root, events, quiet=True)
+    resolve.stamp(root, events)
     bl, text, matches = resolve.find(root, file, line, events)
 
     print(f"{file}:{line}")
@@ -61,7 +90,12 @@ def cmd_why(args: list[str]) -> int:
 
     top = matches[0]
     e, p = top.edit, top.prompt
-    print(f"  edited   {_fmt_ts(e.ts)}  by {e.tool}  session {e.session[:8]}  [{top.why}]")
+    edited = f"  edited   {_fmt_ts(e.ts)}  by {e.tool}  session {e.session[:8]}  [{top.why}]"
+    if e.agent:
+        edited += f"  via {e.agent}"
+    if e.model:
+        edited += f"  model {e.model}"
+    print(edited)
     if p:
         print("  prompt")
         print(_wrap(p.prompt))
@@ -89,7 +123,7 @@ def cmd_why(args: list[str]) -> int:
 def cmd_log(args: list[str]) -> int:
     root = store.repo_root()
     events = store.read_all(root)
-    _stamp(root, events, quiet=True)
+    resolve.stamp(root, events)
     filt = os.path.relpath(os.path.abspath(args[0]), root) if args else None
     edits_by_prompt: dict[str, list[store.Event]] = {}
     for e in events:
@@ -118,66 +152,27 @@ def cmd_log(args: list[str]) -> int:
     return 0
 
 
-def _stamp(root: Path, events: list[store.Event], quiet: bool = False) -> int:
-    """Attach each unstamped edit to the first commit after it that touched its file."""
-    pending = [e for e in events if e.kind == "edit" and e.commit is None and e.file]
-    if not pending:
-        return 0
-    n = 0
-    cache: dict[str, list[tuple[int, str]]] = {}
-    for e in pending:
-        if e.file not in cache:
-            try:
-                out = subprocess.run(
-                    ["git", "log", "--format=%ct %H", f"--since=@{int(min(x.ts for x in pending if x.file == e.file)) - 5}", "--", e.file],
-                    cwd=root, capture_output=True, text=True, check=True).stdout
-                # git log is newest-first; reverse to oldest-first, keep git order on equal timestamps
-                cache[e.file] = [(int(a), b) for a, b in (l.split() for l in out.splitlines() if l.strip())][::-1]
-            except (subprocess.CalledProcessError, ValueError):
-                cache[e.file] = []
-        for ctime, sha in cache[e.file]:
-            if ctime < int(e.ts) - 5:
-                continue
-            if not _commit_has(root, sha, e.file, e.new, e.old):
-                continue
-            e.commit = sha
-            n += 1
-            break
-    if n:
-        store.rewrite_all(events, root)
-    if not quiet:
-        print(f"stamped {n} edit(s)")
-    return n
-
-
-def _blob_lines(root: Path, rev: str, file: str) -> set[str] | None:
-    try:
-        out = subprocess.run(["git", "show", f"{rev}:{file}"], cwd=root, capture_output=True, text=True, check=True).stdout
-    except subprocess.CalledProcessError:
-        return None
-    return {l.strip() for l in out.splitlines()}
-
-
-def _commit_has(root: Path, sha: str, file: str, new: str | None, old: str | None = None) -> bool:
-    """True if this commit *introduced* a line from the edit: present at sha, absent at sha^."""
-    probes = [l.strip() for l in (new or "").splitlines() if len(l.strip()) >= 4]
-    if not probes:
-        return True
-    cur = _blob_lines(root, sha, file)
-    if cur is None:
-        return False
-    parent = _blob_lines(root, f"{sha}^", file) or set()
-    # every introduced line must be present, and at least one must be absent from the parent
-    return all(p in cur for p in probes) and any(p not in parent for p in probes)
-
-
 def cmd_stamp(_args: list[str]) -> int:
     root = store.repo_root()
-    _stamp(root, store.read_all(root))
+    events = store.read_all(root)
+    # unchanged output: nothing is printed when no edit is waiting for a stamp
+    if any(e.kind == "edit" and e.commit is None and e.file for e in events):
+        n = resolve.stamp(root, events)
+        print(f"stamped {n} edit(s)")
     return 0
 
 
-HOOK_CMD = f"{sys.executable} -m gitmotive capture"
+def _python_cmd() -> str:
+    """How hook commands invoke this gitmotive. Installed into site-packages (wheel, pipx, install.sh
+    venv): `<python> -I -m gitmotive`, isolated so a hook run with cwd inside a source checkout never
+    imports the checkout's working tree. Running from a source tree: pin it with PYTHONPATH."""
+    pkg_dir = Path(__file__).resolve().parent.parent
+    site = {Path(sysconfig.get_paths()[k]).resolve() for k in ("purelib", "platlib")}
+    if pkg_dir in site:
+        return f"{sys.executable} -I -m gitmotive"
+    return f"PYTHONPATH={pkg_dir} {sys.executable} -m gitmotive"
+
+
 AGENTS = ("claude", "cursor", "copilot", "omp")
 
 
@@ -192,7 +187,12 @@ def _claude_style(cfg: dict, cmd: str, prompt_event: str, tool_event: str, match
     def ensure(event: str, m: str | None):
         lst = hooks.setdefault(event, [])
         for entry in lst:
-            if any("gitmotive capture" in h.get("command", "") for h in entry.get("hooks", [])):
+            found = False
+            for h in entry.get("hooks", []):
+                if "gitmotive capture" in h.get("command", ""):
+                    h["command"] = cmd   # upsert: refresh stale paths and labels
+                    found = True
+            if found:
                 return
         entry = {"hooks": [{"type": "command", "command": cmd, "timeout": 10}]}
         if m:
@@ -201,6 +201,15 @@ def _claude_style(cfg: dict, cmd: str, prompt_event: str, tool_event: str, match
 
     ensure(prompt_event, None)
     ensure(tool_event, matcher)
+
+
+def _upsert_flat(lst: list, entry: dict) -> None:
+    """Flat hook list (cursor, copilot): replace the command of an existing gitmotive entry, else append."""
+    for h in lst:
+        if isinstance(h, dict) and "gitmotive capture" in h.get("command", ""):
+            h["command"] = entry["command"]
+            return
+    lst.append(entry)
 
 
 def install_claude(root: Path, cmd: str) -> None:
@@ -218,7 +227,7 @@ def install_omp(root: Path, cmd: str) -> None:
     p = (Path.home() / ".omp" / "agent" / "settings.json") if root is None else (root / ".omp" / "settings.json")
     p.parent.mkdir(parents=True, exist_ok=True)
     cfg = _load_json(p)
-    _claude_style(cfg, cmd + " --agent claude", "UserPromptSubmit", "PostToolUse", None)
+    _claude_style(cfg, cmd + " --agent claude --source omp", "UserPromptSubmit", "PostToolUse", None)
     p.write_text(json.dumps(cfg, indent=2) + "\n")
     print(f"wrote {p}  (requires: omp install omp-hooks)")
 
@@ -232,8 +241,7 @@ def install_cursor(root: Path, cmd: str) -> None:
     for event in ("beforeSubmitPrompt", "afterFileEdit"):
         lst = hooks.setdefault(event, [])
         c = f"{cmd} --agent cursor --event {event}"
-        if not any("gitmotive capture" in h.get("command", "") for h in lst):
-            lst.append({"command": c})
+        _upsert_flat(lst, {"command": c})
     p.write_text(json.dumps(cfg, indent=2) + "\n")
     print(f"wrote {p}")
 
@@ -247,14 +255,13 @@ def install_copilot(root: Path, cmd: str) -> None:
     hooks = cfg.setdefault("hooks", {})
     for event in ("UserPromptSubmit", "PostToolUse"):
         lst = hooks.setdefault(event, [])
-        if not any("gitmotive capture" in h.get("command", "") for h in lst):
-            lst.append({"type": "command", "command": f"{cmd} --agent claude", "timeoutSec": 10})
+        _upsert_flat(lst, {"type": "command", "command": f"{cmd} --agent claude --source copilot", "timeoutSec": 10})
     p.write_text(json.dumps(cfg, indent=2) + "\n")
     print(f"wrote {p}")
 
 
 def cmd_install(args: list[str]) -> int:
-    pkg_dir = str(Path(__file__).resolve().parent.parent)
+    py = _python_cmd()
     scope = args[args.index("--scope") + 1] if "--scope" in args else "repo"
     if scope not in ("repo", "user"):
         print("--scope must be repo or user", file=sys.stderr)
@@ -267,10 +274,13 @@ def cmd_install(args: list[str]) -> int:
         if a not in AGENTS:
             print(f"unknown agent {a}; choose from {', '.join(AGENTS)} or all", file=sys.stderr)
             return 2
+    for a in dict.fromkeys(agents):
+        if a in EXPERIMENTAL:
+            print(EXPERIMENTAL_NOTE.format(agent=a))
 
     if scope == "user":
         # Nothing written into any repo. Hook configs under ~/, events under ~/.gitmotive/repos/<hash>/.
-        cmd = f"GITMOTIVE_STORE=user PYTHONPATH={pkg_dir} {HOOK_CMD}"
+        cmd = f"GITMOTIVE_STORE=user {py} capture"
         for a in agents:
             {"claude": install_claude, "cursor": install_cursor,
              "copilot": install_copilot, "omp": install_omp}[a](None, cmd)
@@ -279,17 +289,18 @@ def cmd_install(args: list[str]) -> int:
         return 0
 
     root = store.repo_root()
-    cmd = f"PYTHONPATH={pkg_dir} {HOOK_CMD}"
+    cmd = f"{py} capture"
     for a in agents:
         {"claude": install_claude, "cursor": install_cursor,
          "copilot": install_copilot, "omp": install_omp}[a](root, cmd)
 
     hook = root / ".git" / "hooks" / "post-commit"
-    stamp_line = f"PYTHONPATH={pkg_dir} {sys.executable} -m gitmotive stamp >/dev/null 2>&1 || true\n"
+    stamp_line = f"{py} stamp >/dev/null 2>&1 || true\n"
     if hook.exists():
-        body = hook.read_text()
-        if "gitmotive stamp" not in body:
-            hook.write_text(body.rstrip("\n") + "\n" + stamp_line)
+        # upsert: drop every existing gitmotive stamp line (stale paths heal), keep everything else
+        kept = [l for l in hook.read_text().splitlines(keepends=True) if "gitmotive stamp" not in l]
+        body = "".join(kept).rstrip("\n")
+        hook.write_text((body + "\n" if body else "#!/bin/sh\n") + stamp_line)
     else:
         hook.write_text("#!/bin/sh\n" + stamp_line)
     hook.chmod(hook.stat().st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
@@ -304,12 +315,30 @@ def cmd_install(args: list[str]) -> int:
     return 0
 
 
+def cmd_help(args: list[str]) -> int:
+    if not args:
+        print(__doc__)
+        return 0
+    if args[0] not in USAGE:
+        print(f"unknown command {args[0]}; choose from {', '.join(USAGE)}", file=sys.stderr)
+        return 2
+    print(_usage_entry(args[0]))
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     argv = sys.argv[1:] if argv is None else argv
     if not argv:
         print(__doc__)
         return 2
     cmd, rest = argv[0], argv[1:]
+    if cmd in ("--version", "-V"):
+        print(f"gitmotive {__version__}")
+        return 0
+    if cmd in USAGE and ("-h" in rest or "--help" in rest):   # gitmotive install --help: never run it
+        return cmd_help([cmd])
+    if cmd in ("help", "-h", "--help"):
+        return cmd_help(rest)
     if ":" in cmd and cmd.rsplit(":", 1)[1].isdigit():   # git motive file.py:42
         return cmd_why(argv)
     if cmd == "capture":

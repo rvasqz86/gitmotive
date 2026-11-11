@@ -79,6 +79,8 @@ class Event:
     reasoning: Optional[str] = None # assistant text immediately preceding the edit
     prompt_id: Optional[str] = None # id of the prompt event this edit belongs to
     commit: Optional[str] = None    # stamped after commit
+    agent: Optional[str] = None     # product that produced the event: claude|cursor|copilot|omp
+    model: Optional[str] = None     # model id, from the payload or the transcript, when known
     raw: Optional[dict] = None      # original hook payload, for forward compat
 
     def to_json(self) -> str:
@@ -89,6 +91,25 @@ class Event:
         d = json.loads(line)
         known = {f for f in cls.__dataclass_fields__}
         return cls(**{k: v for k, v in d.items() if k in known})
+
+
+FIELD_DOCS: dict[str, str] = {
+    "kind": "event type: prompt or edit",
+    "session": "agent session or conversation id",
+    "ts": "unix timestamp when the event was captured",
+    "id": "unique event id",
+    "prompt": "user prompt text (prompt events)",
+    "file": "edited file, relative to the repo root (edit events)",
+    "tool": "tool that performed the edit",
+    "old": "replaced text, if any",
+    "new": "new text, or full content for whole-file writes",
+    "reasoning": "assistant text immediately preceding the edit",
+    "prompt_id": "id of the prompt event this edit belongs to",
+    "commit": "commit the edit landed in, stamped after commit",
+    "agent": "product that produced the event (claude, cursor, copilot, omp)",
+    "model": "model that produced the event, when known",
+    "raw": "original hook payload, for forward compatibility",
+}
 
 
 def append(ev: Event, root: Optional[Path] = None) -> None:

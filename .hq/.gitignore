@@ -1,0 +1,8 @@
+runtime.log*
+# contains client/employer names; must never land in the (soon public) repo
+brief-source.md
+# human-stop reports: local only
+audit-report*.md
+history-rewrite-plan.md
+deploy-readiness.md
+audit-denylist
