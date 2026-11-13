@@ -94,6 +94,25 @@ The apex `gitmotive.tech` serves the site directly; it is not a redirect. Only `
 **Save and Deploy** in section 1 triggers the first build. After that, every push to `main`
 deploys to production. Other branches and pull requests get preview URLs.
 
+## Web Analytics (optional)
+
+Cloudflare Web Analytics is cookieless. To turn it on, in the Pages project's settings, enable
+Web Analytics. Cloudflare's guide gives this path: "In the Cloudflare dashboard, go to the
+**Workers & Pages** page." "Select your Pages project." "Go to **Metrics** and select **Enable**
+under Web Analytics." Pages then injects the beacon script into every HTML page on the next
+deploy; do not add an analytics tag to the HTML yourself.
+
+The CSP in `site/_headers` already allows `static.cloudflareinsights.com` (the beacon script) and
+`cloudflareinsights.com` (where it reports), so nothing else needs to change.
+
+Verify after the next deploy (prints 1 or more):
+
+```
+curl -s https://gitmotive.tech/ | grep -c cloudflareinsights
+```
+
+Source (read 2026-11-13): <https://developers.cloudflare.com/pages/how-to/web-analytics/>.
+
 ## 6. Verify
 
 ```

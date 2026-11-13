@@ -139,7 +139,10 @@ def test_deploy_md_content():
               "serves the site directly; it is not a redirect",
               "A @ 76.76.21.21", "CNAME www cname.vercel-dns.com",
               "Create application",
-              "Set up a domain", "522"):
+              "Set up a domain", "522",
+              "Web Analytics (optional)", "cloudflareinsights",
+              "https://developers.cloudflare.com/pages/how-to/web-analytics/",
+              "curl -s https://gitmotive.tech/ | grep -c cloudflareinsights"):
         assert s in t, f"DEPLOY.md missing: {s}"
     assert t.count("(proxied") >= 2, "both CNAMEs must be proxied"
     for s in ("CLOUDFLARE_API_TOKEN", "Upload assets"):

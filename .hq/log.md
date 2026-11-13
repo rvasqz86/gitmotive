@@ -70,3 +70,7 @@ Task 27 review PASS; committed on main. phase=done.
 ## 2026-11-11 — post-merge change: task 28
 Human chose Cloudflare Pages Git integration. Spec amended; workflow becomes test-only. Task 28 written; done on main.
 Task 28 review PASS; committed on main. phase=done.
+
+## 2026-11-13 — post-merge change: task 29
+Human chose Cloudflare Web Analytics (option 2). Spec OQ4 resolved; CSP to allow the beacon origins. main pushed by the human request (4696c57) on 2026-11-11.
+Task 29 review PASS; committed on main. phase=done.

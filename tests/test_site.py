@@ -22,8 +22,9 @@ ORIGIN = "https://gitmotive.tech"
 REPO = "https://github.com/rvasqz86/gitmotive"
 PENDING_DIRS = ("/demo/", "/docs/")  # allowed as link targets only until <dir>/index.html exists
 BUDGET = 100 * 1024
-CSP = ("default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; "
-       "connect-src 'self'; base-uri 'none'; frame-ancestors 'none'")
+CSP = ("default-src 'self'; img-src 'self' data:; style-src 'self'; "
+       "script-src 'self' https://static.cloudflareinsights.com; "
+       "connect-src 'self' https://cloudflareinsights.com; base-uri 'none'; frame-ancestors 'none'")
 GENERIC_TAGS = ("pre", "div", "span", "b", "i", "u", "s", "small", "code", "p")
 URL_ATTRS = ("href", "src", "srcset", "action", "poster", "data", "formaction")
 

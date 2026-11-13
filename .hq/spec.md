@@ -534,6 +534,7 @@ Site URLs: `/`, `/demo/`, `/demo/#<path>:<line>`, `/docs/`, `/install.sh`, `/DEM
    merges to `main` and before you flip the repo public. Then force-push and re-export the demo (task
    23's checklist).
 4. **Analytics.** None ship. Say if you want a Plausible tag, and it becomes a follow-up behind the CSP.
+   **Resolved (human, 2026-11-13, task 29):** Cloudflare Web Analytics, which is cookieless, auto-injected by Pages, and switched on by the human in the dashboard. The CSP allows only `https://static.cloudflareinsights.com` in `script-src` and `https://cloudflareinsights.com` in `connect-src`. No analytics tag is committed to the HTML.
 5. **Personal details in public copy.** The README and application use your name and GitHub handle,
    plus the generic "built enterprise data platforms at large-scale orgs". The `pyproject.toml` author
    email becomes public on PyPI. Confirm.
